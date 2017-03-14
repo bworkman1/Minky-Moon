@@ -1,0 +1,2 @@
+<?php
+    // MAX LOGIN ATTEMPTS

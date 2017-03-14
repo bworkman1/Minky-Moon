@@ -1,0 +1,9 @@
+.insertNewOption {
+    margin-top: 24px;
+}
+@media(max-width: 992px) {
+    #confirmPassword {
+        clear: both;
+        margin-top: 43px;
+    }
+}
