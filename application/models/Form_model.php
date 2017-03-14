@@ -213,5 +213,40 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
 
         return $returnData;
     }
+
+    public function getSingleFormInput($inputs)
+    {
+        $form_id = (isset($inputs['form_id']) && $inputs['form_id'] > 0) ? $inputs['form_id'] : 999999;
+        $input_id = (isset($inputs['id']) && $inputs['id'] > 0) ? $inputs['id'] : '';
+
+        $returnData = array(
+            'success' => false,
+            'msg' => 'Something went wrong deleting the input, try again',
+            'data' => array(),
+        );
+
+        if($input_id > 0) {
+            $this->db->select('form_inputs.id, form_inputs.form_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.input_label, form_inputs.input_validation,
+form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, form_input_options.value')->from('form_inputs');
+            $this->db->where('form_inputs.form_id', $form_id);
+            $this->db->where('form_inputs.id', $input_id);
+            $this->db->join('form_input_options', 'form_input_options.form_id = form_inputs.form_id AND form_input_options.input_id = form_inputs.id', 'left');
+            $this->db->order_by('form_inputs.sequence', 'desc');
+
+            $data = $this->db->get()->result();
+            if ($data) {
+                $returnData['data'] = $this->sortInputJoinQuery($data);
+                $returnData['msg'] = 'You are now editing the form input';
+                $returnData['success'] = true;
+            } else {
+                $returnData['msg'] = 'Input element not found, try refreshing the page and starting again';
+            }
+        } else {
+            $returnData['msg'] = 'Empty element id, try refreshing the page and starting again';
+        }
+        return $returnData;
+
+    }
+
 }
 

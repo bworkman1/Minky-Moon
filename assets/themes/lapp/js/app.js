@@ -152,6 +152,7 @@ var forms = {
         forms.formatFormInputName();
         forms.onFormInputHover();
         forms.deleteFormInput();
+        forms.editFormInput();
     },
 
     addFormName: function() {
@@ -273,6 +274,28 @@ var forms = {
         });
     },
 
+    insetNewOptionalInput: function(inputObject) {
+        console.log(inputObject);
+        console.log(inputObject.name);
+        if(inputObject.name != '' && inputObject.value != '') {
+
+            var html = '<li class="list-group-item" style="line-height:2.3em;padding: 3px 15px;"><div class="row">';
+            html += '<div class="col-xs-5 labels" style="border-bottom:1px solid #ccc">';
+            html += inputObject.name;
+            html += '</div>';
+            html += '<div class="col-xs-5 value" style="border-left: 1px solid #ccc;border-bottom:1px solid #ccc">';
+            html += inputObject.value;
+            html += '</div>';
+            html += '<div class="col-xs-2">';
+            html += '<button class="btn btn-danger btn-sm removeNewOptionalInput pull-right"><i class="fa fa-times-circle-o"></i></button>';
+            html += '</div>';
+            html += '</div></li>';
+
+            $('#inputOptions').removeClass('hide');
+            $('#inputValuesSet').append(html);
+        }
+    },
+
     removeNewOptionalInput: function() {
         $('body').on('click', '.removeNewOptionalInput', function() {
             console.log('clicked');
@@ -290,6 +313,7 @@ var forms = {
                 classes: $('input[name="input_class"]').val(),
                 type: $('select[name="input_type"]').val(),
                 columns: $('select[name="input_columns"]').val(),
+                input_id: $('#formInputId').val(),
                 inline: $('#inlineElement [name="inline-element"]').is(':checked')?'yes':'',
             }
 
@@ -564,6 +588,53 @@ var forms = {
         }).on('mouseleave','.formInputObject',  function(){
             $(this).find('.inputObjectEditableOptions').remove();
         });
+    },
+
+    editFormInput: function() {
+        $('body').on('click', '.editInputObject', function() {
+            var id = $(this).closest('.formInputObject').data('id');
+            $.ajax({
+                url: $('#base_url').data('base')+'forms/get-form-input',
+                dataType: 'json',
+                type: 'post',
+                data: {id: id},
+                success: function(data) {
+                    if(data.success) {
+                        alertify.success(data.msg);
+                        forms.setFormInputElements(data.data[id]);
+                    } else {
+                        alertify.error(data.msg);
+                    }
+                },
+                error: function() {
+                    $('#addValidationToInput').html(buttonText);
+                },
+                beforeSend: function() {
+
+                },
+                complete: function() {
+                }
+            });
+        });
+    },
+
+    setFormInputElements: function(inputObject) {
+        $('input[name="input_label"]').val(inputObject.input_label);
+        $('input[name="input_name"]').val(inputObject.input_name);
+        $('#input_validations').val(inputObject.input_validation);
+        $('input[name="input_class"]').val(inputObject.custom_class);
+        $('select[name="input_type"]').val(inputObject.input_type);
+        $('select[name="input_columns"]').val(inputObject.input_columns);
+        $('#formInputId').val(inputObject.id);
+        $('#formId').val(inputObject.form_id);
+        //$('#inlineElement').icheck('check');
+
+        if(typeof inputObject.options != 'undefined') {
+            for(var obj in inputObject.options) {
+                forms.insetNewOptionalInput(inputObject.options[obj]);
+            }
+        }
+        $('*[href="#inputs"]').trigger('click');
     },
 
     deleteFormInput: function() {

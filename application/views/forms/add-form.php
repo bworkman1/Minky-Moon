@@ -156,6 +156,8 @@
 
                             <ul id="inputValuesSet" class="list-group">
                             </ul>
+                            <input type="hidden" id="formInputId">
+                            <input type="hidden" id="formId">
                         </div>
 
                         <hr>
@@ -218,7 +220,7 @@
                                         break;
 
                                     case 'textarea':
-                                        echo '<div class="'.$val->input_columns.' formInputObject" data-validation="'.$val->input_validation.'" data-id="'.$val->id.'">';
+                                        echo '<div class="'.$val->input_columns.' formInputObject" data-validation="'.$val->input_validation.'" data-id="'.$val['id'].'">';
                                             echo '<div class="form-group">';
                                                 echo '<label>'.$val->input_label.'</label>';
                                                 echo '<textarea class="'.$val->custom_class.' form-control" name="'.$val->input_name.'"></textarea>';
@@ -227,19 +229,19 @@
                                         break;
 
                                     case 'checkbox':
-                                        echo '<div class="'.$val->input_columns.' formInputObject" data-validation="'.$val->input_validation.'" data-id="'.$val->id.'">';
+                                        echo '<div class="'.$val['input_columns'].' formInputObject" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
                                         $required = '';
                                         if (strpos($val['input_validation'], 'required') !== false) {
                                             $required = '<span class="text-danger">*</span> ';
                                         }
-                                        echo '<label>'.$required.$val['input_label'].'</label>';
+                                        echo '<label>'.$required.$val['input_label'].'</label><br>';
                                         foreach($val['options'] as $option) {
                                             $inline = 'checkbox';
-                                            if(inputObject.inline == 'yes') {
-                                                inline = 'checkbox-inline';
+                                            if($val['input_inline']) {
+                                                $inline = 'checkbox-inline';
                                             }
-                                                echo '<div class="'+inline+'">';
-                                                echo '<label><input type="radio" class="' + inputObject.classes + '" name="' + inputObject.name + '[]" value="'+inputObject.extras[i].values+'">' + inputObject.extras[i].label + '</label>';
+                                                echo '<div class="'.$inline.'">';
+                                                echo '<label><input type="checkbox" class="' . $val['custom_class'] . '" name="' . $option['name'] . '[]" value="'.$option['value'].'"> ' . $option['name'] . '</label>';
                                             echo '</div>';
                                         }
                                         echo '</div>';

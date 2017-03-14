@@ -93,4 +93,11 @@ class Forms extends CI_Controller
 
         echo json_encode($results);
     }
+
+    public function get_form_input()
+    {
+        $this->load->model('Form_model');
+        echo json_encode($this->Form_model->getSingleFormInput($_POST));
+    }
+
 }

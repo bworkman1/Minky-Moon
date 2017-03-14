@@ -1,6 +1,28 @@
 .insertNewOption {
     margin-top: 24px;
 }
+.formInputObject {
+    border: 1px solid #fff;
+    cursor: move;
+}
+.formInputObject:hover {
+    border: 1px solid #ccc;
+}
+.inputObjectEditableOptions {
+    position: absolute;
+    right: 0;
+    font-size: 1.5em;
+    background: #444;
+    padding: 5px 5px 5px 6px;
+    border-radius: 0 0 0 8px;
+    color: #fff;
+}
+.inputObjectEditableOptions i {
+    padding-left: 10px;
+}
+.deleteInputObject, .editInputObject {
+    cursor: pointer;
+}
 @media(max-width: 992px) {
     #confirmPassword {
         clear: both;
