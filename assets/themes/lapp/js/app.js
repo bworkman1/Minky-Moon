@@ -600,7 +600,6 @@ var forms = {
                 data: {id: id},
                 success: function(data) {
                     if(data.success) {
-                        alertify.success(data.msg);
                         forms.setFormInputElements(data.data[id]);
                     } else {
                         alertify.error(data.msg);
@@ -619,22 +618,53 @@ var forms = {
     },
 
     setFormInputElements: function(inputObject) {
-        $('input[name="input_label"]').val(inputObject.input_label);
-        $('input[name="input_name"]').val(inputObject.input_name);
-        $('#input_validations').val(inputObject.input_validation);
-        $('input[name="input_class"]').val(inputObject.custom_class);
-        $('select[name="input_type"]').val(inputObject.input_type);
-        $('select[name="input_columns"]').val(inputObject.input_columns);
-        $('#formInputId').val(inputObject.id);
-        $('#formId').val(inputObject.form_id);
-        //$('#inlineElement').icheck('check');
+        if(inputObject.id != $('#formInputId').val()) {
+            $('input[name="input_label"]').val(inputObject.input_label);
+            $('input[name="input_name"]').val(inputObject.input_name);
+            $('#input_validations').val(inputObject.input_validation);
+            $('input[name="input_class"]').val(inputObject.custom_class);
+            $('select[name="input_type"]').val(inputObject.input_type);
+            $('select[name="input_columns"]').val(inputObject.input_columns);
+            $('#formInputId').val(inputObject.id);
+            $('#formId').val(inputObject.form_id);
+            //$('#inlineElement').icheck('check');
 
-        if(typeof inputObject.options != 'undefined') {
-            for(var obj in inputObject.options) {
-                forms.insetNewOptionalInput(inputObject.options[obj]);
+            if (typeof inputObject.options != 'undefined') {
+                for (var obj in inputObject.options) {
+                    forms.insetNewOptionalInput(inputObject.options[obj]);
+                }
+            }
+
+            forms.setValidationCheckboxes(inputObject.input_validation);
+
+            $('*[href="#inputs"]').trigger('click');
+
+            alertify.success('You are now editing the form input');
+        } else {
+            alertify.error('You are already editing this input');
+        }
+    },
+
+    setValidationCheckboxes: function(validationObj) {
+        //required|alpha|minlength[4]
+        if(validationObj) {
+            var full = validationObj.split('|');
+            if(full) {
+                for(var i in full) {
+                    if(full[i].indexOf("[") !== -1) {
+                        console.log('Has extra input');
+                        var vals = full[i].split('[');
+                        console.log(vals[1].replace(']', ''));
+                        $('#validationForm input[value="'+vals[0]+'"]').iCheck('check');
+
+                        $('#validationForm input[value="'+vals[0]+'"]').closest('.col-md-8').next().find('input').val(vals[1]);
+                    } else {
+                        console.log('Checking '+full[i]);
+                        $('#validationForm input[value="'+full[i]+'"]').iCheck('check');
+                    }
+                }
             }
         }
-        $('*[href="#inputs"]').trigger('click');
     },
 
     deleteFormInput: function() {
