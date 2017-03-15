@@ -184,6 +184,16 @@ var forms = {
     addInputValidation: function() {
         $('#addValidationToInput').click(function() {
             var validation = $('#validationForm').serialize();
+            var inputs = {};
+
+            $('#validationForm input[type="checkbox"], #validationForm input[type="text"], #validationForm input[type="number"]').each(function() {
+                if($(this).parent().hasClass('checked')) {
+                    var name = $(this).attr('name');
+                    inputs[name] = $(this).val();
+                }
+            });
+            console.log(inputs);
+
             var buttonText = $('#addValidationToInput').html();
             $.ajax({
                 url: $('#validationForm').attr('action'),
@@ -275,8 +285,6 @@ var forms = {
     },
 
     insetNewOptionalInput: function(inputObject) {
-        console.log(inputObject);
-        console.log(inputObject.name);
         if(inputObject.name != '' && inputObject.value != '') {
 
             var html = '<li class="list-group-item" style="line-height:2.3em;padding: 3px 15px;"><div class="row">';
@@ -298,7 +306,6 @@ var forms = {
 
     removeNewOptionalInput: function() {
         $('body').on('click', '.removeNewOptionalInput', function() {
-            console.log('clicked');
             $(this).closest('li').remove();
         });
     },
@@ -332,6 +339,7 @@ var forms = {
                             var inputHtml = forms.getInputHtml(inputs);
                             $('#form-inputs').append(inputHtml);
                             alertify.success('Form input added successfully');
+                            forms.resetFormInputForm();
                         } else {
                             alertify.error(data['msg']);
                         }
@@ -619,6 +627,8 @@ var forms = {
 
     setFormInputElements: function(inputObject) {
         if(inputObject.id != $('#formInputId').val()) {
+            forms.resetFormInputForm();
+
             $('input[name="input_label"]').val(inputObject.input_label);
             $('input[name="input_name"]').val(inputObject.input_name);
             $('#input_validations').val(inputObject.input_validation);
@@ -627,7 +637,10 @@ var forms = {
             $('select[name="input_columns"]').val(inputObject.input_columns);
             $('#formInputId').val(inputObject.id);
             $('#formId').val(inputObject.form_id);
-            //$('#inlineElement').icheck('check');
+
+            if(inputObject.input_inline) {
+                $('#inlineElement').icheck('check');
+            }
 
             if (typeof inputObject.options != 'undefined') {
                 for (var obj in inputObject.options) {
@@ -646,25 +659,35 @@ var forms = {
     },
 
     setValidationCheckboxes: function(validationObj) {
-        //required|alpha|minlength[4]
         if(validationObj) {
             var full = validationObj.split('|');
             if(full) {
                 for(var i in full) {
                     if(full[i].indexOf("[") !== -1) {
-                        console.log('Has extra input');
                         var vals = full[i].split('[');
-                        console.log(vals[1].replace(']', ''));
                         $('#validationForm input[value="'+vals[0]+'"]').iCheck('check');
-
-                        $('#validationForm input[value="'+vals[0]+'"]').closest('.col-md-8').next().find('input').val(vals[1]);
+                        $('#validationForm input[value="'+vals[0]+'"]').closest('.col-md-8').next().find('input').val(vals[1].replace(']', ''));
                     } else {
-                        console.log('Checking '+full[i]);
                         $('#validationForm input[value="'+full[i]+'"]').iCheck('check');
                     }
                 }
             }
         }
+    },
+
+    resetFormInputForm: function() {
+        $('input[name="input_label"]').val('');
+        $('input[name="input_name"]').val('');
+        $('#input_validations').val('');
+        $('input[name="input_class"]').val('');
+        $('select[name="input_type"]').val('');
+        $('select[name="input_columns"]').val('');
+        $('#formInputId').val('');
+        $('#formId').val('');
+
+        $('#validationForm input').val('');
+        $('#validationForm input').iCheck('uncheck');
+        $('#inputValuesSet').html('');
     },
 
     deleteFormInput: function() {
