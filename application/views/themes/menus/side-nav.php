@@ -15,7 +15,8 @@
         <li><a><i class="fa fa-files-o"></i> Forms <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
                 <li><a href="<?php echo base_url('forms/add-form'); ?>">Add New Form</a></li>
-                <li><a href="#">View All Forms</a></li>
+                <li><a href="<?php echo base_url('forms/all-forms'); ?>">View All Forms</a></li>
+                <li><a href="<?php echo base_url('forms/all-forms'); ?>">Form Submissions</a></li>
             </ul>
         </li>
         <li><a><i class="fa fa-user"></i> Clients <span class="fa fa-chevron-down"></span></a>

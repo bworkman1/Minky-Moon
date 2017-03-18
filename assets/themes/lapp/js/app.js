@@ -87,7 +87,6 @@ var buttonActions  = {
             var id = $(this).attr('id');
             alertify.confirm("<h3>Please Confirm This Action</h3>Are you sure you want to delete this user?", function (e) {
                 if (e) {
-                    console.log(url);
                     $.ajax({
                         method: 'post',
                         dataType: 'json',
@@ -153,6 +152,7 @@ var forms = {
         forms.onFormInputHover();
         forms.deleteFormInput();
         forms.editFormInput();
+        forms.saveNewForm();
     },
 
     addFormName: function() {
@@ -192,7 +192,6 @@ var forms = {
                     inputs[name] = $(this).val();
                 }
             });
-            console.log(inputs);
 
             var buttonText = $('#addValidationToInput').html();
             $.ajax({
@@ -322,6 +321,7 @@ var forms = {
                 columns: $('select[name="input_columns"]').val(),
                 input_id: $('#formInputId').val(),
                 inline: $('#inlineElement [name="inline-element"]').is(':checked')?'yes':'',
+                sequence: $('#sequenceId').val(),
             }
 
             var validInputs = forms.requiredNewFormInputs(inputs);
@@ -337,9 +337,16 @@ var forms = {
                         if(data['success']) {
                             inputs.insert_id = data.data.input_id;
                             var inputHtml = forms.getInputHtml(inputs);
-                            $('#form-inputs').append(inputHtml);
+                            if(data.data.db_type == 'update') {
+                                $('.formInputObject[data-id="'+inputs.insert_id+'"]').after(inputHtml).remove();
+                            } else {
+                                $('#form-inputs').append(inputHtml);
+                            }
+
                             alertify.success('Form input added successfully');
+
                             forms.resetFormInputForm();
+                            forms.addCheckBoxStyling();
                         } else {
                             alertify.error(data['msg']);
                         }
@@ -471,10 +478,13 @@ var forms = {
 
     uniqueFormName: function(name) {
         var valid = true;
-        $('#form-inputs *').filter(':input').each(function(){
-            var inputName = $(this).attr('name');
-            if(inputName == name) {
-                valid = false;
+        var inputId = $('#formInputId').val();
+        $('#form-inputs *').filter(':input').each(function() {
+            if(inputId == '' && inputId != $(this).closest('.formInputObject').data('id')) {
+                var inputName = $(this).attr('name').split('[');
+                if(inputName[0] == name) {
+                    valid = false;
+                }
             }
         });
 
@@ -494,7 +504,7 @@ var forms = {
     },
 
     buildInputSelectOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
             input += '<div class="form-group">';
                 var required = '';
                 if(inputObject.validations.indexOf('required') != -1) {
@@ -514,7 +524,7 @@ var forms = {
     },
 
     buildInputTextOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
             input += '<div class="form-group">';
                 var required = '';
                 if(inputObject.validations.indexOf('required') != -1) {
@@ -535,7 +545,7 @@ var forms = {
                 if(inputObject.validations.indexOf('required') != -1) {
                     required = '<span class="text-danger">*</span> ';
                 }
-                input += '<label>'+required+inputObject.extras[i].label+'</label>';
+                input += '<label>'+required+inputObject.label+'</label>';
                 input += '<textarea class="' + inputObject.classes + ' form-control" name="' + inputObject.name + '"></textarea>';
             input += '</div>';
         input += '</div>';
@@ -544,19 +554,19 @@ var forms = {
     },
 
     buildInputCheckboxesOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
         var required = '';
         if(inputObject.validations.indexOf('required') != -1) {
             required = '<span class="text-danger">*</span> ';
         }
-        input += '<label>'+required+inputObject.extras[i].label+'</label>';
+        input += '<label>'+required+inputObject.label+'</label>';
         for(var i in inputObject.extras) {
             var inline = 'checkbox';
             if(inputObject.inline == 'yes') {
                 inline = 'checkbox-inline';
             }
             input += '<div class="'+inline+'">';
-                input += '<label><input type="radio" class="' + inputObject.classes + '" name="' + inputObject.name + '[]" value="'+inputObject.extras[i].values+'">' + inputObject.extras[i].label + '</label>';
+                input += '<label><input type="checkbox" class="' + inputObject.classes + '" name="' + inputObject.name + '[]" value="'+inputObject.extras[i].values+'"> ' + inputObject.extras[i].label + '</label>';
             input += '</div>';
         }
         input += '</div>';
@@ -565,19 +575,19 @@ var forms = {
     },
 
     buildInputRadioOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
         var required = '';
         if(inputObject.validations.indexOf('required') != -1) {
             required = '<span class="text-danger">*</span> ';
         }
-        input += '<label>'+required+inputObject.extras[i].label+'</label>';
+        input += '<label>'+required+inputObject.label+'</label>';
         for(var i in inputObject.extras) {
             var inline = 'radio';
             if(inputObject.inline == 'yes') {
                 inline = 'radio-inline';
             }
             input += '<div class="'+inline+'">';
-                input += '<label><input type="radio" class="' + inputObject.classes + '" name="' + inputObject.name + '" value="'+inputObject.extras[i].values+'">' + inputObject.extras[i].label + '</label>';
+                input += '<label><input type="radio" class="' + inputObject.classes + '" name="' + inputObject.name + '" value="'+inputObject.extras[i].values+'"> ' + inputObject.extras[i].label + '</label>';
             input += '</div>';
         }
         input += '</div>';
@@ -586,7 +596,7 @@ var forms = {
     },
 
     onFormInputHover: function() {
-        var htmlObject = '<div class="inputObjectEditableOptions text-right">' +
+        var htmlObject = '<div class="inputObjectEditableOptions in text-right">' +
             '<span class="deleteInputObject"><i class="fa fa-times-circle"></i></span>' +
             '<span class="editInputObject"><i class="fa fa-pencil-square-o"></i></span>' +
             '</div>';
@@ -637,9 +647,12 @@ var forms = {
             $('select[name="input_columns"]').val(inputObject.input_columns);
             $('#formInputId').val(inputObject.id);
             $('#formId').val(inputObject.form_id);
+            $('#sequenceId').val(inputObject.sequence);
 
-            if(inputObject.input_inline) {
-                $('#inlineElement').icheck('check');
+            $('select[name="input_type"]').trigger('change');
+
+            if(inputObject.input_inline > 0) {
+                $('#inlineElement').iCheck('check');
             }
 
             if (typeof inputObject.options != 'undefined') {
@@ -684,8 +697,8 @@ var forms = {
         $('select[name="input_columns"]').val('');
         $('#formInputId').val('');
         $('#formId').val('');
+        $('#sequenceId').val('');
 
-        $('#validationForm input').val('');
         $('#validationForm input').iCheck('uncheck');
         $('#inputValuesSet').html('');
     },
@@ -723,7 +736,58 @@ var forms = {
                 alertify.error('No id was found for the form input, try again');
             }
         });
-    }
+    },
+
+    saveNewForm: function() {
+        $('#saveNewForm').click(function() {
+            var inputs = $('#form-inputs .formInputObject').length;
+            if(inputs) {
+                var buttonText = $('#saveNewForm').html();
+                var button = $('#saveNewForm');
+                var name    = $('#settings input[name="form_name"]').val();
+                var cost    = $('#settings input[name="form_cost"]').val();
+                var min     = $('#settings input[name="min_payment"]').val();
+                var header  = $('#settings textarea[name="form_header"]').val();
+                var footer  = $('#settings textarea[name="form_footer"]').val();
+                var active  = $('#settings input[name="is_active"]').parent().hasClass('checked')?true:false;
+
+                $.ajax({
+                    url: $('#base_url').data('base')+'forms/save-form',
+                    dataType: 'json',
+                    type: 'post',
+                    data: {name:name, cost:cost, min:min, header:header, footer:footer, active:active},
+                    success: function(data) {
+                        if(data.success) {
+                            alertify.success(data.msg);
+                            var id = data.data['id'];
+                            window.location.href = $('#base_url').data('base')+'forms/view-form/'+id;
+                        } else {
+
+                            if(data.errors.lengh > 0) {
+                                for(var i in data.errors) {
+                                    alertify.error(data.errors[i]);
+                                }
+                            } else {
+                                alertify.error(data.msg);
+                            }
+                        }
+                    },
+                    error: function() {
+                        alertify.error('Failed to save form, try refreshing the page and trying again')
+                    },
+                    beforeSend: function() {
+                        $(button).html('<i class="fa fa-gear fa-spin"></i>');
+                    },
+                    complete: function() {
+                        $(button).html(buttonText);
+                    }
+                });
+
+            } else {
+                alertify.error('You must add some inputs before you can save a form');
+            }
+        });
+    },
 
 }
 
@@ -740,6 +804,17 @@ $(document).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
 
     forms.init();
+
+    $('.date').mask('00/00/0000');
+    $('.cc-expires').mask('00/00');
+    $('.credit-card').mask('0000-0000-0000-0000');
+    $('.time').mask('00:00:00');
+    $('.date_time').mask('00/00/0000 00:00:00');
+    $('.cep').mask('00000-000');
+    $('.phone').mask('(000) 000-0000');
+    $('.money').mask('000.00', {reverse: true});
+    $('.ssn').mask('000-00-0000');
+
 });
 
 

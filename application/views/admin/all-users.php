@@ -86,7 +86,7 @@
                             }
                         } else {
                             echo '<tr class="headings">';
-                                echo '<td colspan="8" class="column-title" style="display: table-cell;"><div class="alert alert-danger"><i class="fa fa-times-circle fa-2x"></i> No Other Users Found </div></td>';
+                                echo '<td colspan="8" class="column-title" style="display: table-cell;"><div class="alert alert-danger"><i class="fa fa-times-circle fa-2x" style="position:relative;top:4px"></i> No Other Users Found </div></td>';
                             echo '</tr>';
                         }
                     ?>

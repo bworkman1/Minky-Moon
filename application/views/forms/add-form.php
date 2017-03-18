@@ -27,10 +27,22 @@
                             <label><span class="text-danger">*</span> Form Name</label>
                             <input type="text" class="form-control" maxlength="50" minlength="2" name="form_name" required>
                         </div>
-                        <div class="form-group">
-                            <label><span class="text-danger">*</span> Cost</label>
-                            <input type="text" class="form-control" maxlength="50" minlength="2" name="form_cost" required value="0.00">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><span class="text-danger">*</span> Cost</label>
+                                    <input type="text" class="form-control" maxlength="50" minlength="2" name="form_cost" required placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><span class="text-danger">*</span> Min. Payment</label>
+                                    <input type="text" class="form-control" maxlength="50" minlength="2" name="min_payment" required placeholder="0.00">
+                                </div>
+                            </div>
                         </div>
+
                         <div class="form-group">
                             <label>Form Header</label>
                             <textarea name="form_header" class="form-control" style="min-height:100px"></textarea>
@@ -158,6 +170,7 @@
                             </ul>
                             <input type="hidden" id="formInputId">
                             <input type="hidden" id="formId">
+                            <input type="hidden" id="sequenceId">
                         </div>
 
                         <hr>
@@ -167,7 +180,7 @@
 
                 </div>
                 <hr>
-                <button class="btn btn-primary">Save Form</button>
+                <button id="saveNewForm" class="btn btn-primary">Save Form</button>
             </div>
         </div>
 
@@ -182,14 +195,14 @@
             <div class="x_content">
                 <div id="form-header"></div>
                 <hr>
-                <div id="form-inputs" class="row">
+                <div id="form-inputs" class="row grid-stack">
 
                     <?php
                         if(!empty($inputs)) {
                             foreach($inputs as $key => $val) {
                                 switch($val['input_type']) {
                                     case 'text':
-                                        echo '<div class="'.$val['input_columns'].' formInputObject" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
+                                        echo '<div class="'.$val['input_columns'].' grid-stack formInputObject" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
                                             echo '<div class="form-group">';
                                                 $required = '';
                                                 if (strpos($val['input_validation'], 'required') !== false) {
@@ -202,7 +215,7 @@
                                         break;
 
                                     case 'select':
-                                        echo '<div class="'.$val['input_columns'].' formInputObject" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
+                                        echo '<div class="'.$val['input_columns'].' grid-stack formInputObject" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
                                             echo '<div class="form-group">';
                                                 $required = '';
                                                 if (strpos($val['input_validation'], 'required') !== false) {
@@ -220,16 +233,16 @@
                                         break;
 
                                     case 'textarea':
-                                        echo '<div class="'.$val->input_columns.' formInputObject" data-validation="'.$val->input_validation.'" data-id="'.$val['id'].'">';
+                                        echo '<div class="'.$val['input_columns'].' grid-stack formInputObject" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
                                             echo '<div class="form-group">';
-                                                echo '<label>'.$val->input_label.'</label>';
-                                                echo '<textarea class="'.$val->custom_class.' form-control" name="'.$val->input_name.'"></textarea>';
+                                                echo '<label>'.$val['input_label'].'</label>';
+                                                echo '<textarea class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'"></textarea>';
                                             echo '</div>';
                                         echo '</div>';
                                         break;
 
                                     case 'checkbox':
-                                        echo '<div class="'.$val['input_columns'].' formInputObject" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
+                                        echo '<div class="'.$val['input_columns'].' grid-stack formInputObject" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'" data-id="'.$val['id'].'">';
                                         $required = '';
                                         if (strpos($val['input_validation'], 'required') !== false) {
                                             $required = '<span class="text-danger">*</span> ';
@@ -255,6 +268,7 @@
                     ?>
 
                 </div>
+                <div class="clearfix"></div>
                 <hr>
                 <div id="form-footer"></div>
             </div>

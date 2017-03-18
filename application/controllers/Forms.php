@@ -11,7 +11,7 @@ class Forms extends CI_Controller
 
     public function init_page()
     {
-        $this->output->enable_profiler(false);
+        $this->output->enable_profiler(true);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
@@ -44,6 +44,7 @@ class Forms extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/starrr/dist/starrr.js');
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.js');
+        $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
         $this->load->js('assets/themes/lapp/js/app.js');
 
         $this->output->set_template('admin-left-menu');
@@ -69,6 +70,57 @@ class Forms extends CI_Controller
         $data['inputs'] = $this->Form_model->getUnsavedInputs();
 
         $this->load->view('forms/add-form', $data);
+    }
+
+    public function save_form()
+    {
+        $returns = array(
+            'success' => false,
+            'msg' => 'Invalid form values',
+            'errors' => array(),
+        );
+
+        $this->form_validation->set_rules(
+            'name', 'form name',
+            'required|min_length[2]|max_length[100]|is_unique[forms.name]',
+            array(
+                'required'      => 'You have not provided a %s.',
+                'is_unique'     => 'This %s already exists.'
+            )
+        );
+
+        $this->form_validation->set_rules(
+            'cost', 'form cost',
+            'required|min_length[2]|max_length[10]|decimal',
+            array(
+                'required'      => 'You have not provided a %s.',
+                'decimal'     => '%s must be formatted as a currency value (94.99).'
+            )
+        );
+
+        $this->form_validation->set_rules(
+            'min', 'min cost',
+            'required|min_length[2]|max_length[10]|decimal',
+            array(
+                'required'      => 'You have not provided a %s.',
+                'decimal'     => '%s must be formatted as a currency value (94.99).'
+            )
+        );
+
+        $this->form_validation->set_rules('header', 'header', 'max_length[1000]');
+        $this->form_validation->set_rules('footer', 'footer', 'max_length[1000]');
+        $this->form_validation->set_rules('footer', 'footer', 'max_length[1000]');
+        $this->form_validation->set_rules('active', 'active', 'max_length[5]');
+
+
+        if ($this->form_validation->run() == FALSE) {
+            $returns['errors'] = validation_errors_array();
+        } else {
+            $this->load->model('Form_model');
+            $returns = $this->Form_model->saveFormValues($_POST);
+        }
+
+        echo json_encode($returns);
     }
 
     public function format_validation_rules()
@@ -99,5 +151,39 @@ class Forms extends CI_Controller
         $this->load->model('Form_model');
         echo json_encode($this->Form_model->getSingleFormInput($_POST));
     }
+
+    public function view_form()
+    {
+        $formId = (int)$this->uri->segment(3);
+        if(!$formId) {
+            show_404();
+            exit;
+        }
+
+        $this->init_page();
+
+        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
+
+        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
+
+        $this->load->model('Form_model');
+
+        $data['form'] = $this->Form_model->getFormById($formId);
+        if(empty($data['form'])) {
+            show_404();
+        }
+        $this->load->view('forms/show-form', $data);
+    }
+
+    public function all_forms()
+    {
+        $this->init_page();
+
+        $this->load->model('Form_model');
+        $data['forms'] = $this->Form_model->getForms();
+        $this->load->view('admin/all-forms', $data);
+    }
+
 
 }
