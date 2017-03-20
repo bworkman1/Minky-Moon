@@ -13,14 +13,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<title>LAPP </title>
 
 	<!-- Bootstrap -->
-	<link href="<?php echo base_url('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css'; ?>" rel="stylesheet">
 	<!-- Font Awesome -->
-	<link href="<?php echo base_url('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css'; ?>" rel="stylesheet">
 	<!-- NProgress -->
-	<link href="<?php echo base_url('assets/themes/admin/vendors/nprogress/nprogress.css'); ?>" rel="stylesheet">
+	<link href="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/nprogress/nprogress.css'; ?>" rel="stylesheet">
 
 	<!-- Custom Theme Style -->
-	<link href="<?php echo base_url('assets/themes/admin/build/css/custom.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/build/css/custom.min.css'; ?>" rel="stylesheet">
 </head>
 
 <body class="nav-md">
@@ -43,16 +43,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div>
 
 <!-- jQuery -->
-<script src="<?php echo base_url('assets/themes/admin/vendors/jquery/dist/jquery.min.js'); ?>"></script>
+<script src="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/jquery/dist/jquery.min.js'; ?>"></script>
 <!-- Bootstrap -->
-<script src="<?php echo base_url('assets/themes/admin/vendors/bootstrap/dist/js/bootstrap.min.js'); ?>"></script>
+<script src="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/bootstrap/dist/js/bootstrap.min.js'; ?>"></script>
 <!-- FastClick -->
-<script src="<?php echo base_url('assets/themes/admin/vendors/fastclick/lib/fastclick.js'); ?>"></script>
+<script src="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/fastclick/lib/fastclick.js'; ?>"></script>
 <!-- NProgress -->
-<script src="<?php echo base_url('assets/themes/admin/vendors/nprogress/nprogress.js'); ?>"></script>
+<script src="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/vendors/nprogress/nprogress.js'; ?>"></script>
 
 <!-- Custom Theme Scripts -->
-<script src="<?php echo base_url('assets/themes/admin/build/js/custom.js'); ?>"></script>
+<script src="<?php echo '//'.$_SERVER['HTTP_HOST'].'/lapp/assets/themes/admin/build/js/custom.js'; ?>"></script>
 <!-- Google Analytics -->
 
 </body>

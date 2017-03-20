@@ -22,6 +22,8 @@ class Forms extends CI_Controller
         $this->load->css('assets/themes/admin/vendors/switchery/dist/switchery.min.css');
         $this->load->css('assets/themes/admin/vendors/starrr/dist/starrr.css');
         $this->load->css('assets/themes/admin/vendors/bootstrap-daterangepicker/daterangepicker.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
         $this->load->css('assets/themes/admin/build/css/custom.min.css');
         $this->load->css('assets/themes/admin/build/css/style.css');
 
@@ -32,6 +34,7 @@ class Forms extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js');
         $this->load->js('assets/themes/admin/vendors/iCheck/icheck.min.js');
         $this->load->js('assets/themes/admin/vendors/moment/min/moment.min.js');
+        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
         $this->load->js('assets/themes/admin/vendors/bootstrap-daterangepicker/daterangepicker.js');
         $this->load->js('assets/themes/admin/vendors/bootstrap-wysiwyg/js/bootstrap-wysiwyg.min.js');
         $this->load->js('assets/themes/admin/vendors/jquery.hotkeys/jquery.hotkeys.js');
@@ -59,11 +62,6 @@ class Forms extends CI_Controller
     public function add_form()
     {
         $this->init_page();
-
-        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
-        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
-
-        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
 
         $this->load->model('Form_model');
         $data['validation_options'] = $this->Form_model->getValidationRules();
@@ -162,17 +160,13 @@ class Forms extends CI_Controller
 
         $this->init_page();
 
-        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
-        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
-
-        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
-
         $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
         if(empty($data['form'])) {
             show_404();
         }
+
         $this->load->view('forms/show-form', $data);
     }
 
@@ -185,5 +179,27 @@ class Forms extends CI_Controller
         $this->load->view('admin/all-forms', $data);
     }
 
+    public function toggle_form()
+    {
+        $this->load->model('Form_model');
+        echo json_encode($this->Form_model->toggleFormAvailability($_POST));
+    }
+
+    public function edit_form()
+    {
+        $formId = (int)$this->uri->segment(3);
+        if(!$formId) {
+            show_404();
+            exit;
+        }
+
+        $this->init_page();
+
+        $this->load->model('Form_model');
+
+        $data['form'] = $this->Form_model->getFormById($formId);
+
+        $this->load->view('forms/edit-form', $data);
+    }
 
 }

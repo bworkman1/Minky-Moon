@@ -153,6 +153,7 @@ var forms = {
         forms.deleteFormInput();
         forms.editFormInput();
         forms.saveNewForm();
+        forms.activateForm();
     },
 
     addFormName: function() {
@@ -322,6 +323,7 @@ var forms = {
                 input_id: $('#formInputId').val(),
                 inline: $('#inlineElement [name="inline-element"]').is(':checked')?'yes':'',
                 sequence: $('#sequenceId').val(),
+                form_id: $('#formId').val(),
             }
 
             var validInputs = forms.requiredNewFormInputs(inputs);
@@ -504,7 +506,7 @@ var forms = {
     },
 
     buildInputSelectOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-formid="'+inputObject.form_id+'" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
             input += '<div class="form-group">';
                 var required = '';
                 if(inputObject.validations.indexOf('required') != -1) {
@@ -524,7 +526,7 @@ var forms = {
     },
 
     buildInputTextOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-formid="'+inputObject.form_id+'" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
             input += '<div class="form-group">';
                 var required = '';
                 if(inputObject.validations.indexOf('required') != -1) {
@@ -539,7 +541,7 @@ var forms = {
     },
 
     buildInputTextAreaOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-formid="'+inputObject.form_id+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
             input += '<div class="form-group">';
                 var required = '';
                 if(inputObject.validations.indexOf('required') != -1) {
@@ -554,7 +556,7 @@ var forms = {
     },
 
     buildInputCheckboxesOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-formid="'+inputObject.form_id+'" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
         var required = '';
         if(inputObject.validations.indexOf('required') != -1) {
             required = '<span class="text-danger">*</span> ';
@@ -575,7 +577,7 @@ var forms = {
     },
 
     buildInputRadioOption: function(inputObject) {
-        var input = '<div class="' + inputObject.columns + ' formInputObject" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
+        var input = '<div class="' + inputObject.columns + ' formInputObject" data-formid="'+inputObject.form_id+'" data-sequence="'+inputObject.sequence+'" data-validation="'+inputObject.validations+'" data-id="'+inputObject.insert_id+'">';
         var required = '';
         if(inputObject.validations.indexOf('required') != -1) {
             required = '<span class="text-danger">*</span> ';
@@ -610,12 +612,13 @@ var forms = {
 
     editFormInput: function() {
         $('body').on('click', '.editInputObject', function() {
-            var id = $(this).closest('.formInputObject').data('id');
+            var id = $(this).closest('.formInputObject').attr('data-id');
+            var form_id = $('#formId').val();
             $.ajax({
                 url: $('#base_url').data('base')+'forms/get-form-input',
                 dataType: 'json',
                 type: 'post',
-                data: {id: id},
+                data: {id: id, form_id: form_id},
                 success: function(data) {
                     if(data.success) {
                         forms.setFormInputElements(data.data[id]);
@@ -696,7 +699,6 @@ var forms = {
         $('select[name="input_type"]').val('');
         $('select[name="input_columns"]').val('');
         $('#formInputId').val('');
-        $('#formId').val('');
         $('#sequenceId').val('');
 
         $('#validationForm input').iCheck('uncheck');
@@ -786,6 +788,46 @@ var forms = {
             } else {
                 alertify.error('You must add some inputs before you can save a form');
             }
+        });
+    },
+
+    activateForm: function() {
+        $('#toggleForm').click(function() {
+            var status = $(this).attr('data-status');
+            var id = $(this).data('id');
+            var elemData = $(this).html();
+            $.ajax({
+                url: $('#base_url').data('base')+'forms/toggle_form',
+                dataType: 'json',
+                type: 'post',
+                data: {id:id,status:status},
+                success: function(data) {
+                    if(data['success']) {
+                        if(data['data']['status'] == 0) {
+                            var status = 'active';
+                            var buttonTxt = 'Activate Form';
+                            var listTxt = '<span class="text-danger">Inactive</span>';
+                        } else {
+                            var buttonTxt = 'Deactivate Form';
+                            var status = 'inactive';
+                            var listTxt = '<span class="text-success">Active</span>';
+                        }
+                        $('#toggleForm').attr('data-status', status).html(buttonTxt);
+                        $('#formStatusView').html(listTxt);
+                        alertify.success(data['msg']);
+                    } else {
+                        alertify.error(data['msg']);
+                    }
+                    $('#toggleForm').attr('disabled', false);
+                },
+                error: function() {
+                    alertify.error('Something went wrong updating the form, try again');
+                    $(elem).html(elemData).attr('disabled', false);
+                },
+                beforeSend: function() {
+                    $('#toggleForm').html('<i class="fa fa-gear fa-spin"></i> Updating Form').attr('disabled', true);
+                }
+            });
         });
     },
 

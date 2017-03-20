@@ -128,6 +128,8 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
             'msg' => 'Something went wrong adding the input, try again',
             'data' => '',
         );
+
+        $this->formId = $inputs['form_id'] > 0 ? $inputs['form_id'] : $this->formId;
         $validInput = $this->validateRequiredFields($inputs);
         if($validInput) {
             $data = array(
@@ -171,7 +173,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
 
                 $returnData['success'] = true;
                 $returnData['msg'] = 'Form input saved successfully';
-                $returnData['data'] = array('input_id' => $inputId, 'db_type' => $dbType);
+                $returnData['data'] = array('input_id' => $inputId, 'db_type' => $dbType, 'form_id' => $this->formId);
 
             } else {
                 $returnData['msg'] = 'Failed to insert the data in the database, try again';
@@ -325,7 +327,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
 
     public function getFormById($id)
     {
-        $this->db->select('*');
+        $this->db->select('forms.id, forms.name AS form_name, forms.category, forms.header, forms.footer, forms.added, forms.updated, forms.cost, forms.min_cost, forms.active');
+        $this->db->select('form_inputs.id AS input_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.added, form_inputs.input_label, form_inputs.input_validation, form_inputs.input_inline, form_inputs.input_columns');
+        $this->db->select('form_input_options.id AS options_id, form_input_options.name, form_input_options.value, form_input_options.form_id as options_form_id, form_input_options.input_id AS options_form_id');
         $this->db->from('forms');
         $this->db->join('form_inputs', 'form_inputs.form_id = forms.id', 'left');
         $this->db->join('form_input_options', 'form_input_options.form_id = form_inputs.form_id AND form_input_options.input_id = form_inputs.id', 'left');
@@ -349,7 +353,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
         if(!empty($data)) {
             $form['form_settings'] = array(
                 'id' => $form_id,
-                'name' => $data[0]->name,
+                'name' => $data[0]->form_name,
                 'category' => $data[0]->category,
                 'header' => $data[0]->header,
                 'footer' => $data[0]->footer,
@@ -375,6 +379,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                         'input_validation' => $val->input_validation,
                         'input_inline' => $val->input_inline,
                         'input_columns' => $val->input_columns,
+                        'input_id' => $val->input_id,
                     );
 
                     if ($val->name != '' && $val->value != '') {
@@ -445,6 +450,29 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
 //        $this->db->group_by('form_id');
 //        return $this->db->count_all_results();
         return 0;
+    }
+
+    public function toggleFormAvailability($post)
+    {
+        $returns = array(
+            'success' => false,
+            'msg' => 'Failed to update form',
+            'data' => array(),
+        );
+        if((int)$post['id'] && $post['status']) {
+            $status = $post['status'] == 'active' ? 1 : 0;
+            $this->db->set('active', $status);
+            $this->db->where('id', $post['id']);
+            $this->db->update('forms');
+
+            $returns['msg'] = $post['status'] == 'active' ? 'This form has been activated' : 'This form has been deactivated';
+            $returns['success'] = true;
+            $returns['data'] = array('status' => $status);
+        } else {
+            $returns['msg'] = 'Id and/or status was not set, try again';
+        }
+
+        return $returns;
     }
 
 }

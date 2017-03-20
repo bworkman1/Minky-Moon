@@ -1,6 +1,7 @@
 <div class="container">
     <div id="errorFeedback" data-error="<?php echo $this->session->flashdata('error'); ?>"></div>
     <div id="successFeedback" data-error="<?php echo $this->session->flashdata('success'); ?>"></div>
+    <div id="base_url" data-base="<?php echo base_url(); ?>"></div>
     <?php
         if(!empty($form)) {
             echo '<div class="row">';
@@ -136,9 +137,16 @@
                                 echo '</li>';
                                 echo '<li class="list-group-item">';
                                     $active = $form['form_settings']['active'] > 0 ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span></span>';
-                                    echo '<b>Active:</b> <span class="pull-right">'.$active.'</span>';
+                                    echo '<b>Active:</b> <span id="formStatusView" class="pull-right">'.$active.'</span>';
                                 echo '</li>';
                             echo '</ul>';
+
+                            if($form['form_settings']['active'] == 0) {
+                                echo '<button id="toggleForm" data-id="'.$form['form_settings']['id'].'" data-status="active" class="btn btn-primary pull-right">Activate Form</button>';
+                            } else {
+                                echo '<button id="toggleForm" data-id="'.$form['form_settings']['id'].'" data-status="inactive" class="btn btn-primary pull-right">Deactivate Form</button>';
+                            }
+
                         echo '</div>';
 
                     echo '</div>'; // closes x_panel
