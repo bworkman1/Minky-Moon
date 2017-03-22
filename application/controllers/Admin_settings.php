@@ -20,6 +20,8 @@ class Admin_settings extends CI_Controller
         $this->load->css('assets/themes/admin/vendors/switchery/dist/switchery.min.css');
         $this->load->css('assets/themes/admin/vendors/starrr/dist/starrr.css');
         $this->load->css('assets/themes/admin/vendors/bootstrap-daterangepicker/daterangepicker.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
         $this->load->css('assets/themes/admin/build/css/custom.min.css');
 
         $this->load->js('assets/themes/admin/vendors/jquery/dist/jquery.min.js');
@@ -29,6 +31,7 @@ class Admin_settings extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js');
         $this->load->js('assets/themes/admin/vendors/iCheck/icheck.min.js');
         $this->load->js('assets/themes/admin/vendors/moment/min/moment.min.js');
+        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
         $this->load->js('assets/themes/admin/vendors/bootstrap-daterangepicker/daterangepicker.js');
         $this->load->js('assets/themes/admin/vendors/bootstrap-wysiwyg/js/bootstrap-wysiwyg.min.js');
         $this->load->js('assets/themes/admin/vendors/jquery.hotkeys/jquery.hotkeys.js');
@@ -42,10 +45,19 @@ class Admin_settings extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.min.js');
 
+        if (!$this->ion_auth->logged_in()) {
+            redirect('login');
+            exit;
+        }
+
         $this->output->set_template('admin-left-menu');
     }
     public function index()
     {
+        $this->load->model('Admin_model');
+        $data['settings'] = $this->Admin_model->getAllAdminSettings();
 
+        $this->load->view('admin/admin-settings', $data);
     }
+
 }

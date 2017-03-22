@@ -50,6 +50,11 @@ class Forms extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
         $this->load->js('assets/themes/lapp/js/app.js');
 
+        if (!$this->ion_auth->logged_in()) {
+            redirect('login');
+            exit;
+        }
+
         $this->output->set_template('admin-left-menu');
 
     }
