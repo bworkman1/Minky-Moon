@@ -56,6 +56,7 @@ class Admin_settings extends CI_Controller
     {
         $this->load->model('Admin_model');
         $data['settings'] = $this->Admin_model->getAllAdminSettings();
+        $data['groups'] = $this->ion_auth->groups()->result();
 
         $this->load->view('admin/admin-settings', $data);
     }
