@@ -133,7 +133,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
         $validInput = $this->validateRequiredFields($inputs);
         if($validInput) {
             $data = array(
-                'form_id'           => $this->formId, //Todo: check for form input
+                'form_id'           => $this->formId,
                 'input_name'        => $inputs['name'],
                 'input_label'       => $inputs['label'],
                 'input_validation'  => $inputs['validations'],
