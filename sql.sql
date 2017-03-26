@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 25, 2017 at 08:10 AM
+-- Generation Time: Mar 26, 2017 at 08:23 PM
 -- Server version: 5.7.14
 -- PHP Version: 7.0.10
 
@@ -36,6 +36,14 @@ CREATE TABLE `admin_settings` (
   `group_title` varchar(50) NOT NULL,
   `can_delete` tinyint(1) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `admin_settings`
+--
+
+INSERT INTO `admin_settings` (`id`, `name`, `value`, `change_date`, `group_name`, `sequence`, `group_title`, `can_delete`) VALUES
+(1, 'api_key', 'JgIZH8/lz139NdahMfd84gX0Q9fbw7ADI/I5J5AZBgOTAz9eeYHOMv/Rpc8S7TdTfcpT7NHnKQ2gyKIepKfZ/A==', '2017-03-26 18:33:48', '', 0, 'Authorize Settings', 0),
+(2, 'auth_key', 'EeDW145nPxhQG7sg2AGV5sDiTx5rVHFPRuhuNwYzb5dmGs0cq21/cKVdHovrf7KAsIEQTbHN8GvcAE4zlXUrXQ==', '2017-03-26 18:33:48', '', 0, 'Authorize Settings', 0);
 
 -- --------------------------------------------------------
 
@@ -338,7 +346,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `salt`, `email`, `activation_code`, `forgotten_password_code`, `forgotten_password_time`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`) VALUES
-(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'BvL2Tk3.rCglM5b/cJipl.', 1268889823, 1490424665, 1, 'Admin', 'istrator'),
+(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'n2MjeGyt7FnuzhIoXO18DO', 1268889823, 1490547794, 1, 'Admin', 'istrator'),
 (7, '::1', 'bworkm01', '$2y$08$JxWREEQayFQIlZIlrqtSiutEXjoz.x3rXJhf/jlATmp4EYkxRhoS.', '', 'brianworkman43055@gmail.com', NULL, NULL, NULL, 'yoyZmdEP.KIabCFW/5A49O', 1488259668, 1488327015, 1, 'Brian', 'Workman'),
 (8, '::1', 'bworkm011', '$2y$08$nsQ38UUOyzjfK6NOEm7uG.fBFJe8KonmmhAqZ0jVlq7MV8HmANfk6', '', 'brianwo.rkman43055@gmail.com', NULL, NULL, NULL, NULL, 1488263473, NULL, 1, 'Brian', 'Workman'),
 (9, '::1', 'bworkm0111', '$2y$08$16ZKvRK61q5jwzNbAs8KNeTqvyvUmCp1EcoQMIkagd2esPHeN2gAO', '', 'brianworkman413055@gmail.com', NULL, NULL, NULL, NULL, 1488326996, NULL, 1, 'Brian', 'Workman');
@@ -374,7 +382,8 @@ INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
 -- Indexes for table `admin_settings`
 --
 ALTER TABLE `admin_settings`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_name` (`name`);
 
 --
 -- Indexes for table `customer`
@@ -462,7 +471,7 @@ ALTER TABLE `users_groups`
 -- AUTO_INCREMENT for table `admin_settings`
 --
 ALTER TABLE `admin_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `customer`
 --
@@ -512,7 +521,7 @@ ALTER TABLE `groups`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=178;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
 --
 -- AUTO_INCREMENT for table `payments`
 --
