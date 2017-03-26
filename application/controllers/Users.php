@@ -83,6 +83,13 @@ class Users extends CI_Controller
             $this->init_page();
             $data['user'] = $this->ion_auth->user($id)->row();
             $data['groups'] = $this->ion_auth->groups()->result();
+            $userGroups = $this->ion_auth->get_users_groups($id)->result();
+            if($userGroups) {
+                $data['user_groups'] = array();
+                foreach($userGroups as $group) {
+                    $data['user_groups'][] = $group->id;
+                }
+            }
             $this->load->view('admin/edit-user', $data);
         } else {
             $this->session->set_flashdata('error', 'Invalid User Id');
@@ -117,7 +124,7 @@ class Users extends CI_Controller
             if($user->username != $username) {
                 $this->form_validation->set_rules('username', 'Username', 'required|alpha_numeric|is_unique[users.username]|trim');
             }
-            $this->form_validation->set_rules('access', 'Access Level', 'required|integer|trim');
+            $this->form_validation->set_rules('access[]', 'Access Level', 'required|integer|trim');
 
             $this->form_validation->set_message('is_unique', '{field} is already taken');
             $this->form_validation->set_message('regex_match', 'Password doesn\'t match the required strength');
@@ -188,7 +195,7 @@ class Users extends CI_Controller
         $this->form_validation->set_rules('last_name', 'Last Name', 'required|alpha|max_length[30]|trim');
         $this->form_validation->set_rules('email', 'email', 'required|valid_email|is_unique[users.email]|trim');
         $this->form_validation->set_rules('username', 'Username', 'required|alpha_numeric|is_unique[users.username]|trim');
-        $this->form_validation->set_rules('access', 'Access Level', 'required|integer|trim');
+        $this->form_validation->set_rules('access[]', 'Access Level', 'required');
         $this->form_validation->set_rules('password', 'Password', 'required|regex_match[/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*(?=\S*[\W])/]|matches[password1]|trim|min_length[8]|max_length[20]');
         $this->form_validation->set_rules('password1', 'Confirm Password', 'required|regex_match[/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*(?=\S*[\W])/]|trim');
 
@@ -210,7 +217,7 @@ class Users extends CI_Controller
                 'last_name' => $this->input->post('last_name'),
             );
             $group = array($this->input->post('access'));
-
+log_message('error', print_r($_POST, true));
             if($this->ion_auth->register($username, $password, $email, $additional_data, $group) !== false) {
                 $returns['msg'] = strip_tags($this->ion_auth->messages());
                 $this->session->set_flashdata('success', strip_tags($this->ion_auth->messages()));

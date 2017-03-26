@@ -4,6 +4,8 @@ var formSubmit = {
     call: function() {
         $('#submitButton').click(function(event) {
             event.preventDefault();
+            var elem = $(this);
+            var elemText = $(this).html();
             $.ajax({
                 method: 'post',
                 dataType: 'json',
@@ -31,13 +33,13 @@ var formSubmit = {
                 beforeSend: function() {
                     $('#formFeedback, .helper-error').html('');
                     $('.has-error').removeClass('has-error');
-                    $('#submitButton').attr('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Logging In');
+                    $('#submitButton').attr('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Checking');
                 },
                 complete: function() {
-                    $('#submitButton').attr('disabled', false).html('Log In');
+                    $('#submitButton').attr('disabled', false).html(elemText);
                 },
                 error: function() {
-                    $('#submitButton').attr('disabled', false).html('Log In');
+                    $('#submitButton').attr('disabled', false).html(elemText);
                     $('#formFeedback').html('<div class="alert alert-danger"><i class="fa fa-times-circle-o"></i> There was a problem logging you in, please try again!</div>');
                 }
             });

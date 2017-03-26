@@ -29,10 +29,10 @@
                 <form id="authorizeSettings">
                     <div class="row">
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <label>Authorize.net API Key</label>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <input type="text" name="api_key" class="form-control" value="<?php if(isset($settings['api_key'])) { echo $settings['api_key']->value; } ?>">
                         </div>
 
@@ -40,10 +40,10 @@
                     <br>
                     <div class="row">
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <label>Authorize.net Key</label>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <input type="text" name="auth_key" class="form-control" value="<?php if(isset($settings['auth_key'])) { echo $settings['auth_key']->value; } ?>">
                         </div>
 
@@ -78,23 +78,25 @@
                     <hr>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <label><span class="text-danger">*</span> Allowed failed login attempts before locked out</label>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group">
-                                <input type="number" name="failed" class="form-control" value="8">
+                                <?php $failed = (isset($settings['failed']) && $settings['failed']->value > 0) ? $settings['failed']->value : 8; ?>
+                                <input type="number" name="failed" class="form-control" value="<?php echo $failed; ?>">
                             </div>
                         </div>
                     </div>
                     <br>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <label><span class="text-danger">*</span> Lockout time after too many failed attempts <small>(mins)</small></label>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group">
-                                <input type="number" name="time" class="form-control" value="12">
+                                <?php $time = (isset($settings['time']) && $settings['time']->value > 0) ? $settings['time']->value : 12; ?>
+                                <input type="number" name="time" class="form-control" value="<?php echo $time; ?>">
                             </div>
                         </div>
                     </div>
@@ -103,7 +105,7 @@
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label>Emails <small>Separate emails with commas for multiple email address</small></label>
-                                <input type="text" class="form-control" name="emails" maxlength="255">
+                                <input type="text" class="form-control" name="emails" maxlength="255" value="<?php if(isset($settings['emails'])) { echo $settings['emails']->value; } ?>">
                             </div>
                         </div>
                     </div>
@@ -129,33 +131,32 @@
                 <hr>
 
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-12">
                         <label>Name of the page</label>
                         <div class="form-group">
-                            <input type="text" name="page" class="form-control" value="" maxlength="25">
+                            <input type="text" name="security_page" class="form-control" value="" maxlength="50" placeholder="Check URL if you are unsure">
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-12">
                         <label>Short Description</label>
                         <div class="form-group">
-                            <input type="text" name="page" class="form-control" value="" maxlength="40">
+                            <input type="text" name="security_page_desc" class="form-control" value="" maxlength="255">
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <br>
-                        <button id="adfs" class="btn btn-primary pull-left" style="margin-top:4px">Add</button>
+                    <div class="col-md-12">
+                        <button id="addNewGroup" class="btn btn-primary pull-right">Add</button>
                     </div>
                 </div>
                 <hr>
                 <?php
                     if(!empty($groups)) {
-                        echo '<ul class="list-group" style="padding-left:0">';
+                        echo '<ul id="userGroupList" class="list-group" style="padding-left:0">';
                         foreach($groups as $group) {
                             echo '<li class="list-group-item" style="position:relative;">';
                                 echo '<h4 class="list-group-item-heading">'.ucwords($group->name).'</h4>';
                                 echo '<p class="list-group-item-text">'.$group->description.'</p>';
                                 if($group->name != 'admin') {
-                                    echo '<span class="deleteGroup" style="position:absolute;top: -15px;right: -15px;">';
+                                    echo '<span class="deleteGroup hide" data-groupid="'.$group->id.'" style="position:absolute;top: -15px;right: -15px;">';
                                     echo '<i class="fa fa-times-circle fa-3x pull-right text-danger"></i>';
                                     echo '</span>';
                                 }

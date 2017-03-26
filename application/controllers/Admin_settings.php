@@ -31,6 +31,7 @@ class Admin_settings extends CI_Controller
         $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
         $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
         $this->load->css('assets/themes/admin/build/css/custom.min.css');
+        $this->load->css('assets/themes/admin/build/css/style.css');
 
         $this->load->js('assets/themes/admin/vendors/jquery/dist/jquery.min.js');
         $this->load->js('assets/themes/admin/vendors/bootstrap/dist/js/bootstrap.min.js');
@@ -102,7 +103,7 @@ class Admin_settings extends CI_Controller
 
         if ($this->form_validation->run() == true) {
             $this->load->model('Admin_model');
-            echo json_encode($this->Admin_model->saveAuthorizeSettings($_POST));
+            echo json_encode($this->Admin_model->saveSecuritySettings($_POST));
         } else {
 
             $this->form_validation->set_error_delimiters('<span>', '. </span>');
@@ -112,5 +113,62 @@ class Admin_settings extends CI_Controller
             echo json_encode($returns);
         }
     }
+
+    public function saveUserGroup()
+    {
+        $return = array(
+            'success' => false,
+            'msg'     => 'Something went wrong, try again'
+        );
+
+        $this->form_validation->set_rules('name', 'Page name', 'required|trim|max_length[50]');
+        $this->form_validation->set_rules('desc', 'Short Description', 'required|trim|max_length[255]');
+
+        if ($this->form_validation->run() == true) {
+            $group = $this->ion_auth->create_group($_POST['name'], $_POST['desc']);
+            if($group) {
+                $return['success'] = true;
+                $return['msg'] = 'Page added successfully';
+                $return['data'] = array('id' => $group);
+            } else {
+                $return['msg'] =  $this->ion_auth->errors();
+            }
+        } else {
+
+            $this->form_validation->set_error_delimiters('<span>', '. </span>');
+            $return['msg'] = validation_errors();
+        }
+
+        echo json_encode($return);
+    }
+
+    public function deleteUserGroup()
+    {
+        $return = array(
+            'success' => false,
+            'msg'     => 'Something went wrong, try again'
+        );
+
+        $this->form_validation->set_rules('id', 'Page Id', 'required|integer|greater_than[0]|trim|max_length[8]');
+
+        if ($this->form_validation->run() == true) {
+            $group = $this->ion_auth->delete_group($_POST['id']);
+            if($group) {
+                $return['success'] = true;
+                $return['msg'] = 'Page deleted successfully';
+                $return['data'] = array('id' => $group);
+            } else {
+                $return['msg'] =  $this->ion_auth->errors();
+            }
+        } else {
+
+            $this->form_validation->set_error_delimiters('<span>', '. </span>');
+            $return['msg'] = validation_errors();
+        }
+
+        echo json_encode($return);
+    }
+
+
 
 }

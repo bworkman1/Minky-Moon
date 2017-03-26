@@ -64,6 +64,12 @@
 .credit-card-box .panel-heading img {
     min-width: 180px;
 }
+.deleteGroup {
+    cursor: pointer;
+}
+.sureShow {
+    display: inline-block !important;
+}
 @media(max-width: 992px) {
     #confirmPassword {
         clear: both;

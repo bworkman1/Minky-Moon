@@ -53,25 +53,17 @@
                         <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12">User Access <span class="required">*</span></label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <select class="form-control" name="access" required>
-                                    <option value="">Select One</option>
-                                    <?php
-                                        if(!empty($groups)) {
-                                            $usersGroup = $this->ion_auth->get_users_groups($user->id)->result();
-                                            $userGroups = array();
-                                            foreach($usersGroup as $group) {
-                                                $userGroups[] = $group->id;
+                                <?php
+                                    if(!empty($groups)) {
+                                        foreach ($groups as $group) {
+                                            $checked = '';
+                                            if(in_array($group->id, $user_groups)) {
+                                                $checked = 'checked';
                                             }
-                                            foreach ($groups as $group) {
-                                                if(in_array($group->id, $userGroups)) {
-                                                    echo '<option selected value="' . $group->id . '">' . $group->description . '</option>';
-                                                } else {
-                                                    echo '<option value="' . $group->id . '">' . $group->description . '</option>';
-                                                }
-                                            }
+                                            echo ' <label> <input type="checkbox" '.$checked.' name="access[]" value="'.$group->id.'"> <i class="fa fa-question-circle" data-toggle="tooltip" data-title="'.$group->description.'"></i> '.ucwords($group->name).'</label> &nbsp;';
                                         }
-                                    ?>
-                                </select>
+                                    }
+                                ?>
                                 <div class="helper-error text-danger"></div>
                             </div>
                         </div>

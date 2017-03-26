@@ -81,4 +81,39 @@ class Admin_model extends CI_Model
         return $return;
     }
 
+    public function saveSecuritySettings($post)
+    {
+        $return = array(
+            'success' => false,
+            'msg'     => 'Something went wrong, try again',
+            'data'    => array(),
+        );
+        $validPostNames = array('time', 'failed', 'emails');
+        if($post) {
+            $rowData = array(
+                'name' => '',
+                'value' => '',
+                'group_title' => 'Security Settings',
+            );
+            foreach($post as $key => $val) {
+                if(in_array($key, $validPostNames)) {
+                    $settingExists = $this->db->select('value')->where('name', $key)->from('admin_settings')->count_all_results();
+
+                    $rowData['name'] = $key;
+                    $rowData['value'] = $val;
+                    if ($settingExists) {
+                        $this->db->where('name', $key);
+                        $this->db->update('admin_settings', $rowData);
+                    } else {
+                        $this->db->insert('admin_settings', $rowData);
+                    }
+                }
+            }
+
+            $return['success'] = true;
+            $return ['msg'] = 'Security settings saved successfully';
+        }
+        return $return;
+    }
+
 }

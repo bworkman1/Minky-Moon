@@ -31,6 +31,12 @@
                 <li><a href="#">All Payments</a></li>
             </ul>
         </li>
+        <li><a><i class="fa fa-calendar"></i> Calendar <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+                <li><a href="#">View Calendar</a></li>
+                <li><a href="#">Add Event</a></li>
+            </ul>
+        </li>
     </ul>
 </div>
 
