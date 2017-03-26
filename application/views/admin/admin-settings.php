@@ -13,7 +13,7 @@
 - Emails
 - Remove Sensitive info y/n-->
 
-<div class="row" data-base="<?php echo base_url(); ?>">
+<div class="row" id="baseUrl" data-base="<?php echo base_url(); ?>">
 
     <div class="col-lg-4 col-md-6">
         <div class="x_panel">
@@ -33,7 +33,7 @@
                             <label>Authorize.net API Key</label>
                         </div>
                         <div class="col-md-6">
-                            <input type="text" name="api_key" class="form-control">
+                            <input type="text" name="api_key" class="form-control" value="<?php if(isset($settings['api_key'])) { echo $settings['api_key']->value; } ?>">
                         </div>
 
                     </div>
@@ -44,7 +44,7 @@
                             <label>Authorize.net Key</label>
                         </div>
                         <div class="col-md-6">
-                            <input type="text" name="auth_key" class="form-control">
+                            <input type="text" name="auth_key" class="form-control" value="<?php if(isset($settings['auth_key'])) { echo $settings['auth_key']->value; } ?>">
                         </div>
 
                     </div>
@@ -52,6 +52,12 @@
                     <hr>
 
                     <button id="saveAuthorize" class="btn btn-primary pull-right">Save</button>
+                    <?php
+                        $class = '';
+                        if(isset($settings['api_key']) && !empty($settings['api_key']->value) ) {
+                            $class = 'hide';
+                        }
+                    ?>
                     <button id="removeAuthorizeSettings" class="btn btn-danger pull-left">Delete Settings</button>
                 </form>
 
@@ -67,13 +73,13 @@
             </div>
             <div class="x_content">
 
-                <form id="loginSettings">
+                <form id="securitySettings">
                     <p>These settings help protect against Brute-force attacks. A Brute-force attack is when an attacker uses a password dictionary that contains millions of words that can be used as a password. Then the attacker tries these passwords one by one for authentication. These settings below will limit the times they can try a set of passwords before locked out.</p>
                     <hr>
 
                     <div class="row">
                         <div class="col-md-6">
-                            <label>Allowed failed login attempts before locked out</label>
+                            <label><span class="text-danger">*</span> Allowed failed login attempts before locked out</label>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -84,7 +90,7 @@
                     <br>
                     <div class="row">
                         <div class="col-md-6">
-                            <label>Lockout time after too many failed attempts <small>(mins)</small></label>
+                            <label><span class="text-danger">*</span> Lockout time after too many failed attempts <small>(mins)</small></label>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -104,7 +110,7 @@
 
                     <hr>
 
-                    <button id="saveLogin" class="btn btn-primary pull-right">Save</button>
+                    <button id="saveSecuritySettings" class="btn btn-primary pull-right">Save</button>
                 </form>
 
             </div>
@@ -137,13 +143,13 @@
                     </div>
                     <div class="col-md-2">
                         <br>
-                        <button id="saveLogin" class="btn btn-primary pull-left" style="margin-top:4px">Add</button>
+                        <button id="adfs" class="btn btn-primary pull-left" style="margin-top:4px">Add</button>
                     </div>
                 </div>
                 <hr>
                 <?php
                     if(!empty($groups)) {
-                        echo '<ul clas="list-group" style="padding-left:0">';
+                        echo '<ul class="list-group" style="padding-left:0">';
                         foreach($groups as $group) {
                             echo '<li class="list-group-item" style="position:relative;">';
                                 echo '<h4 class="list-group-item-heading">'.ucwords($group->name).'</h4>';

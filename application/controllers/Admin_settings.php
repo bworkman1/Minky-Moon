@@ -8,7 +8,15 @@ class Admin_settings extends CI_Controller
     {
         parent::__construct();
 
-        $this->output->enable_profiler(TRUE);
+        if (!$this->ion_auth->in_group('admin')) {
+            redirect('request-error/access-not-allowed');
+            exit;
+        }
+    }
+
+    private function init()
+    {
+        $this->output->enable_profiler(false);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
@@ -44,21 +52,65 @@ class Admin_settings extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/starrr/dist/starrr.js');
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.min.js');
-
-        if (!$this->ion_auth->logged_in()) {
-            redirect('login');
-            exit;
-        }
+        $this->load->js('assets/themes/lapp/js/admin-settings.js');
 
         $this->output->set_template('admin-left-menu');
     }
+
     public function index()
     {
+        $this->init();
         $this->load->model('Admin_model');
+        $this->load->library('encrypt');
+
         $data['settings'] = $this->Admin_model->getAllAdminSettings();
         $data['groups'] = $this->ion_auth->groups()->result();
 
         $this->load->view('admin/admin-settings', $data);
+    }
+
+    public function saveAuthorizeSettings()
+    {
+        $this->form_validation->set_rules('type', 'Request Type', 'required|trim|max_length[6]');
+
+        if(isset($_POST['type']) && $_POST['type'] != 'remove') {
+            $this->form_validation->set_rules('api_key', 'Authorize API Key', 'required|trim|max_length[255]');
+            $this->form_validation->set_rules('auth_key', 'Authorize Key', 'required|trim|max_length[255]');
+        }
+
+        if ($this->form_validation->run() == true) {
+
+            $this->load->model('Admin_model');
+            echo json_encode($this->Admin_model->saveAuthorizeSettings($_POST));
+
+        } else {
+
+            $this->form_validation->set_error_delimiters('<span>', '. </span>');
+
+            $returns['success'] = false;
+            $returns['msg'] = validation_errors();
+
+            echo json_encode($returns);
+        }
+    }
+
+    public function saveSecuritySettings()
+    {
+        $this->form_validation->set_rules('failed', 'Failed login attempts', 'required|trim|integer|max_length[2]|greater_than[2]');
+        $this->form_validation->set_rules('time', 'Lockout Time', 'required|trim|max_length[2]|greater_than[2]');
+        $this->form_validation->set_rules('emails', 'Emails', 'trim|max_length[255]|valid_emails');
+
+        if ($this->form_validation->run() == true) {
+            $this->load->model('Admin_model');
+            echo json_encode($this->Admin_model->saveAuthorizeSettings($_POST));
+        } else {
+
+            $this->form_validation->set_error_delimiters('<span>', '. </span>');
+            $returns['success'] = false;
+            $returns['msg'] = validation_errors();
+
+            echo json_encode($returns);
+        }
     }
 
 }
