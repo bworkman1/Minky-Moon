@@ -85,7 +85,7 @@ class Forms extends CI_Controller
 
         $this->form_validation->set_rules(
             'name', 'form name',
-            'required|min_length[2]|max_length[100]|is_unique[forms.name]',
+            'required|min_length[2]|max_length[255]|is_unique[forms.name]',
             array(
                 'required'      => 'You have not provided a %s.',
                 'is_unique'     => 'This %s already exists.'
@@ -94,7 +94,7 @@ class Forms extends CI_Controller
 
         $this->form_validation->set_rules(
             'cost', 'form cost',
-            'required|min_length[2]|max_length[10]|decimal',
+            'max_length[10]|decimal',
             array(
                 'required'      => 'You have not provided a %s.',
                 'decimal'     => '%s must be formatted as a currency value (94.99).'
@@ -103,7 +103,7 @@ class Forms extends CI_Controller
 
         $this->form_validation->set_rules(
             'min', 'min cost',
-            'required|min_length[2]|max_length[10]|decimal',
+            'decimal',
             array(
                 'required'      => 'You have not provided a %s.',
                 'decimal'     => '%s must be formatted as a currency value (94.99).'

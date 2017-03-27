@@ -324,7 +324,8 @@ var forms = {
                 columns: $('select[name="input_columns"]').val(),
                 input_id: $('#formInputId').val(),
                 inline: $('#inlineElement [name="inline-element"]').is(':checked')?'yes':'',
-                sequence: $('#sequenceId').val(),
+                sequence: $('select[name="sequence"]').val(),
+                encrypted: ($('input[name="encrypt_data"]').is(':checked') ? 1 : 0) ,
                 form_id: $('#formId').val(),
             }
 
@@ -339,18 +340,19 @@ var forms = {
                     data: inputs,
                     success: function(data) {
                         if(data['success']) {
-                            inputs.insert_id = data.data.input_id;
-                            var inputHtml = forms.getInputHtml(inputs);
-                            if(data.data.db_type == 'update') {
-                                $('.formInputObject[data-id="'+inputs.insert_id+'"]').after(inputHtml).remove();
-                            } else {
-                                $('#form-inputs').append(inputHtml);
-                            }
-
+                            //inputs.insert_id = data.data.input_id;
+                            //var inputHtml = forms.getInputHtml(inputs);
+                            //if(data.data.db_type == 'update') {
+                            //    $('.formInputObject[data-id="'+inputs.insert_id+'"]').after(inputHtml).remove();
+                            //} else {
+                            //    $('#form-inputs').append(inputHtml);
+                            //}
+                            $('#form-inputs').html(data.data['page']);
                             alertify.success('Form input added successfully');
 
                             forms.resetFormInputForm();
                             forms.addCheckBoxStyling();
+                            forms.setSequenceValues();
                         } else {
                             alertify.error(data['msg']);
                         }
@@ -386,6 +388,7 @@ var forms = {
             if(label) {
                 label = label.replace(/-/g,"_");
                 label = label.replace(/ /g,"_");
+                label = label.replace(/[^\w\s]/gi, '');
                 label = label.toLowerCase();
             }
             $('input[name="input_name"]').val(label);
@@ -536,6 +539,9 @@ var forms = {
                 }
                 input += '<label>'+required+inputObject.label+'</label>';
                 input += '<input class="' + inputObject.classes + ' form-control" name="' + inputObject.name + '"/>';
+                if(inputObject.encrypted) {
+                    input += '<i class="encryptedIcon fa fa-lock"></i>';
+                }
             input += '</div>';
         input += '</div>';
 
@@ -551,6 +557,9 @@ var forms = {
                 }
                 input += '<label>'+required+inputObject.label+'</label>';
                 input += '<textarea class="' + inputObject.classes + ' form-control" name="' + inputObject.name + '"></textarea>';
+                if(inputObject.encrypted) {
+                    input += '<i class="encryptedIcon fa fa-lock"></i>';
+                }
             input += '</div>';
         input += '</div>';
 
@@ -573,6 +582,9 @@ var forms = {
                 input += '<label><input type="checkbox" class="' + inputObject.classes + '" name="' + inputObject.name + '[]" value="'+inputObject.extras[i].values+'"> ' + inputObject.extras[i].label + '</label>';
             input += '</div>';
         }
+        if(inputObject.encrypted) {
+            input += '<i class="encryptedIcon fa fa-lock"></i>';
+        }
         input += '</div>';
 
         return input;
@@ -593,6 +605,9 @@ var forms = {
             input += '<div class="'+inline+'">';
                 input += '<label><input type="radio" class="' + inputObject.classes + '" name="' + inputObject.name + '" value="'+inputObject.extras[i].values+'"> ' + inputObject.extras[i].label + '</label>';
             input += '</div>';
+        }
+        if(inputObject.encrypted) {
+            input += '<i class="encryptedIcon fa fa-lock"></i>';
         }
         input += '</div>';
 
@@ -652,7 +667,15 @@ var forms = {
             $('select[name="input_columns"]').val(inputObject.input_columns);
             $('#formInputId').val(inputObject.id);
             $('#formId').val(inputObject.form_id);
-            $('#sequenceId').val(inputObject.sequence);
+            $('select[name="sequence"]').val(inputObject.sequence);
+
+            if(inputObject.encrypt_data == 1) {
+                $('input[name="encrypt_data"]').iCheck('check');
+            } else {
+                $('input[name="encrypt_data"]').iCheck('uncheck');
+            }
+
+            $('.form-group').removeClass('has-error');
 
             $('select[name="input_type"]').trigger('change');
 
@@ -701,8 +724,9 @@ var forms = {
         $('select[name="input_type"]').val('');
         $('select[name="input_columns"]').val('');
         $('#formInputId').val('');
-        $('#sequenceId').val('');
 
+        $('#inputSequence').val( ( ($('#form-inputs .formInputObject').length) +1) );
+        $('input[name="encrypt_data"]').iCheck('uncheck');
         $('#validationForm input').iCheck('uncheck');
         $('#inputValuesSet').html('');
     },
@@ -832,6 +856,18 @@ var forms = {
             });
         });
     },
+
+    setSequenceValues: function() {
+        console.log('setsequence');
+        var options = '';
+        var count = 0;
+        for(var i = 0; i < $('#form-inputs .formInputObject').length; i++) {
+            count = count+1;
+            options += '<option>'+count+'</option>';
+        }
+        options += '<option value="'+count+'">Last</option>';
+        $('#inputSequence').html(options);
+    }
 
 }
 

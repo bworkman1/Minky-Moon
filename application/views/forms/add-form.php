@@ -61,7 +61,7 @@
 
                         <div class="form-group">
                             <label><span class="text-danger">*</span> Input Label</labeL>
-                            <input type="text" required class="form-control" name="input_label" maxlength="20" minlength="2">
+                            <input type="text" required class="form-control" name="input_label" maxlength="255" minlength="2">
                         </div>
                         <div class="form-group">
                             <label><span class="text-danger">*</span> Input Name <small>(must be unique)</small></labeL>
@@ -143,6 +143,26 @@
                             </div>
                         </div>
 
+                        <label><input type="checkbox" name="encrypt_data"> <i class="fa fa-question-circle" data-toggle="tooltip" data-title="If checked the input data that the user submits will be encrypted in the database and un-encrypted
+                         when you view it for safer storage."></i> Encrypt Input Data?</label>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <label>Sequence</label>
+                                    <select id="inputSequence" name="sequence" class="form-control">
+                                        <?php
+                                        if(!empty($inputs)) {
+                                            for($i=0;$i<count($inputs);$i++) {
+                                                echo '<option>'.($i+1).'</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="inputOptions" class="hide well well-sm">
                             <p><b><span class="text-danger">*</span> Add Input Values</b></p>
                             <div id="inlineElement" class="checkbox hide">
@@ -174,7 +194,7 @@
                         </div>
 
                         <hr>
-                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-forward"></i> Add Input</button>
+                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-forward"></i> Save Input</button>
                         <div class="clearfix"></div>
                     </div>
 
@@ -211,6 +231,9 @@
                                                 echo '<label>'.$required.$val['input_label'].'</label>';
                                                 echo '<input class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'"/>';
                                             echo '</div>';
+                                            if($val['encrypt_data']) {
+                                                echo '<i class="encryptedIcon fa fa-lock"></i>';
+                                            }
                                         echo '</div>';
                                         break;
 
@@ -229,6 +252,9 @@
                                                     }
                                                 echo '</select>';
                                             echo '</div>';
+                                            if($val['encrypt_data']) {
+                                                echo '<i class="encryptedIcon fa fa-lock"></i>';
+                                            }
                                         echo '</div>';
                                         break;
 
@@ -238,6 +264,9 @@
                                                 echo '<label>'.$val['input_label'].'</label>';
                                                 echo '<textarea class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'"></textarea>';
                                             echo '</div>';
+                                            if($val['encrypt_data']) {
+                                                echo '<i class="encryptedIcon fa fa-lock"></i>';
+                                            }
                                         echo '</div>';
                                         break;
 
@@ -256,6 +285,9 @@
                                                 echo '<div class="'.$inline.'">';
                                                 echo '<label><input type="checkbox" class="' . $val['custom_class'] . '" name="' . $option['name'] . '[]" value="'.$option['value'].'"> ' . $option['name'] . '</label>';
                                             echo '</div>';
+                                        }
+                                        if($val['encrypt_data']) {
+                                            echo '<i class="encryptedIcon fa fa-lock"></i>';
                                         }
                                         echo '</div>';
 

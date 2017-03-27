@@ -19,7 +19,7 @@ class Form_model extends CI_Model
     public function getUnsavedInputs()
     {
         $this->db->select('form_inputs.id, form_inputs.form_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.input_label, form_inputs.input_validation,
-form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, form_input_options.value')->from('form_inputs');
+form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, form_input_options.name, form_input_options.value')->from('form_inputs');
         $this->db->where('form_inputs.form_id', $this->formId);
         $this->db->join('form_input_options', 'form_input_options.form_id = form_inputs.form_id AND form_input_options.input_id = form_inputs.id', 'left');
         $this->db->order_by('form_inputs.sequence', 'asc');
@@ -49,6 +49,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                         'input_validation' => $val->input_validation,
                         'input_inline'  => $val->input_inline,
                         'input_columns' => $val->input_columns,
+                        'encrypt_data' => $val->encrypt_data,
                     );
 
                     if($val->name != '') {
@@ -141,7 +142,8 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                 'input_type'        => $inputs['type'],
                 'input_columns'     => $inputs['columns'],
                 'input_inline'      => $inputs['inline']=='yes'?true:false,
-                'sequence'          => $inputs['sequence'] != '' ? $inputs['sequence'] : $this->getInputLastSequence()
+                'sequence'          => $inputs['sequence'] != '' ? $inputs['sequence'] : $this->getInputLastSequence(),
+                'encrypt_data'      => $inputs['encrypted'],
             );
 
             $dbType = 'insert';
@@ -165,15 +167,20 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                             'name' => $val['label'],
                             'value' => $val['values'],
                             'form_id' => $this->formId,
-                            'input_id' => $inputId
+                            'input_id' => $inputId,
                         );
                         $this->db->insert('form_input_options', $data);
                     }
                 }
 
+                $this->reorderFormInputs();
+
+                $pageData['inputs'] = $this->getUnsavedInputs();
+                $page = $this->load->view('forms/form-inputs', $pageData, true);
                 $returnData['success'] = true;
                 $returnData['msg'] = 'Form input saved successfully';
-                $returnData['data'] = array('input_id' => $inputId, 'db_type' => $dbType, 'form_id' => $this->formId);
+
+                $returnData['data'] = array('input_id' => $inputId, 'db_type' => $dbType, 'form_id' => $this->formId, 'page' => $page);
 
             } else {
                 $returnData['msg'] = 'Failed to insert the data in the database, try again';
@@ -250,7 +257,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                 $this->session->set_flashdata('success', 'Form saved successfully');
                 $returns['msg'] = 'Form saved successfully';
                 $returns['success'] = TRUE;
-                $returns['data'] = array('id' => $insertId);
+                $returns['data'] = array(
+                    'id' => $insertId,
+                );
             } else {
                 $returns['msg'] = 'Failed to save form, try again';
             }
@@ -289,7 +298,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
 
         if($input_id > 0) {
             $this->db->select('form_inputs.id, form_inputs.form_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.input_label, form_inputs.input_validation,
-form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, form_input_options.value')->from('form_inputs');
+form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, form_input_options.name, form_input_options.value')->from('form_inputs');
             $this->db->where('form_inputs.form_id', $this->formId);
             $this->db->where('form_inputs.id', $input_id);
             $this->db->join('form_input_options', 'form_input_options.form_id = form_inputs.form_id AND form_input_options.input_id = form_inputs.id', 'left');
@@ -328,7 +337,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
     public function getFormById($id)
     {
         $this->db->select('forms.id, forms.name AS form_name, forms.category, forms.header, forms.footer, forms.added, forms.updated, forms.cost, forms.min_cost, forms.active');
-        $this->db->select('form_inputs.id AS input_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.added, form_inputs.input_label, form_inputs.input_validation, form_inputs.input_inline, form_inputs.input_columns');
+        $this->db->select('form_inputs.id AS input_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.added, form_inputs.input_label, form_inputs.input_validation, form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data');
         $this->db->select('form_input_options.id AS options_id, form_input_options.name, form_input_options.value, form_input_options.form_id as options_form_id, form_input_options.input_id AS options_form_id');
         $this->db->from('forms');
         $this->db->join('form_inputs', 'form_inputs.form_id = forms.id', 'left');
@@ -380,6 +389,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
                         'input_inline' => $val->input_inline,
                         'input_columns' => $val->input_columns,
                         'input_id' => $val->input_id,
+                        'encrypt_data' => $val->encrypt_data,
                     );
 
                     if ($val->name != '' && $val->value != '') {
@@ -473,6 +483,21 @@ form_inputs.input_inline, form_inputs.input_columns, form_input_options.name, fo
         }
 
         return $returns;
+    }
+
+    private function reorderFormInputs()
+    {
+        $this->db->select('id');
+        $this->db->from('form_inputs');
+        $this->db->where('form_id', $this->formId);
+        $this->db->order_by('sequence', 'asc');
+        $result = $this->db->get()->result();
+        if($result) {
+            foreach($result as $i => $row) {
+                $this->db->where('id', $row->id);
+                $this->db->update('form_inputs', array('sequence' => ($i+1)));
+            }
+        }
     }
 
 }

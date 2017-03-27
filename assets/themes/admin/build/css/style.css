@@ -70,6 +70,15 @@
 .sureShow {
     display: inline-block !important;
 }
+.formInputObject {
+    position: relative;
+}
+.encryptedIcon {
+    top: 0;
+    right: 0;
+    position: absolute;
+    color: #a94442;
+}
 @media(max-width: 992px) {
     #confirmPassword {
         clear: both;
