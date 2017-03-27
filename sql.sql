@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 26, 2017 at 08:23 PM
+-- Generation Time: Mar 27, 2017 at 05:13 AM
 -- Server version: 5.7.14
 -- PHP Version: 7.0.10
 
@@ -154,22 +154,23 @@ CREATE TABLE `form_inputs` (
   `input_label` varchar(100) NOT NULL,
   `input_validation` varchar(255) NOT NULL,
   `input_inline` tinyint(1) NOT NULL DEFAULT '0',
-  `input_columns` varchar(20) NOT NULL
+  `input_columns` varchar(20) NOT NULL,
+  `encrypt_data` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `form_inputs`
 --
 
-INSERT INTO `form_inputs` (`id`, `form_id`, `input_name`, `input_type`, `sequence`, `custom_class`, `added`, `input_label`, `input_validation`, `input_inline`, `input_columns`) VALUES
-(20, 2, 'ssn', 'text', 11, 'ssn', '2017-03-16 02:27:20', 'SSN', '', 0, 'col-md-5'),
-(4, 2, 'first_name', 'text', 9, '', '2017-03-12 16:00:39', 'First Name', 'required', 0, 'col-md-9'),
-(16, 2, 'transporation', 'select', 8, '', '2017-03-16 00:15:33', 'Transporation', 'required|min_length[5]|less_than[5]', 0, 'col-md-9'),
-(19, 2, 'last_name', 'textarea', 10, '', '2017-03-16 01:24:18', 'Last Name', '', 0, 'col-md-4'),
-(21, 2, 'notes', 'textarea', 12, '', '2017-03-18 12:51:50', 'Notes', '', 0, 'col-md-6'),
-(22, 2, 'total', 'select', 13, '', '2017-03-18 12:52:52', 'Total', '', 0, 'col-md-6'),
-(23, 999999, 'first_name', 'checkbox', 1, '', '2017-03-19 14:21:32', 'First Name', '', 0, 'col-md-2'),
-(24, 999999, 'first_name', 'text', 2, '', '2017-03-19 17:19:40', 'First Name', 'required|min_length[3]', 0, 'col-md-4');
+INSERT INTO `form_inputs` (`id`, `form_id`, `input_name`, `input_type`, `sequence`, `custom_class`, `added`, `input_label`, `input_validation`, `input_inline`, `input_columns`, `encrypt_data`) VALUES
+(20, 2, 'ssn', 'text', 11, 'ssn', '2017-03-16 02:27:20', 'SSN', '', 0, 'col-md-5', 0),
+(4, 2, 'first_name', 'text', 9, '', '2017-03-12 16:00:39', 'First Name', 'required', 0, 'col-md-9', 0),
+(16, 2, 'transporation', 'select', 8, '', '2017-03-16 00:15:33', 'Transporation', 'required|min_length[5]|less_than[5]', 0, 'col-md-9', 0),
+(19, 2, 'last_name', 'textarea', 10, '', '2017-03-16 01:24:18', 'Last Name', '', 0, 'col-md-4', 0),
+(21, 2, 'notes', 'textarea', 12, '', '2017-03-18 12:51:50', 'Notes', '', 0, 'col-md-6', 0),
+(22, 2, 'total', 'select', 13, '', '2017-03-18 12:52:52', 'Total', '', 0, 'col-md-6', 0),
+(23, 999999, 'first_name', 'checkbox', 1, '', '2017-03-19 14:21:32', 'First Name', '', 0, 'col-md-2', 0),
+(24, 999999, 'first_name', 'text', 2, '', '2017-03-19 17:19:40', 'First Name', 'required|min_length[3]', 0, 'col-md-4', 0);
 
 -- --------------------------------------------------------
 
@@ -267,7 +268,12 @@ CREATE TABLE `groups` (
 
 INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 (1, 'admin', 'Highest level access and cannot be deleted. This access should not be given to just anyone.'),
-(2, 'members', 'General User');
+(4, 'View Forms', 'User can view forms that appear on the website.'),
+(3, 'Edit Forms', 'User can make changes to forms that appear on the website.'),
+(5, 'Add New Forms', 'User can add new forms to the website.'),
+(6, 'Add Users', 'User can add new users'),
+(7, 'Edit Users', 'User can edit users account details'),
+(8, 'Print Forms', 'User can print forms that have been submitted.');
 
 -- --------------------------------------------------------
 
@@ -346,10 +352,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `salt`, `email`, `activation_code`, `forgotten_password_code`, `forgotten_password_time`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`) VALUES
-(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'n2MjeGyt7FnuzhIoXO18DO', 1268889823, 1490547794, 1, 'Admin', 'istrator'),
+(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'n2MjeGyt7FnuzhIoXO18DO', 1268889823, 1490591248, 1, 'Admin', 'istrator'),
 (7, '::1', 'bworkm01', '$2y$08$JxWREEQayFQIlZIlrqtSiutEXjoz.x3rXJhf/jlATmp4EYkxRhoS.', '', 'brianworkman43055@gmail.com', NULL, NULL, NULL, 'yoyZmdEP.KIabCFW/5A49O', 1488259668, 1488327015, 1, 'Brian', 'Workman'),
-(8, '::1', 'bworkm011', '$2y$08$nsQ38UUOyzjfK6NOEm7uG.fBFJe8KonmmhAqZ0jVlq7MV8HmANfk6', '', 'brianwo.rkman43055@gmail.com', NULL, NULL, NULL, NULL, 1488263473, NULL, 1, 'Brian', 'Workman'),
-(9, '::1', 'bworkm0111', '$2y$08$16ZKvRK61q5jwzNbAs8KNeTqvyvUmCp1EcoQMIkagd2esPHeN2gAO', '', 'brianworkman413055@gmail.com', NULL, NULL, NULL, NULL, 1488326996, NULL, 1, 'Brian', 'Workman');
+(11, '::1', 'test', '$2y$08$oub2OXTy8Bx3uGd//nS9TOD2F.5MC6Z3gJ/45Gdt3HetuLGbY1wTG', '', 'test@user.com', NULL, NULL, NULL, NULL, 1490581456, NULL, 1, 'Test', 'User');
 
 -- --------------------------------------------------------
 
@@ -369,10 +374,7 @@ CREATE TABLE `users_groups` (
 
 INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
 (1, 1, 1),
-(2, 1, 2),
-(18, 7, 1),
-(15, 8, 1),
-(17, 9, 1);
+(22, 7, 1);
 
 --
 -- Indexes for dumped tables
@@ -516,7 +518,7 @@ ALTER TABLE `form_input_rules`
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `login_attempts`
 --
@@ -531,12 +533,12 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `users_groups`
 --
 ALTER TABLE `users_groups`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
