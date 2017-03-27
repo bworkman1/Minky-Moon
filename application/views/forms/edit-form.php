@@ -193,7 +193,7 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <div id="form-header"></div>
+                <div id="form-header"><?php echo $form['form_settings']['header']; ?></div>
                 <hr>
                 <div id="form-inputs" class="row grid-stack">
 
@@ -270,7 +270,7 @@
                 </div>
                 <div class="clearfix"></div>
                 <hr>
-                <div id="form-footer"></div>
+                <div id="form-footer"><?php echo $form['form_settings']['footer']; ?></div>
             </div>
         </div>
     </div>

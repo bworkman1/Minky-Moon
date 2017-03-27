@@ -24,7 +24,6 @@
                         <th class="column-title" style="display: table-cell;">Created </th>
                         <th class="column-title" style="display: table-cell;">Last Login </th>
                         <th class="column-title" style="display: table-cell;">Active </th>
-                        <th class="column-title" style="display: table-cell;">Access Level </th>
                         <th class="column-title no-link last" style="display: table-cell;"><span class="nobr">Action</span>
                         </th>
                     </tr>
@@ -67,7 +66,6 @@
                                 echo '<td class="">' . $active . '</td>';
 
                                 $user_group = $this->ion_auth->get_users_groups($user->id)->result();
-                                echo '<td>' . $user_group[0]->description . '</td>';
                                 echo '<td>';
                                 echo ' <a href="' . base_url('users/edit-user/' . $user->id) . '" class="btn btn-primary btn-xs" data-toggle="tooltip" title="Edit User"><i class="fa fa-pencil"></i> </a>';
                                 if ($locked) {

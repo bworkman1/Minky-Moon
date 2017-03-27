@@ -115,6 +115,8 @@ var settings = {
                     if(data.success) {
                         alertify.success(data.msg);
                         settings.addNewUserGroup(name, desc, data.data['id']);
+                        $('input[name="security_page"]').val('');
+                        $('input[name="security_page_desc"]').val('');
                     } else {
                         alertify.error(data.msg);
                     }
