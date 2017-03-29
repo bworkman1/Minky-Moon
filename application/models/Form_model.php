@@ -2,7 +2,7 @@
 
 class Form_model extends CI_Model
 {
-    private $formId = 999999;
+    public $formId = 999999;
 
     public function __construct()
     {
@@ -16,7 +16,7 @@ class Form_model extends CI_Model
         return $this->db->get()->result();
     }
 
-    public function getUnsavedInputs()
+    public function getSavedInputs()
     {
         $this->db->select('form_inputs.id, form_inputs.form_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.input_label, form_inputs.input_validation,
 form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, form_input_options.name, form_input_options.value')->from('form_inputs');
@@ -175,7 +175,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
 
                 $this->reorderFormInputs();
 
-                $pageData['inputs'] = $this->getUnsavedInputs();
+                $pageData['inputs'] = $this->getSavedInputs();
                 $page = $this->load->view('forms/form-inputs', $pageData, true);
                 $returnData['success'] = true;
                 $returnData['msg'] = 'Form input saved successfully';
@@ -228,9 +228,28 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             'errors' => array(),
         );
 
-        $this->formId = (isset($inputs['form_id']) && $inputs['form_id'] > 0) ? $inputs['form_id'] : $this->formId;
+        $this->formId = (isset($data['form_id']) && $data['form_id'] > 0) ? $data['form_id'] : $this->formId;
         if($this->formId != 999999) {
             // UPDATE FORM
+            $data = array(
+                'name'      => $data['name'],
+                'cost'      => $data['cost'],
+                'min_cost'  => $data['min'],
+                'header'    => $data['header'],
+                'footer'    => $data['footer'],
+                'footer'    => $data['footer'],
+                'active'    => $data['active'],
+            );
+
+            $this->db->where('id', $this->formId);
+            $this->db->update('forms', $data);
+
+            $returns['msg'] = 'Form saved successfully';
+            $returns['success'] = TRUE;
+            $returns['data'] = array(
+                'id' => $this->formId,
+            );
+
         } else {
             // Insert form
             $data = array(
@@ -491,6 +510,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $this->db->from('form_inputs');
         $this->db->where('form_id', $this->formId);
         $this->db->order_by('sequence', 'asc');
+        $this->db->order_by('updated', 'desc');
         $result = $this->db->get()->result();
         if($result) {
             foreach($result as $i => $row) {

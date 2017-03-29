@@ -30,6 +30,7 @@
                 ?><script src="<?php echo $file; ?>"></script><?php
             } echo "\n\t";
         ?>
+
     </body>
 </html>
 

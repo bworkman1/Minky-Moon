@@ -194,7 +194,7 @@
                         </div>
 
                         <hr>
-                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-forward"></i> Save Input</button>
+                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-share"></i> Save Input</button>
                         <div class="clearfix"></div>
                     </div>
 

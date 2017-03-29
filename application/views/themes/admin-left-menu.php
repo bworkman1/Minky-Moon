@@ -96,6 +96,7 @@
                 ?><script src="<?php echo $file; ?>"></script><?php
             } echo "\n\t";
         ?>
+        <link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
     </body>
 </html>
 

@@ -32,13 +32,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><span class="text-danger">*</span> Cost</label>
-                                    <input type="text" class="form-control money" maxlength="50" minlength="2" value="<?php echo $form['form_settings']['cost']; ?>" name="form_cost" required placeholder="0.00">
+                                    <input type="text" class="form-control money" maxlength="50" minlength="2" value="<?php echo number_format($form['form_settings']['cost'], 2); ?>" name="form_cost" required placeholder="0.00">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><span class="text-danger">*</span> Min. Payment</label>
-                                    <input type="text" class="form-control money" maxlength="50" minlength="2" value="<?php echo $form['form_settings']['min_cost']; ?>" name="min_payment" required placeholder="0.00">
+                                    <input type="text" class="form-control money" maxlength="50" minlength="2" value="<?php echo number_format($form['form_settings']['min_cost'], 2); ?>" name="min_payment" required placeholder="0.00">
                                 </div>
                             </div>
                         </div>
@@ -151,12 +151,14 @@
                                 <div class="input-group">
                                     <label>Sequence</label>
                                     <select id="inputSequence" name="sequence" class="form-control">
-                                        <option>0</option>
                                         <?php
                                         if(!empty($inputs)) {
+                                            $count = 0;
                                             for($i=0;$i<count($inputs);$i++) {
                                                 echo '<option>'.($i+1).'</option>';
+                                                $count++;
                                             }
+                                            echo '<option>'.($count+1).'</option>';
                                         }
                                         ?>
                                     </select>
@@ -195,7 +197,7 @@
                         </div>
 
                         <hr>
-                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-forward"></i> Save Input</button>
+                        <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-share"></i> Save Input</button>
                         <div class="clearfix"></div>
                     </div>
 

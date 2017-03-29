@@ -70,7 +70,7 @@ class Forms extends CI_Controller
 
         $this->load->model('Form_model');
         $data['validation_options'] = $this->Form_model->getValidationRules();
-        $data['inputs'] = $this->Form_model->getUnsavedInputs();
+        $data['inputs'] = $this->Form_model->getSavedInputs();
 
         $this->load->view('forms/add-form', $data);
     }
@@ -83,30 +83,44 @@ class Forms extends CI_Controller
             'errors' => array(),
         );
 
-        $this->form_validation->set_rules(
-            'name', 'form name',
-            'required|min_length[2]|max_length[255]|is_unique[forms.name]',
-            array(
-                'required'      => 'You have not provided a %s.',
-                'is_unique'     => 'This %s already exists.'
-            )
-        );
+        $this->load->model('Form_model');
+
+        $newName = true;
+
+        $form_id = (int)$_POST['form_id'];
+        if(!empty($form_id)) {
+            $savedFrom = $this->Form_model->getFormById($form_id);
+            if($savedFrom['form_settings']['name'] == $_POST['name']) {
+                $newName = false;
+            }
+        }
+
+        if($newName) {
+            $this->form_validation->set_rules(
+                'name', 'form name',
+                'required|min_length[2]|max_length[255]|is_unique[forms.name]',
+                array(
+                    'required' => 'You have not provided a %s.',
+                    'is_unique' => 'This %s already exists.'
+                )
+            );
+        }
 
         $this->form_validation->set_rules(
             'cost', 'form cost',
             'max_length[10]|decimal',
             array(
                 'required'      => 'You have not provided a %s.',
-                'decimal'     => '%s must be formatted as a currency value (94.99).'
+                'decimal'     => '%s must be formatted as a currency value (50.00).'
             )
         );
 
         $this->form_validation->set_rules(
             'min', 'min cost',
-            'decimal',
+            'max_length[10]|decimal',
             array(
                 'required'      => 'You have not provided a %s.',
-                'decimal'     => '%s must be formatted as a currency value (94.99).'
+                'decimal'     => '%s must be formatted as a currency value (24.99).'
             )
         );
 
@@ -119,7 +133,6 @@ class Forms extends CI_Controller
         if ($this->form_validation->run() == FALSE) {
             $returns['errors'] = validation_errors_array();
         } else {
-            $this->load->model('Form_model');
             $returns = $this->Form_model->saveFormValues($_POST);
         }
 
@@ -181,7 +194,7 @@ class Forms extends CI_Controller
 
         $this->load->model('Form_model');
         $data['forms'] = $this->Form_model->getForms();
-        $this->load->view('admin/all-forms', $data);
+        $this->load->view('forms/all-forms', $data);
     }
 
     public function toggle_form()
@@ -203,8 +216,36 @@ class Forms extends CI_Controller
         $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
+        $data['validation_options'] = $this->Form_model->getValidationRules();
+
+        $this->Form_model->formId = $formId;
+        $data['inputs'] = $this->Form_model->getSavedInputs();
 
         $this->load->view('forms/edit-form', $data);
+    }
+
+    public function submit_form_manually()
+    {
+        $formId = (int)$this->uri->segment(3);
+        if(!$formId) {
+            show_404();
+            exit;
+        }
+
+        $this->init_page();
+        $this->load->model('Form_model');
+
+        $data['form'] = $this->Form_model->getFormById($formId);
+
+        $this->load->view('forms/enter-form-manually', $data);
+    }
+
+    public function save_user_form()
+    {
+        $this->load->model('Form_submit_model');
+        $this->Form_submit_model->submitForm($_POST);
+
+        echo json_encode($this->Form_submit_model->feedback);
     }
 
 }

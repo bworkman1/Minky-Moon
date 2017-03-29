@@ -156,6 +156,7 @@ var forms = {
         forms.editFormInput();
         forms.saveNewForm();
         forms.activateForm();
+        forms.saveUserForm();
     },
 
     addFormName: function() {
@@ -778,22 +779,23 @@ var forms = {
                 var header  = $('#settings textarea[name="form_header"]').val();
                 var footer  = $('#settings textarea[name="form_footer"]').val();
                 var active  = $('#settings input[name="is_active"]').parent().hasClass('checked')?true:false;
+                var form_id  = $('#formId').val();
 
                 $.ajax({
                     url: $('#base_url').data('base')+'forms/save-form',
                     dataType: 'json',
                     type: 'post',
-                    data: {name:name, cost:cost, min:min, header:header, footer:footer, active:active},
+                    data: {name:name, cost:cost, min:min, header:header, footer:footer, active:active, form_id:form_id},
                     success: function(data) {
                         if(data.success) {
                             alertify.success(data.msg);
                             var id = data.data['id'];
                             window.location.href = $('#base_url').data('base')+'forms/view-form/'+id;
                         } else {
-
-                            if(data.errors.lengh > 0) {
-                                for(var i in data.errors) {
-                                    alertify.error(data.errors[i]);
+                            var errors = data.errors;
+                            if(errors.length > 0) {
+                                for(var input in errors) {
+                                    alertify.error(errors[input]);
                                 }
                             } else {
                                 alertify.error(data.msg);
@@ -801,13 +803,14 @@ var forms = {
                         }
                     },
                     error: function() {
-                        alertify.error('Failed to save form, try refreshing the page and trying again')
+                        alertify.error('Failed to save form, try refreshing the page and trying again');
+                        $(button).html(buttonText).attr('disabled', false);
                     },
                     beforeSend: function() {
-                        $(button).html('<i class="fa fa-gear fa-spin"></i>');
+                        $(button).html('<i class="fa fa-gear fa-spin"></i>').attr('disabled', true);
                     },
                     complete: function() {
-                        $(button).html(buttonText);
+                        $(button).html(buttonText).attr('disabled', false);
                     }
                 });
 
@@ -865,9 +868,48 @@ var forms = {
             count = count+1;
             options += '<option>'+count+'</option>';
         }
-        options += '<option value="'+count+'">Last</option>';
         $('#inputSequence').html(options);
-    }
+    },
+
+    saveUserForm: function() {
+        $('#submitUserForm').click(function(event) {
+            event.preventDefault();
+            var elem = $(this);
+            var elemText = $(this).html();
+
+            var form_inputs  = $('#user-form').serialize();
+            //var cc_number   = $('#cardNumber').val();
+            //var cc_expires  = $('#cardExpiry').val();
+            //var cc_cvc      = $('#cardCVC').val();
+            //var cc_amount   = $('#ccAmount').val();
+            console.log(form_inputs);
+            var link = $('#base_url').data('base')+'forms/save-user-form';
+            $.ajax({
+                method: 'post',
+                dataType: 'json',
+                data: form_inputs,
+                url: link,
+                success: function(data) {
+                    console.log(data);
+                },
+                beforeSend: function() {
+                    $(elem).html('<i class="fa fa-spinner fa-spin"></i> Saving').attr('disabled', true);
+                    $('body').append('<div id="fullScreenLoading" class="loading">Saving ....</div>');
+                },
+                complete: function() {
+                    $(elem).html(elemText).attr('disabled', false);
+                    $('.tooltip ').remove();
+                    $('#fullScreenLoading').remove();
+                },
+                error: function() {
+                    $(elem).html(elemText).attr('disabled', false);
+                    $('.tooltip ').remove();
+                    $('#fullScreenLoading').remove();
+                }
+            });
+
+        });
+    },
 
 }
 
@@ -892,7 +934,14 @@ $(document).ready(function() {
     $('.date_time').mask('00/00/0000 00:00:00');
     $('.cep').mask('00000-000');
     $('.phone').mask('(000) 000-0000');
+
     $('.money').mask('000.00', {reverse: true});
+    $('.money').focusout(function() {
+        if($(this).val() == 0) {
+            $(this).val('0.00');
+        }
+    })
+
     $('.ssn').mask('000-00-0000');
 
 });

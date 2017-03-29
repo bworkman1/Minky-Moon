@@ -57,10 +57,12 @@
                                     if(!empty($groups)) {
                                         foreach ($groups as $group) {
                                             $checked = '';
-                                            if(in_array($group->id, $user_groups)) {
-                                                $checked = 'checked';
+                                            if(!empty($user_groups)) {
+                                                if(in_array($group->id, $user_groups)) {
+                                                    $checked = 'checked';
+                                                }
                                             }
-                                            echo ' <label> <input type="checkbox" '.$checked.' name="access[]" value="'.$group->id.'"> <i class="fa fa-question-circle" data-toggle="tooltip" data-title="'.$group->description.'"></i> '.ucwords($group->name).'</label> &nbsp;';
+                                            echo ' <label data-toggle="tooltip" data-title="'.$group->description.'" style="margin-right:10px;margin-top:10px;"> <input type="checkbox" '.$checked.' name="access[]" value="'.$group->id.'"> '.ucwords($group->name).'</label> &nbsp;';
                                         }
                                     }
                                 ?>

@@ -56,7 +56,7 @@
                                     <?php
                                         if(!empty($groups)) {
                                             foreach ($groups as $group) {
-                                                echo ' <label> <input type="checkbox" name="access[]" value="'.$group->id.'"> <i class="fa fa-question-circle" data-toggle="tooltip" data-title="'.$group->description.'"></i> '.ucwords($group->name).'</label> &nbsp;';
+                                                echo ' <label data-toggle="tooltip" data-title="'.$group->description.'" style="margin-right:10px";margin-top:10px;> <input type="checkbox" name="access[]" value="'.$group->id.'"> <i class="fa fa-question-circle"></i> '.ucwords($group->name).'</label> &nbsp;';
                                             }
                                         }
                                     ?>
