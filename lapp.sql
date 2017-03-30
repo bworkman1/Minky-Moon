@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 12, 2017 at 12:16 AM
+-- Generation Time: Mar 30, 2017 at 11:23 PM
 -- Server version: 5.7.14
 -- PHP Version: 7.0.10
 
@@ -36,6 +36,17 @@ CREATE TABLE `admin_settings` (
   `group_title` varchar(50) NOT NULL,
   `can_delete` tinyint(1) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `admin_settings`
+--
+
+INSERT INTO `admin_settings` (`id`, `name`, `value`, `change_date`, `group_name`, `sequence`, `group_title`, `can_delete`) VALUES
+(1, 'api_key', 'Wj/YK3+aDKrdZiaVtmgyoGIodEIG/zDBzzucmy8xoFGokAGYPrWW34KGj+RRsuXnWMuYzaMOTbJq/AeLgElOFA==', '2017-03-29 03:51:41', '', 0, 'Authorize Settings', 0),
+(2, 'auth_key', 'ru5v5QfNt0la3qXW5+NFRQdo2gvfw6tvnELr7LE8gwZDuvKrknAdFMlYaIM4CPmH2z215gZxPna1lQZy9ayZQQ==', '2017-03-29 03:51:41', '', 0, 'Authorize Settings', 0),
+(3, 'failed', '8', '2017-03-30 04:03:30', '', 0, 'Security Settings', 0),
+(4, 'time', '12', '2017-03-30 04:03:30', '', 0, 'Security Settings', 0),
+(5, 'emails', '', '2017-03-30 04:03:30', '', 0, 'Security Settings', 0);
 
 -- --------------------------------------------------------
 
@@ -101,8 +112,19 @@ CREATE TABLE `forms` (
   `footer` text NOT NULL,
   `added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `cost` float NOT NULL
+  `cost` float NOT NULL,
+  `min_cost` float NOT NULL DEFAULT '0',
+  `active` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `forms`
+--
+
+INSERT INTO `forms` (`id`, `name`, `category`, `header`, `footer`, `added`, `updated`, `cost`, `min_cost`, `active`) VALUES
+(2, 'Form Name', '', 's afa Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nunc dui, aliquet eu urna vel, elementum lacinia nibh. Vivamus mollis luctus quam, ac fermentum orci aliquet vitae. Quisque interdum dui sed nisl semper venenatis. Morbi a interdum velit, sit amet lacinia turpis. Duis gravida massa quis lectus convallis, at facilisis leo feugiat. Fusce interdum dui eros, malesuada lacinia turpis elementum et. Sed quis rhoncus urna. Pellentesque ac cursus mauris, in tempus est. Suspendisse pulvinar congue libero nec sodales. Aliquam placerat semper euismod. Ut venenatis vestibulum sapien. Sed placerat rutrum justo, quis aliquam elit facilisis convallis. Duis id ante ligula.', 'Nunc viverra ligula elementum, auctor dolor quis, scelerisque ligula. Sed blandit justo scelerisque velit efficitur mollis. Morbi mollis justo purus, ac fermentum sapien semper vitae. Sed quis erat egestas, sollicitudin felis sed, auctor ipsum. Praesent at velit at purus ornare euismod vulputate ac mi. <b>Duis mattis nec erat</b> nec viverra. Integer a neque risus.', '2017-03-18 15:44:08', '2017-03-29 03:52:27', 100, 50, 1),
+(3, 'Form Name', '', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nunc dui, aliquet eu urna vel, elementum lacinia nibh. Vivamus mollis luctus quam, ac fermentum orci aliquet vitae. Quisque interdum dui sed nisl semper venenatis. Morbi a interdum velit, sit amet lacinia turpis. Duis gravida massa quis lectus convallis, at facilisis leo feugiat. Fusce interdum dui eros, malesuada lacinia turpis elementum et. Sed quis rhoncus urna. Pellentesque ac cursus mauris, in tempus est. Suspendisse pulvinar congue libero nec sodales. Aliquam placerat semper euismod. Ut venenatis vestibulum sapien. Sed placerat rutrum justo, quis aliquam elit facilisis convallis. Duis id ante ligula.', 'Nunc viverra ligula elementum, auctor dolor quis, scelerisque ligula. Sed blandit justo scelerisque velit efficitur mollis. Morbi mollis justo purus, ac fermentum sapien semper vitae. Sed quis erat egestas, sollicitudin felis sed, auctor ipsum. Praesent at velit at purus ornare euismod vulputate ac mi. <b>Duis mattis nec erat</b> nec viverra. Integer a neque risus.', '2017-03-28 23:34:35', '2017-03-29 03:34:35', 50, 25, 0),
+(4, 'Form Name', '', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nunc dui, aliquet eu urna vel, elementum lacinia nibh. Vivamus mollis luctus quam, ac fermentum orci aliquet vitae. Quisque interdum dui sed nisl semper venenatis. Morbi a interdum velit, sit amet lacinia turpis. Duis gravida massa quis lectus convallis, at facilisis leo feugiat. Fusce interdum dui eros, malesuada lacinia turpis elementum et. Sed quis rhoncus urna. Pellentesque ac cursus mauris, in tempus est. Suspendisse pulvinar congue libero nec sodales. Aliquam placerat semper euismod. Ut venenatis vestibulum sapien. Sed placerat rutrum justo, quis aliquam elit facilisis convallis. Duis id ante ligula.', 'Nunc viverra ligula elementum, auctor dolor quis, scelerisque ligula. Sed blandit justo scelerisque velit efficitur mollis. Morbi mollis justo purus, ac fermentum sapien semper vitae. Sed quis erat egestas, sollicitudin felis sed, auctor ipsum. Praesent at velit at purus ornare euismod vulputate ac mi. <b>Duis mattis nec erat</b> nec viverra. Integer a neque risus.', '2017-03-28 23:35:03', '2017-03-29 03:35:03', 50, 25, 0);
 
 -- --------------------------------------------------------
 
@@ -116,7 +138,8 @@ CREATE TABLE `form_data` (
   `added` datetime NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `value` varchar(255) NOT NULL,
-  `name` varchar(100) NOT NULL
+  `name` varchar(100) NOT NULL,
+  `form_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -128,19 +151,32 @@ CREATE TABLE `form_data` (
 CREATE TABLE `form_inputs` (
   `id` int(11) NOT NULL,
   `form_id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `data_type` varchar(50) NOT NULL,
+  `input_name` varchar(50) NOT NULL,
   `input_type` varchar(20) NOT NULL,
-  `max_length` int(11) NOT NULL,
-  `min_length` int(11) NOT NULL,
-  `required` tinyint(1) NOT NULL,
   `sequence` int(11) NOT NULL,
-  `col_span` varchar(20) NOT NULL,
   `custom_class` varchar(50) NOT NULL,
   `added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `help_block` varchar(50) NOT NULL,
-  `access_level` int(11) NOT NULL
+  `input_label` varchar(100) NOT NULL,
+  `input_validation` varchar(255) NOT NULL,
+  `input_inline` tinyint(1) NOT NULL DEFAULT '0',
+  `input_columns` varchar(20) NOT NULL,
+  `encrypt_data` tinyint(1) NOT NULL DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `form_inputs`
+--
+
+INSERT INTO `form_inputs` (`id`, `form_id`, `input_name`, `input_type`, `sequence`, `custom_class`, `added`, `input_label`, `input_validation`, `input_inline`, `input_columns`, `encrypt_data`, `updated`) VALUES
+(20, 2, 'ssn', 'text', 3, 'ssn', '2017-03-16 02:27:20', 'SSN', '', 0, 'col-md-5', 0, '2017-03-29 02:49:23'),
+(4, 2, 'first_name', 'text', 2, '', '2017-03-12 16:00:39', 'First Name', 'required', 0, 'col-md-9', 0, '2017-03-29 02:51:14'),
+(16, 2, 'transporation', 'checkbox', 1, '', '2017-03-16 00:15:33', 'Transporation', 'required|min_length[1]', 0, 'col-md-9', 0, '2017-03-30 04:01:21'),
+(19, 2, 'last_name', 'textarea', 6, '', '2017-03-16 01:24:18', 'Last Name', '', 0, 'col-md-4', 0, '2017-03-29 02:50:40'),
+(21, 2, 'notes', 'textarea', 4, '', '2017-03-18 12:51:50', 'Notes', '', 0, 'col-md-6', 0, '2017-03-29 02:49:23'),
+(22, 2, 'total', 'select', 5, '', '2017-03-18 12:52:52', 'Total', '', 0, 'col-md-6', 0, '2017-03-29 02:50:40'),
+(23, 3, 'transportation', 'checkbox', 2, '', '2017-03-19 14:21:32', 'Transportation', '', 0, 'col-md-2', 1, '2017-03-29 03:34:35'),
+(24, 3, 'first_name', 'text', 1, '', '2017-03-19 17:19:40', 'First Name', 'required|min_length[3]', 0, 'col-md-4', 1, '2017-03-29 03:34:35');
 
 -- --------------------------------------------------------
 
@@ -152,8 +188,25 @@ CREATE TABLE `form_input_options` (
   `id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `value` varchar(50) NOT NULL,
-  `form_id` int(11) NOT NULL
+  `form_id` int(11) NOT NULL,
+  `input_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `form_input_options`
+--
+
+INSERT INTO `form_input_options` (`id`, `name`, `value`, `form_id`, `input_id`) VALUES
+(160, 'Test', 'test', 2, 22),
+(340, 'Boat', 'boat', 2, 16),
+(339, 'Car', 'car', 2, 16),
+(338, 'Truck', 'truck', 2, 16),
+(325, 'Motorcycle', 'bike', 3, 23),
+(324, 'Car', 'car', 3, 23),
+(323, 'Book', 'book', 3, 23),
+(322, 'Test', 'test', 3, 23),
+(321, 'Truck', 'truck', 3, 23),
+(161, 'Added', 'Added', 2, 22);
 
 -- --------------------------------------------------------
 
@@ -220,8 +273,13 @@ CREATE TABLE `groups` (
 --
 
 INSERT INTO `groups` (`id`, `name`, `description`) VALUES
-(1, 'admin', 'Administrator'),
-(2, 'members', 'General User');
+(1, 'admin', 'Highest level access and cannot be deleted. This access should not be given to just anyone.'),
+(4, 'View Forms', 'User can view forms that appear on the website.'),
+(3, 'Edit Forms', 'User can make changes to forms that appear on the website.'),
+(5, 'Add New Forms', 'User can add new forms to the website.'),
+(6, 'Add Users', 'User can add new users'),
+(7, 'Edit Users', 'User can edit users account details'),
+(8, 'Print Forms', 'User can print forms that have been submitted.');
 
 -- --------------------------------------------------------
 
@@ -300,10 +358,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `salt`, `email`, `activation_code`, `forgotten_password_code`, `forgotten_password_time`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`) VALUES
-(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'FAVfeR54n3ZC/G9lDc01Pe', 1268889823, 1489266157, 1, 'Admin', 'istrator'),
+(1, '127.0.0.1', 'admin', '$2a$07$SeBknntpZror9uyftVopmu61qg0ms8Qv1yV6FG.kQOSM.9QhmTo36', '', 'admin@admin.com', '', NULL, NULL, 'mR6eKz3fea3hjTERwudzde', 1268889823, 1490837582, 1, 'Admin', 'istrator'),
 (7, '::1', 'bworkm01', '$2y$08$JxWREEQayFQIlZIlrqtSiutEXjoz.x3rXJhf/jlATmp4EYkxRhoS.', '', 'brianworkman43055@gmail.com', NULL, NULL, NULL, 'yoyZmdEP.KIabCFW/5A49O', 1488259668, 1488327015, 1, 'Brian', 'Workman'),
-(8, '::1', 'bworkm011', '$2y$08$nsQ38UUOyzjfK6NOEm7uG.fBFJe8KonmmhAqZ0jVlq7MV8HmANfk6', '', 'brianwo.rkman43055@gmail.com', NULL, NULL, NULL, NULL, 1488263473, NULL, 1, 'Brian', 'Workman'),
-(9, '::1', 'bworkm0111', '$2y$08$16ZKvRK61q5jwzNbAs8KNeTqvyvUmCp1EcoQMIkagd2esPHeN2gAO', '', 'brianworkman413055@gmail.com', NULL, NULL, NULL, NULL, 1488326996, NULL, 1, 'Brian', 'Workman');
+(11, '::1', 'test', '$2y$08$oub2OXTy8Bx3uGd//nS9TOD2F.5MC6Z3gJ/45Gdt3HetuLGbY1wTG', '', 'test@user.com', NULL, NULL, NULL, NULL, 1490581456, NULL, 1, 'Test', 'User');
 
 -- --------------------------------------------------------
 
@@ -323,10 +380,7 @@ CREATE TABLE `users_groups` (
 
 INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
 (1, 1, 1),
-(2, 1, 2),
-(18, 7, 1),
-(15, 8, 1),
-(17, 9, 1);
+(22, 7, 1);
 
 --
 -- Indexes for dumped tables
@@ -336,7 +390,8 @@ INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
 -- Indexes for table `admin_settings`
 --
 ALTER TABLE `admin_settings`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_name` (`name`);
 
 --
 -- Indexes for table `customer`
@@ -424,7 +479,7 @@ ALTER TABLE `users_groups`
 -- AUTO_INCREMENT for table `admin_settings`
 --
 ALTER TABLE `admin_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `customer`
 --
@@ -444,7 +499,7 @@ ALTER TABLE `customer_phone`
 -- AUTO_INCREMENT for table `forms`
 --
 ALTER TABLE `forms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `form_data`
 --
@@ -454,12 +509,12 @@ ALTER TABLE `form_data`
 -- AUTO_INCREMENT for table `form_inputs`
 --
 ALTER TABLE `form_inputs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 --
 -- AUTO_INCREMENT for table `form_input_options`
 --
 ALTER TABLE `form_input_options`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=341;
 --
 -- AUTO_INCREMENT for table `form_input_rules`
 --
@@ -469,12 +524,12 @@ ALTER TABLE `form_input_rules`
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
 --
 -- AUTO_INCREMENT for table `payments`
 --
@@ -484,12 +539,12 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `users_groups`
 --
 ALTER TABLE `users_groups`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
