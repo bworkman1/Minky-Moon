@@ -243,7 +243,9 @@ class Forms extends CI_Controller
     public function save_user_form()
     {
         $this->load->model('Form_submit_model');
-        $this->Form_submit_model->submitForm($_POST);
+        $data = isset($_POST['form']) ? $_POST['form'] : array();
+
+        $this->Form_submit_model->submitForm($data);
 
         echo json_encode($this->Form_submit_model->feedback);
     }

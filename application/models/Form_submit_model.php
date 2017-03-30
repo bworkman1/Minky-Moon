@@ -24,7 +24,6 @@ class Form_submit_model extends CI_Model
 
     public function submitForm($post)
     {
-
         if(isset($post['form_id']) && (int)$post['form_id'] > 0) {
 
             $liveForm = $this->Form_model->getFormById($post['form_id']);
@@ -39,6 +38,9 @@ class Form_submit_model extends CI_Model
 
             if(!empty($this->liveFormSettings) && !empty($this->liveFormInputs)) {
                 if($this->validateInputData()) {
+
+                    $this->buildCustomerProfile();
+
                     if($this->paymentTransaction) {
                         $this->processPayment();
                     } else {
@@ -70,21 +72,30 @@ class Form_submit_model extends CI_Model
                     }
                 }
 
-                $this->form_validation->set_rules($input['input_name'], $input['input_label'], $input['input_validation']);
+                $this->form_validation->set_rules('form['.$input["input_name"].']', $input['input_label'], $input['input_validation']);
             }
 
             if($this->paymentTransaction) {
+                $_POST['form']['cardNumber'] = str_replace('-', '', $_POST['form']['cardNumber']);
 
-                $_POST['cardNumber'] = str_replace('-', '', $_POST['cardNumber']);
-
-                $this->form_validation->set_rules('cardNumber', 'Credit Card Number', 'required|integer|min_length[16]|max_length[16]');
-                $this->form_validation->set_rules('cardExpiry', 'Expiration Date', 'required|min_length[5]|max_length[5]');
-                $this->form_validation->set_rules('cardCVC', 'CVC Number', 'required|integer|min_length[2]|max_length[5]');
-                $this->form_validation->set_rules('amount', 'Payment Amount', 'required|decimal|min_length[3]|max_length[8]|greater_than_equal_to['.$this->liveFormSettings['min_cost'].']');
+                $this->form_validation->set_rules('form[cardNumber]', 'Credit Card Number', 'required|integer|min_length[16]|max_length[16]');
+                $this->form_validation->set_rules('form[cardExpiry]', 'Expiration Date', 'required|min_length[5]|max_length[5]');
+                $this->form_validation->set_rules('form[cardCVC]', 'CVC Number', 'required|integer|min_length[2]|max_length[5]');
+                $this->form_validation->set_rules('form[amount]', 'Payment Amount', 'required|decimal|min_length[3]|max_length[8]|greater_than_equal_to['.$this->liveFormSettings['min_cost'].']');
             }
 
             if ($this->form_validation->run() == FALSE) {
-                $this->feedback['errors'] = validation_errors_array();
+                $errors = validation_errors_array();
+                $errorsArray = [];
+                foreach($errors as $key => $val) {
+                    $name = str_replace('form["', '', $key);
+                    $name = str_replace('form[', '', $name);
+                    $name = str_replace('"]', '', $name);
+                    $name = str_replace(']', '', $name);
+                    $errorsArray[$name] = $val;
+                }
+                $this->feedback['msg'] = 'There were some errors on the form. Please fix them and try again';
+                $this->feedback['errors'] = $errorsArray;
                 return false;
             } else {
                 return true;
@@ -111,7 +122,7 @@ class Form_submit_model extends CI_Model
         } else {
             $this->feedback['msg'] = 'Invalid form data submitted';
 
-            log_message('error', 'There was invalid form data submitted... Seem suspicious?');
+            log_message('error', 'There was invalid form data submitted... Seems suspicious?');
             log_message('error', print_r($submittedFields, true));
 
             return false;
@@ -120,12 +131,67 @@ class Form_submit_model extends CI_Model
 
     private function processPayment()
     {
+        $this->load->model('Admin_model');
+        $adminSettings = $this->Admin_model->getAllAdminSettings();
 
+        $config = array(
+            'api_login_id' 			=> $adminSettings['api_key']->value,
+            'api_transaction_key' 	=> $adminSettings['auth_key']->value,
+        );
+
+        log_message('error', print_r($config, true));
+
+
+
+        $this->load->library('authorize_net', $config);
+
+        $auth_net = array(
+            'x_card_num'			=> '4111111111111111', // Visa
+            'x_exp_date'			=> '12/18',
+            'x_card_code'			=> '123',
+            'x_description'			=> 'A test transaction',
+            'x_amount'				=> '20',
+            'x_first_name'			=> 'John',
+            'x_last_name'			=> 'Doe',
+            'x_address'				=> '123 Green St.',
+            'x_city'				=> 'Lexington',
+            'x_state'				=> 'KY',
+            'x_zip'					=> '40502',
+            'x_country'				=> 'US',
+            'x_phone'				=> '555-123-4567',
+            'x_email'				=> 'test@example.com',
+            'x_customer_ip'			=> $this->input->ip_address(),
+        );
+        $this->authorize_net->setData($auth_net);
+
+        if( $this->authorize_net->authorizeAndCapture() )
+        {
+//            echo '<h2>Success!</h2>';
+//            echo '<p>Transaction ID: ' . $this->authorize_net->getTransactionId() . '</p>';
+//            echo '<p>Approval Code: ' . $this->authorize_net->getApprovalCode() . '</p>';
+            log_message('error', $this->authorize_net->getTransactionId());
+            log_message('error', $this->authorize_net->getApprovalCode());
+        }
+        else
+        {
+//            echo '<h2>Fail!</h2>';
+//            // Get error
+//            echo '<p>' . $this->authorize_net->getError() . '</p>';
+//            // Show debug data
+//            $this->authorize_net->debug();
+            log_message('error', $this->authorize_net->getError());
+        }
+       // log_message('error', print_r($auth_net, true));
     }
 
     private function saveFormData()
     {
+        
+    }
 
+    private function buildCustomerProfile()
+    {
+        // if(preg_match('(bad|naughty)', $data)
     }
 
 }

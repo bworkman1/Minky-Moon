@@ -876,25 +876,55 @@ var forms = {
             event.preventDefault();
             var elem = $(this);
             var elemText = $(this).html();
+            var formInputs = {};
+            var options = [];
+            $('#user-form input, #user-form select, #user-form textarea').each(
+                function(index){
+                    var input = $(this);
+                    var name = input.attr('name');
+                    var value = input.val();
+                    if(input.attr('type') == 'radio' || input.attr('type') == 'checkbox') {
 
-            var form_inputs  = $('#user-form').serialize();
-            //var cc_number   = $('#cardNumber').val();
-            //var cc_expires  = $('#cardExpiry').val();
-            //var cc_cvc      = $('#cardCVC').val();
-            //var cc_amount   = $('#ccAmount').val();
-            console.log(form_inputs);
-            var link = $('#base_url').data('base')+'forms/save-user-form';
+                        name = name.replace('[', '');
+                        name = name.replace(']', '');
+                        console.log('Stripped Name: '+name);
+                        if(typeof formInputs[name] == 'undefined') {
+                            formInputs[name] = [];
+                        }
+                        if(typeof options[name] == 'undefined') {
+                            options[name] = [];
+                        }
+
+                        if(input.is(':checked')) {
+                            console.log('PUSH: '+name);
+                            options[name].push(value);
+                            formInputs[name] = options[name];
+                            console.log('Is Checked! NO!')
+                        }
+
+                    } else {
+                        formInputs[name] = value;
+                    }
+                }
+            );
+            console.log(formInputs);
             $.ajax({
-                method: 'post',
+                method: 'POST',
                 dataType: 'json',
-                data: form_inputs,
-                url: link,
+                data: {'form': formInputs},
+                url: $('#base_url').data('base')+'forms/save-user-form',
                 success: function(data) {
-                    console.log(data);
+                    if(data.success) {
+
+                    } else {
+                        forms.handleFormFail(data.msg, data.errors);
+                    }
                 },
                 beforeSend: function() {
                     $(elem).html('<i class="fa fa-spinner fa-spin"></i> Saving').attr('disabled', true);
                     $('body').append('<div id="fullScreenLoading" class="loading">Saving ....</div>');
+                    $('.form-group').removeClass('has-error');
+                    $('.errorString').remove();
                 },
                 complete: function() {
                     $(elem).html(elemText).attr('disabled', false);
@@ -909,6 +939,24 @@ var forms = {
             });
 
         });
+    },
+
+    handleFormFail: function(msg , errors) {
+        alertify.error(msg);
+        var ccErrors = ['cardNumber', 'cardExpiry', 'cardCVC', 'amount'];
+        var keepCCUp = false;
+        for(var i in errors) {
+            var field = i;
+            var errorTxt = errors[i];
+            if(ccErrors.indexOf(field) != -1) {
+                keepCCUp = true;
+            }
+            var errorHtml = '<div class="errorString clearfix text-danger"><i class="fa fa-exclamation-triangle"></i> '+errorTxt+'</div>';
+            $('#'+field).closest('.form-group').addClass('has-error').append(errorHtml);
+        }
+        if(!keepCCUp) {
+            $('#paymentModal').modal('hide');
+        }
     },
 
 }

@@ -29,7 +29,7 @@
                             $required = '<span class="text-danger">*</span> ';
                         }
                         echo '<label>'.$required.$val['input_label'].'</label>';
-                        echo '<input class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'"/>';
+                        echo '<input type="text" id="'.$val['input_name'].'" class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'"/>';
                         echo '</div>';
                         echo '</div>';
                         break;
@@ -42,7 +42,7 @@
                             $required = '<span class="text-danger">*</span> ';
                         }
                         echo '<label>'.$required.$val['input_label'].'</label>';
-                        echo '<select class="'.$val['custom_class'].' form-control" name="'.$val['input_name'].'">';
+                        echo '<select class="'.$val['custom_class'].' form-control" id="'.$val['input_name'].'" name="'.$val['input_name'].'">';
                         echo '<option value="">Select One</option>';
                         foreach($val['options'] as $option) {
                             echo '<option  value="'.$option['value'].'">'.ucwords($option['name']).'</option>';
@@ -62,41 +62,45 @@
                         break;
 
                     case 'checkbox':
-                        echo '<div class="'.$val['input_columns'].'" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'">';
+                        echo '<div class="'.$val['input_columns'].' form-group" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'">';
                         $required = '';
                         if (strpos($val['input_validation'], 'required') !== false) {
                             $required = '<span class="text-danger">*</span> ';
                         }
-                        echo '<label>'.$required.$val['input_label'].'</label><br>';
-                        foreach($val['options'] as $option) {
-                            $inline = 'checkbox';
-                            if($val['input_inline']) {
-                                $inline = 'checkbox-inline';
+                        echo '<div id="'.$val['input_name'].'">';
+                            echo '<label>'.$required.$val['input_label'].'</label><br>';
+                            foreach($val['options'] as $option) {
+                                $inline = 'checkbox';
+                                if($val['input_inline']) {
+                                    $inline = 'checkbox-inline';
+                                }
+                                echo '<div class="'.$inline.'">';
+                                echo '<label><input type="checkbox" class="' . $val['custom_class'] . '" name="' . $val['input_name'] . '[]" value="'.$option['value'].'"> ' . ucwords($option['name']) . '</label>';
+                                echo '</div>';
                             }
-                            echo '<div class="'.$inline.'">';
-                            echo '<label><input type="checkbox" class="' . $val['custom_class'] . '" name="' . $val['input_name'] . '[]" value="'.$option['value'].'"> ' . ucwords($option['name']) . '</label>';
                             echo '</div>';
-                        }
                         echo '</div>';
 
                         break;
 
                     case 'radio':
-                        echo '<div class="'.$val['input_columns'].'" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'">';
-                        $required = '';
-                        if (strpos($val['input_validation'], 'required') !== false) {
-                            $required = '<span class="text-danger">*</span> ';
-                        }
-                        echo '<label>'.$required.$val['input_label'].'</label><br>';
-                        foreach($val['options'] as $option) {
-                            $inline = 'radio';
-                            if($val['input_inline']) {
-                                $inline = 'radio-inline';
+                        echo '<div class="'.$val['input_columns'].' form-group" data-sequence="'.$val['sequence'].'" data-validation="'.$val['input_validation'].'">';
+                            $required = '';
+                            if (strpos($val['input_validation'], 'required') !== false) {
+                                $required = '<span class="text-danger">*</span> ';
                             }
-                            echo '<div class="'.$inline.'">';
-                            echo '<label><input type="radio" class="' . $val['custom_class'] . '" name="' . $val['input_name'] . '[]" value="'.$option['value'].'"> ' . ucwords($option['name']) . '</label>';
+                            echo '<div id="'.$val['input_name'].'">';
+                                echo '<label>'.$required.$val['input_label'].'</label><br>';
+                                foreach($val['options'] as $option) {
+                                    $inline = 'radio';
+                                    if($val['input_inline']) {
+                                        $inline = 'radio-inline';
+                                    }
+                                    echo '<div class="'.$inline.'">';
+                                    echo '<label><input type="radio" class="' . $val['custom_class'] . '" name="' . $val['input_name'] . '[]" value="'.$option['value'].'"> ' . ucwords($option['name']) . '</label>';
+                                    echo '</div>';
+                                }
                             echo '</div>';
-                        }
                         echo '</div>';
 
                         break;
@@ -159,7 +163,7 @@
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <div class="form-group">
-                                                <label for="cardNumber">CARD NUMBER</label>
+                                                <label for="cardNumber"><span class="text-danger">*</span> Card Number</label>
                                                 <div class="input-group">
                                                     <input
                                                         type="tel"
@@ -178,7 +182,7 @@
                                     <div class="row">
                                         <div class="col-xs-7 col-md-7">
                                             <div class="form-group">
-                                                <label for="cardExpiry"><span class="hidden-xs">EXPIRATION</span><span class="visible-xs-inline">EXP</span> DATE</label>
+                                                <label for="cardExpiry"><span class="hidden-xs"><span class="text-danger">*</span> Expiration</span><span class="visible-xs-inline">Exp</span> Date</label>
                                                 <input
                                                     type="tel"
                                                     class="form-control cc-expires"
@@ -193,7 +197,7 @@
                                         </div>
                                         <div class="col-xs-5 col-md-5 pull-right">
                                             <div class="form-group">
-                                                <label for="cardCVC">CV CODE</label>
+                                                <label for="cardCVC">CV Code <small>(On the back)</small></label>
                                                 <input
                                                     type="tel"
                                                     class="form-control"
@@ -208,6 +212,7 @@
                                         </div>
 
                                         <?php if($form['form_settings']['min_cost'] > 0 && $form['form_settings']['min_cost'] < $form['form_settings']['cost']) { ?>
+                                            <div class="clearfix"></div>
                                             <div class="col-xs-5 col-md-5 pull-right">
                                                 <div class="form-group">
                                                     <label for="amount">Payment Amount</label>
@@ -215,7 +220,7 @@
                                                         type="text"
                                                         class="form-control money"
                                                         name="amount"
-                                                        id="ccAmount"
+                                                        id="amount"
                                                         placeholder="0.00"
                                                         maxlength="6"
                                                         value="<?php echo number_format($form['form_settings']['cost'], 2); ?>"
@@ -245,8 +250,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button class="subscribe btn btn-success" id="submitUserForm" type="button">Submit Form</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button class="subscribe btn btn-success" id="submitUserForm" type="button">Submit Form</button>
                 </div>
             </div>
 
