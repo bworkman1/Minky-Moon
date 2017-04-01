@@ -32,13 +32,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><span class="text-danger">*</span> Cost</label>
-                                    <input type="text" class="form-control" maxlength="50" minlength="2" name="form_cost" required placeholder="0.00">
+                                    <input type="text" class="form-control money" maxlength="50" minlength="2" name="form_cost" required placeholder="0.00">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><span class="text-danger">*</span> Min. Payment</label>
-                                    <input type="text" class="form-control" maxlength="50" minlength="2" name="min_payment" required placeholder="0.00">
+                                    <input type="text" class="form-control money" maxlength="50" minlength="2" name="min_payment" required placeholder="0.00">
                                 </div>
                             </div>
                         </div>
@@ -97,6 +97,11 @@
                                     <input type="text" class="form-control" name="input_class" maxlength="50">
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <br>
+                                <button class="btn btn-default pull-right" data-toggle="modal" data-target="#preBuiltClasses">View Presets</button>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -143,11 +148,8 @@
                             </div>
                         </div>
 
-                        <label><input type="checkbox" name="encrypt_data"> <i class="fa fa-question-circle" data-toggle="tooltip" data-title="If checked the input data that the user submits will be encrypted in the database and un-encrypted
-                         when you view it for safer storage."></i> Encrypt Input Data?</label>
-
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <div class="input-group">
                                     <label>Sequence</label>
                                     <select id="inputSequence" name="sequence" class="form-control">
@@ -156,10 +158,20 @@
                                             for($i=0;$i<count($inputs);$i++) {
                                                 echo '<option>'.($i+1).'</option>';
                                             }
+                                        } else {
+                                            echo '<option>1</option>';
                                         }
                                         ?>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <br>
+                                <label><input type="checkbox" name="encrypt_data">
+                                    <i class="fa fa-question-circle" data-toggle="tooltip" data-title="If checked the input data that the user submits will be encrypted in the database and un-encrypted
+                         when you view it for safer storage."></i>
+                                    Encrypt Input Data?
+                                </label>
                             </div>
                         </div>
 
@@ -307,9 +319,34 @@
         </div>
     </div>
 
-</div>
-</div>
 
+</div>
+</div> <!-- EXTRA DIV FOR SOME REASON ITS NEEDED -->
+
+<div id="preBuiltClasses" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-wrench"></i> Prebuilt Classes</h4>
+            </div>
+            <div class="modal-body">
+                <p>Prebuilt classes will format data as the user types in the input boxes. Please make sure that you only use one of the following class types or the data won't work as expected.</p>
+                <ul class="list-group">
+                    <li class="list-group-item">Use "date" to format the input (00/00/0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="use">Use</button></li>
+                    <li class="list-group-item">Uce "time" to format the input (00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="time">Use</button></li>
+                    <li class="list-group-item">Use "date_time" to format the input (00/00/0000 00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="date_time">Use</button></li>
+                    <li class="list-group-item">Use "phone" to format the input ((000) 000-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="phone">Use</button></li>
+                    <li class="list-group-item">Use "money" to format the input (00.00) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="money">Use</button></li>
+                    <li class="list-group-item">Use "ssn" to format the input (000-00-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="ssn">Use</button></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="validationRules" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -372,3 +409,5 @@
         </div>
     </div>
 </div>
+
+

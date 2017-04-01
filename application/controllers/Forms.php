@@ -108,10 +108,11 @@ class Forms extends CI_Controller
 
         $this->form_validation->set_rules(
             'cost', 'form cost',
-            'max_length[10]|decimal',
+            'max_length[10]|decimal|greater_than_equal_to['.$_POST["min"].']',
             array(
                 'required'      => 'You have not provided a %s.',
-                'decimal'     => '%s must be formatted as a currency value (50.00).'
+                'decimal'     => '%s must be formatted as a currency value (50.00).',
+                'greater_than_equal_to'     => 'Cost must be greater then or equal to min payment.'
             )
         );
 

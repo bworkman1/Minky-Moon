@@ -157,6 +157,7 @@ var forms = {
         forms.saveNewForm();
         forms.activateForm();
         forms.saveUserForm();
+        forms.usePrebuiltClass();
     },
 
     addFormName: function() {
@@ -793,8 +794,8 @@ var forms = {
                             window.location.href = $('#base_url').data('base')+'forms/view-form/'+id;
                         } else {
                             var errors = data.errors;
-                            if(errors.length > 0) {
-                                for(var input in errors) {
+                            if(errors) {
+                                for (var input in errors) {
                                     alertify.error(errors[input]);
                                 }
                             } else {
@@ -869,6 +870,16 @@ var forms = {
             options += '<option>'+count+'</option>';
         }
         $('#inputSequence').html(options);
+    },
+
+    usePrebuiltClass: function() {
+        $('.prebuiltClass').click(function() {
+            var type = $(this).data('type');
+            var current = $('input[name="input_class"]').val();
+            var classes = current+' '+type;
+            $('input[name="input_class"]').val(classes.trim());
+            $('#preBuiltClasses').modal('hide');
+        });
     },
 
     saveUserForm: function() {
@@ -987,6 +998,8 @@ $(document).ready(function() {
     $('.money').focusout(function() {
         if($(this).val() == 0) {
             $(this).val('0.00');
+        } else {
+            $('.money').mask('000.00', {reverse: true});
         }
     })
 
