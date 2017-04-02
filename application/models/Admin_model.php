@@ -116,4 +116,21 @@ class Admin_model extends CI_Model
         return $return;
     }
 
+    public function getAdminSettingsByArray($settingNames)
+    {
+        $data = array();
+        if(!empty($settingNames)) {
+            $this->db->select('name, value');
+            $this->db->from('admin_settings');
+            $this->db->where_in('name', $settingNames);
+            $result = $this->db->get()->result();
+            if($result) {
+                foreach($result as $row) {
+                    $data[$row->name] = $row->value;
+                }
+            }
+        }
+        return $data;
+    }
+
 }

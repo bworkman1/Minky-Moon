@@ -48,6 +48,8 @@ class Forms extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.js');
         $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
+        $adminSettings = $this->session->userdata('settings');
+        $this->load->js('https://maps.googleapis.com/maps/api/js?key='.$adminSettings['google_api_key'].'&libraries=places');
         $this->load->js('assets/themes/lapp/js/app.js');
 
         if (!$this->ion_auth->logged_in()) {

@@ -66,6 +66,9 @@ class Login extends CI_Controller {
                     }
                 }
 
+                $this->load->model('Admin_model');
+                $this->session->set_userdata('settings', $this->Admin_model->getAdminSettingsByArray('google_api_key'));
+
                 $returns['success'] = true;
                 $returns['msg'] = strip_tags($this->ion_auth->messages());
             } else {

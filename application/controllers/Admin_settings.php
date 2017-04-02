@@ -63,7 +63,6 @@ class Admin_settings extends CI_Controller
         $this->init();
         $this->load->model('Admin_model');
         $this->load->library('encrypt');
-
         $data['settings'] = $this->Admin_model->getAllAdminSettings();
         $data['groups'] = $this->ion_auth->groups()->result();
 
