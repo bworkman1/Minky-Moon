@@ -898,7 +898,6 @@ var forms = {
 
                         name = name.replace('[', '');
                         name = name.replace(']', '');
-                        console.log('Stripped Name: '+name);
                         if(typeof formInputs[name] == 'undefined') {
                             formInputs[name] = [];
                         }
@@ -907,10 +906,8 @@ var forms = {
                         }
 
                         if(input.is(':checked')) {
-                            console.log('PUSH: '+name);
                             options[name].push(value);
                             formInputs[name] = options[name];
-                            console.log('Is Checked! NO!')
                         }
 
                     } else {
@@ -918,7 +915,6 @@ var forms = {
                     }
                 }
             );
-            console.log(formInputs);
             $.ajax({
                 method: 'POST',
                 dataType: 'json',
@@ -926,7 +922,11 @@ var forms = {
                 url: $('#base_url').data('base')+'forms/save-user-form',
                 success: function(data) {
                     if(data.success) {
-
+                        alertify.success(data.msg);
+                        $('#fullScreenLoading').remove();
+                        document.getElementById("user-form").reset();
+                        $(elem).html(elemText).attr('disabled', false);
+                        $('#paymentModal').modal('hide');
                     } else {
                         forms.handleFormFail(data.msg, data.errors);
                     }
@@ -954,7 +954,7 @@ var forms = {
 
     handleFormFail: function(msg , errors) {
         alertify.error(msg);
-        var ccErrors = ['cardNumber', 'cardExpiry', 'cardCVC', 'amount'];
+        var ccErrors = ['cardNumber', 'cardExpiry', 'cardCVC', 'amount', 'billing_name', 'billing_address', 'billing_city', 'billing_state', 'billing_zip'];
         var keepCCUp = false;
         for(var i in errors) {
             var field = i;
@@ -969,6 +969,7 @@ var forms = {
             $('#paymentModal').modal('hide');
         }
     },
+
 
 }
 
