@@ -3,6 +3,7 @@
 class Form_model extends CI_Model
 {
     public $formId = 999999;
+    private $totalFormsSubmitted;
 
     public function __construct()
     {
@@ -372,6 +373,17 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         return $data;
     }
 
+    private function getFormSettings($form_id)
+    {
+        $data = array();
+        $this->db->where('id', $form_id);
+        $results = $this->db->get('forms')->row_array();
+        if($results) {
+            $data = $results;
+        }
+        return $data;
+    }
+
     private function sortAllFormData($data, $form_id)
     {
         $form = array(
@@ -518,6 +530,133 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                 $this->db->update('form_inputs', array('sequence' => ($i+1)));
             }
         }
+    }
+
+    public function getSubmittedForms($search, $start, $limit)
+    {
+        $formData = array();
+
+        $this->totalFormsSubmitted = $this->getSubmittedCountTotals();
+
+        $sortBy = $this->session->userdata('sort_forms') == 'ASC' ? 'ASC' : 'DESC';
+
+        $where = '';
+        if($search) {
+            $where = " value LIKE '%$this->db->escape($search)%' OR customer_id LIKE '%$this->db->escape($search)%' OR transaction_id LIKE '%$this->db->escape($search)%' ";
+        }
+        $sql = 'SELECT submission_id, customer_id, form_data.form_id, added, form_data.transaction_id, amount, viewed FROM form_data '.$where.' LEFT JOIN payments ON form_data.transaction_id = payments.transaction_id GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed ORDER BY submission_id '.$sortBy.' LIMIT '.$this->db->escape($start).', '.$this->db->escape($limit);
+        $query = $this->db->query($sql);
+        foreach ($query->result_array() as $row) {
+            $row['total_submitted'] = $this->totalFormsSubmitted;
+
+            $formSettings = $this->getFormSettings($row['form_id']);
+            $formSettings['name'] = substr($formSettings['name'], 0, 50);
+
+            $row = array_merge($row, $formSettings);
+
+            $formData[$row['submission_id']] = $row;
+        }
+        return $formData;
+    }
+
+    public function formatSubmittedFormsTable($data)
+    {
+        if($data) {
+            $this->load->library('table');
+            $this->table->set_empty("");
+
+            $headings = array('#', 'Client Id', 'Submitted', 'Transaction Id', 'Amount Paid', 'Form Name', 'Viewed', 'Options');
+            $this->table->set_heading($headings);
+            foreach ($data as $row) {
+
+                $options = '<div class="btn-group">
+                  <button type="button" class="btn btn-primary">Options</button>
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu">';
+                    $options .= '<li><a href="'.base_url('forms/view-form-submission/'.$row['submission_id']).'">View Form Submission</a></li>';
+                    $options .= '<li><a href="#">Another action</a></li>';
+                    $options .= '<li><a href="#">Something else here</a></li>';
+                    $options .= '<li role="separator" class="divider"></li>';
+                    $options .= ' <li><a href="#">Separated link</a></li>';
+                $options .= '</ul></div>';
+
+                if($row['amount'] > 0) {
+                    if($row['amount'] < $row['cost']) {
+                        $row['amount'] = '$'.number_format($row['amount'], 2).' of $'.number_format($row['cost']);
+                    } else {
+                        $row['amount'] = '$'.number_format($row['amount'], 2);
+                    }
+                } else {
+                    $row['amount'] = '$0.00';
+                }
+log_message('error', '  : '.print_r($row, true));
+                $this->table->add_row(
+                    array(
+                        $row['submission_id'],
+                        $row['customer_id'],
+                        date('m/d/Y h:i A', strtotime($row['added'])),
+                        $row['transaction_id'],
+                        $row['amount'],
+                        $row['name'],
+                        $row['viewed'] = $row['viewed'] == TRUE ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>',
+                        $options,
+                    )
+                );
+            }
+            $tmpl = array('table_open' => '<div class="table-responsive"><table class="table table-striped table-bordered">', 'table_close' => '</table></div>');
+            $this->table->set_template($tmpl);
+            $table = $this->table->generate();
+
+        } else {
+            $table = '<table class="table table-striped table-bordered">';
+                $table .= '<tr>';
+                    $table .= '<td><div class="alert alert-info">No Results Found</div></td>';
+                $table .= '</tr>';
+            $table .= '</table>';
+        }
+
+        return $table;
+    }
+
+    private function getSubmittedCountTotals()
+    {
+        $this->db->select('added');
+        $this->db->from('form_data');
+        $this->db->group_by('added');
+        return $this->db->count_all_results();
+    }
+
+    public function paginationResults($limit, $classes = '')
+    {
+
+        $this->load->library('pagination');
+        $config['base_url'] = base_url()."/forms/form-submissions/";
+        $config['total_rows'] = $this->totalFormsSubmitted*8;
+        $config['full_tag_open'] = '<ul class="pagination '.$classes.'">';
+        $config['full_tag_close'] = '</ul>';
+        $config['per_page'] = $limit;
+        $config['num_links'] = 5;
+        $config['uri_segment'] = $this->uri->segment(3);
+        $config['page_query_string'] = false;
+        $config['prev_link'] = '&lt; Prev';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['next_link'] = 'Next &gt;';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a href="#">';
+        $config['cur_tag_close'] = '</a></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['first_link'] = FALSE;
+        $config['last_link'] = FALSE;
+
+        $this->pagination->initialize($config);
+
+        return $this->pagination->create_links();
     }
 
 }

@@ -225,7 +225,7 @@ class Form_submit_model extends CI_Model
         $paymentData = array(
             'amount'            => $values['x_amount'],
             'form_id'           => $this->liveFormSettings['id'],
-            'customer_number'   => $this->clientId,
+            'customer_id'       => $this->clientId,
             'form_cost'         => $this->liveFormSettings['cost'],
             'billing_name'      => $this->encrypt->encode($this->postValues['billing_name']),
             'billing_address'   => $this->encrypt->encode($this->postValues['billing_address']),
@@ -249,13 +249,14 @@ class Form_submit_model extends CI_Model
             return 1;
         }
         $this->db->from('form_data');
-        $this->db->order_by('submission_id', 'desc');
+        $this->db->order_by('submissi`1 on_id', 'desc');
         $this->db->get('form_data');
     }
 
     private function saveFormData()
     {
         $submissionId = $this->getFormSubmissionId();
+        $added = date('Y-m-d H:i:s');
         foreach($this->liveFormInputs as $input) {
             if($input['input_type'] == 'checkbox') {
                 if(!empty($this->postValues[$input['input_name']]) && is_array($this->postValues[$input['input_name']])) {
@@ -264,10 +265,10 @@ class Form_submit_model extends CI_Model
                             'customer_id'   => $this->clientId,
                             'value'         => $val,
                             'name'          => $input['input_name'],
+                            'added'         => $added,
                             'form_id'       => $this->submittedFormId,
                             'submission_id' => $submissionId,
                             'transaction_id'=> $this->transaction_id,
-                            'customer_number'=> $this->clientId,
                         );
                         $this->db->insert('form_data', $formInput);
                     }
@@ -277,10 +278,10 @@ class Form_submit_model extends CI_Model
                     'customer_id'   => $this->clientId,
                     'value'         => $this->postValues[$input['input_name']],
                     'name'          => $input['input_name'],
+                    'added'         => $added,
                     'form_id'       => $this->submittedFormId,
                     'submission_id' => $submissionId,
                     'transaction_id'=> $this->transaction_id,
-                    'customer_number' => $this->clientId,
                 );
                 $this->db->insert('form_data', $formInput);
             }
@@ -350,5 +351,6 @@ class Form_submit_model extends CI_Model
             $this->email->send();
         }
     }
+
 
 }

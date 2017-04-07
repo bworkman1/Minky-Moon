@@ -253,5 +253,24 @@ class Forms extends CI_Controller
         echo json_encode($this->Form_submit_model->feedback);
     }
 
+    public function form_submissions()
+    {
+        $this->init_page();
+        $this->load->model('Form_model');
+
+        $limit = $this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->get->post('limit');
+        $limit = $limit != '' ? $limit : 20;
+
+        $start = $this->uri->segment('5') != '' ? $this->uri->segment('5') : 0;
+        $search = $this->input->post('search');
+
+        $submittedForms = $this->Form_model->getSubmittedForms($search, $start, $limit);
+        $data['table'] = $this->Form_model->formatSubmittedFormsTable($submittedForms);
+        $data['links'] = $this->Form_model->paginationResults($limit, 'pull-right');
+
+        $this->load->view('forms/form-submissions', $data);
+    }
+
+
 
 }
