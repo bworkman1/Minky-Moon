@@ -4,6 +4,7 @@ class Form_model extends CI_Model
 {
     public $formId = 999999;
     private $totalFormsSubmitted;
+    private $searchedSubmission;
 
     public function __construct()
     {
@@ -541,47 +542,51 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $sortBy = $this->session->userdata('sort_forms') == 'ASC' ? 'ASC' : 'DESC';
 
         $where = '';
+        $params = array();
         if($search) {
-            $where = " value LIKE '%$this->db->escape($search)%' OR customer_id LIKE '%$this->db->escape($search)%' OR transaction_id LIKE '%$this->db->escape($search)%' ";
+            $this->searchedSubmission = $search;
+            $search = '%'.$search.'%';
+            $params = array($search, $search, $search);
+            $where = ' WHERE form_data.value LIKE ? OR form_data.customer_id LIKE ? OR form_data.transaction_id LIKE ? ';
         }
-        $sql = 'SELECT submission_id, customer_id, form_data.form_id, added, form_data.transaction_id, amount, viewed FROM form_data '.$where.' LEFT JOIN payments ON form_data.transaction_id = payments.transaction_id GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed ORDER BY submission_id '.$sortBy.' LIMIT '.$this->db->escape($start).', '.$this->db->escape($limit);
-        $query = $this->db->query($sql);
+
+        $params[] = (int)$start;
+        $params[] = (int)$limit;
+        $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, amount, form_data.viewed 
+            FROM form_data 
+            LEFT JOIN payments 
+                ON form_data.transaction_id = payments.transaction_id 
+                 '.$where.'
+            GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed 
+            ORDER BY submission_id '.$sortBy.' LIMIT ?, ?';
+
+
+        $query = $this->db->query($sql, $params);
         foreach ($query->result_array() as $row) {
             $row['total_submitted'] = $this->totalFormsSubmitted;
-
+            $row['submitted'] = $row['added'];
             $formSettings = $this->getFormSettings($row['form_id']);
             $formSettings['name'] = substr($formSettings['name'], 0, 50);
 
             $row = array_merge($row, $formSettings);
-
             $formData[$row['submission_id']] = $row;
         }
         return $formData;
     }
 
-    public function formatSubmittedFormsTable($data)
+    public function formatSubmittedFormsTable($data, $start)
     {
         if($data) {
             $this->load->library('table');
             $this->table->set_empty("");
 
-            $headings = array('#', 'Client Id', 'Submitted', 'Transaction Id', 'Amount Paid', 'Form Name', 'Viewed', 'Options');
+            $headings = array('#', 'Client Id', 'Form Name', 'Submitted', 'Transaction Id', 'Amount Paid', 'Viewed', 'Options');
             $this->table->set_heading($headings);
             foreach ($data as $row) {
 
-                $options = '<div class="btn-group">
-                  <button type="button" class="btn btn-primary">Options</button>
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                    <span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <ul class="dropdown-menu">';
-                    $options .= '<li><a href="'.base_url('forms/view-form-submission/'.$row['submission_id']).'">View Form Submission</a></li>';
-                    $options .= '<li><a href="#">Another action</a></li>';
-                    $options .= '<li><a href="#">Something else here</a></li>';
-                    $options .= '<li role="separator" class="divider"></li>';
-                    $options .= ' <li><a href="#">Separated link</a></li>';
-                $options .= '</ul></div>';
+                $options = '<a href="'.base_url('forms/view-submitted-form/'.$row['submission_id']).'" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a>';
+                //$options .= '<a href="'.base_url('forms/print-form-submission/'.$row['submission_id']).'" data-toggle="tooltip" data-title="Print Form Submission" class="btn btn-info btn-sm"><i class="fa fa-print"></i></a>';
+                $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="'.$row["submission_id"].'" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i></button>';
 
                 if($row['amount'] > 0) {
                     if($row['amount'] < $row['cost']) {
@@ -592,16 +597,26 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                 } else {
                     $row['amount'] = '$0.00';
                 }
-log_message('error', '  : '.print_r($row, true));
+
+                if($this->searchedSubmission) {
+                    if(strpos($row['transaction_id'], $this->searchedSubmission) !== false) {
+                        $row['transaction_id'] = '<span class="highlightedSearch">'.$row['transaction_id'].'</span>';
+                    }
+                    if(strpos($row['customer_id'], $this->searchedSubmission) !== false) {
+                        $row['customer_id'] = '<span class="highlightedSearch">'.$row['customer_id'].'</span>';
+                    }
+                }
+                //log_message('error', ' '.print_r($row['added'], true));
+                $start = $start+1;
                 $this->table->add_row(
                     array(
-                        $row['submission_id'],
+                        $start,
                         $row['customer_id'],
-                        date('m/d/Y h:i A', strtotime($row['added'])),
+                        $row['name'],
+                        date('m/d/Y h:i A', strtotime($row['submitted'])),
                         $row['transaction_id'],
                         $row['amount'],
-                        $row['name'],
-                        $row['viewed'] = $row['viewed'] == TRUE ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>',
+                        $row['viewed'] = $row['viewed'] == TRUE ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times notYetViewedForm text-danger"></i>',
                         $options,
                     )
                 );
@@ -631,10 +646,9 @@ log_message('error', '  : '.print_r($row, true));
 
     public function paginationResults($limit, $classes = '')
     {
-
         $this->load->library('pagination');
         $config['base_url'] = base_url()."/forms/form-submissions/";
-        $config['total_rows'] = $this->totalFormsSubmitted*8;
+        $config['total_rows'] = $this->totalFormsSubmitted;
         $config['full_tag_open'] = '<ul class="pagination '.$classes.'">';
         $config['full_tag_close'] = '</ul>';
         $config['per_page'] = $limit;
@@ -658,6 +672,48 @@ log_message('error', '  : '.print_r($row, true));
 
         return $this->pagination->create_links();
     }
+
+    public function getSubmittedFormById($form_id, $submission_id)
+    {
+        $data['form'] = $this->getFormById($form_id);
+
+        $query = $this->db->get_where('form_data', array('submission_id' => $submission_id));
+        $values = $query->result_array();
+        $data['values'] = $this->reorderArrayKeyNames($values, 'name');
+
+        log_message('error', print_r($values, true));
+        if(!empty($values)) {
+            if (empty($values[0]['viewed'])) {
+                $this->db->where('submission_id', $values[0]['submission_id']);
+                $this->db->update('form_data', array('viewed' => true));
+            }
+        }
+
+        return $data;
+    }
+
+    public function convertSubmissionIdToFormId($submission_id)
+    {
+        $this->db->select('form_id, transaction_id');
+        $this->db->group_by('submission_id, form_id, transaction_id');
+        $query = $this->db->get_where('form_data', array('submission_id' => $submission_id));
+
+        return $query->row_array();
+    }
+
+    public function reorderArrayKeyNames($array, $keyName)
+    {
+        $data = array();
+        if($array) {
+            foreach($array as $row) {
+                $newKey = $row[$keyName];
+                $data[$newKey][] = $row;
+            }
+        }
+        return $data;
+    }
+
+
 
 }
 

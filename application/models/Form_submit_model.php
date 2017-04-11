@@ -249,7 +249,7 @@ class Form_submit_model extends CI_Model
             return 1;
         }
         $this->db->from('form_data');
-        $this->db->order_by('submissi`1 on_id', 'desc');
+        $this->db->order_by('submission_id', 'desc');
         $this->db->get('form_data');
     }
 

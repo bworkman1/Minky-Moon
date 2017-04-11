@@ -143,6 +143,16 @@ input.signature {
     margin-top: -5px;
     margin-right: -4px;
 }
+.highlightedSearch {
+    background: yellow;
+}
+#searchFormSubmission {
+    cursor: pointer;
+}
+.underline {
+    border-bottom: 1px solid #ccc;
+    margin-top: 10px;
+}
 /* Animation */
 
 @-webkit-keyframes spinner {

@@ -219,6 +219,11 @@ class Forms extends CI_Controller
         $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
+        if(empty($data['form'])) {
+            show_404();
+            exit;
+        }
+
         $data['validation_options'] = $this->Form_model->getValidationRules();
 
         $this->Form_model->formId = $formId;
@@ -239,7 +244,6 @@ class Forms extends CI_Controller
         $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
-
         $this->load->view('forms/enter-form-manually', $data);
     }
 
@@ -258,19 +262,54 @@ class Forms extends CI_Controller
         $this->init_page();
         $this->load->model('Form_model');
 
-        $limit = $this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->get->post('limit');
+        $limit = (int)$this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->input->post('limit');
+        $this->session->set_userdata('submission_limit', $limit);
+
         $limit = $limit != '' ? $limit : 20;
 
         $start = $this->uri->segment('5') != '' ? $this->uri->segment('5') : 0;
         $search = $this->input->post('search');
 
         $submittedForms = $this->Form_model->getSubmittedForms($search, $start, $limit);
-        $data['table'] = $this->Form_model->formatSubmittedFormsTable($submittedForms);
+
+        $data['table'] = $this->Form_model->formatSubmittedFormsTable($submittedForms, $start);
         $data['links'] = $this->Form_model->paginationResults($limit, 'pull-right');
 
         $this->load->view('forms/form-submissions', $data);
     }
 
+    public function view_submitted_form()
+    {
+        $this->init_page();
 
+        $this->load->model('Form_model');
+
+        $submissionId = (int)$this->uri->segment(3);
+        $formId = $this->Form_model->convertSubmissionIdToFormId($submissionId);
+        if($formId) {
+            $this->load->model('Payment_model');
+
+            $data = $this->Form_model->getSubmittedFormById($formId['form_id'], $submissionId);
+
+            if(!empty($data['form'])) {
+                $title = htmlentities($data['form']['form_settings']['name']);
+                $this->output->set_common_meta($title, '', '');
+            }
+
+            $data['payment'] = '';
+            if(isset($data['values'])) {
+                $data['payment'] = $this->Payment_model->getPaymentByTransactionId($formId['transaction_id']);
+            }
+
+            $this->load->view('forms/view-submitted-form', $data);
+        } else {
+            show_404();
+        }
+    }
+
+    public function print_form_submission()
+    {
+
+    }
 
 }

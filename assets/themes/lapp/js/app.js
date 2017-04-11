@@ -159,6 +159,7 @@ var forms = {
         forms.saveUserForm();
         forms.colorSubmittedFormsRed();
         forms.usePrebuiltClass();
+        forms.formSubmissionPerPage();
     },
 
     addFormName: function() {
@@ -973,10 +974,16 @@ var forms = {
 
     colorSubmittedFormsRed: function() {
         $('.table tr td i').each(function() {
-            if($(this).hasClass('fa-times')) {
+            if($(this).hasClass('notYetViewedForm')) {
                 $(this).closest('tr').addClass('text-danger');
             }
             console.log($(this));
+        });
+    },
+
+    formSubmissionPerPage: function() {
+        $('#formSubmissionsPerPage').change(function() {
+            $('#perPageForm').submit();
         });
     }
 
