@@ -141,7 +141,11 @@
                     <h4 class="modal-title">Payment Details</h4>
                 </div>
                 <div class="modal-body">
-                    <?php $this->load->view('forms/credit-card-form'); ?>
+                    <?php
+                        if($form['form_settings']['cost'] > 0) {
+                            $this->load->view('forms/credit-card-form');
+                        }
+                    ?>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

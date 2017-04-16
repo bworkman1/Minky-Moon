@@ -160,6 +160,7 @@ var forms = {
         forms.colorSubmittedFormsRed();
         forms.usePrebuiltClass();
         forms.formSubmissionPerPage();
+        forms.deleteForm();
     },
 
     addFormName: function() {
@@ -985,7 +986,47 @@ var forms = {
         $('#formSubmissionsPerPage').change(function() {
             $('#perPageForm').submit();
         });
-    }
+    },
+
+    deleteForm: function() {
+      $('.deleteForm').click(function() {
+          var url = $(this).data('url');
+          var elem = $(this);
+          var elemText = $(this).html();
+          var msg = 'Are you sure you want to delete this form? Deleting it won\'t affect submitted forms but will not allow any new submissions to be added';
+          alertify.confirm(msg, function (e) {
+              if (e) {
+                  if(url) {
+                      $.ajax({
+                          dataType: 'json',
+                          url: url,
+                          success: function(data) {
+                              if(data.success) {
+                                  alertify.success(data.msg);
+                                  $(elem).closest('tr').remove();
+                              } else {
+                                  alertify.error(data.msg);
+                              }
+                          },
+                          beforeSend: function() {
+                              $(elem).html('<i class="fa fa-gear fa-spin"></i>').attr('disabled', true);
+                          },
+                          complete: function() {
+                              $(elem).html(elemText).attr('disabled', false);
+                          },
+                          error: function() {
+                              $(elem).html(elemText).attr('disabled', false);
+                              alertify.error('Could not process request, please refresh your page and try again');
+                          }
+                      });
+                  } else {
+                      alertify.error('Could not process request, please refresh your page and try again');
+                  }
+              }
+          });
+
+      });
+    },
 
 }
 

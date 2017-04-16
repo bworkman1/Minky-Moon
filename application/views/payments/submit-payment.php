@@ -61,9 +61,76 @@ $us_state_abbrevs_names = array(
 
 ?>
 <div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-default credit-card-box">
+            <div class="panel-heading display-table" >
+                <h3 class="panel-title">Client Details</h3>
+            </div>
+            <div class="panel-body">
+                <p>If this payment is a payment for a form that the user has already filled out and made a partial payment on you can go to their submitted form and tie the payment to that particular form.</p>
+                <div class="form-group">
+                    <label for="name"><span class="text-danger">*</span> Client Name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Name" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="billingAddress"><span class="text-danger">*</span> Address</label>
+                    <input type="text" onfocus="initMap()" class="form-control address addressLookup" name="address" id="billing_address" placeholder="Address" required/>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label><span class="text-danger">*</span> City</label>
+                            <input type="text" class="form-control city" name="city" id="billing_city" placeholder="City" required/>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label><span class="text-danger">*</span> State</label>
+                            <select name="state" id="billing_state" class="state form-control">
+                                <option value="">Select State</option>
+                                <?php
+                                foreach($us_state_abbrevs_names as $val => $state) {
+                                    if($val == 'OH') {
+                                        echo '<option value="'.$val.'" selected>'.ucwords(strtolower($state)).'</option>';
+                                    } else {
+                                        echo '<option value="'.$val.'">'.ucwords(strtolower($state)).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-4 col-md-5 col-sm-6 col-xs-8">
+                        <div class="form-group">
+                            <label><span class="text-danger">*</span> Zip</label>
+                            <input type="text" class="form-control zip" maxlength="5" name="zip" id="billing_zip" placeholder="Zip" required/>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-5 col-sm-6 col-xs-8">
+                        <div class="form-group">
+                            <label><span class="text-danger">*</span> Client Number</label>
+                            <input type="text" class="form-control zip" maxlength="5" name="zip" id="client_number" placeholder="AA0000" required/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- You can make it whatever width you want. I'm making it full width
          on <= small devices and 4/12 page width on >= medium devices -->
-    <div class="col-md-6">
+    <div class="col-md-4">
 
         <div class="panel panel-default credit-card-box">
             <div class="panel-heading display-table" >
@@ -95,13 +162,13 @@ $us_state_abbrevs_names = array(
                             <select name="billing_state" id="billing_state" class="state form-control">
                                 <option value="">Select State</option>
                                 <?php
-                                    foreach($us_state_abbrevs_names as $val => $state) {
-                                        if($val == 'OH') {
-                                            echo '<option value="'.$val.'" selected>'.ucwords(strtolower($state)).'</option>';
-                                        } else {
-                                            echo '<option value="'.$val.'">'.ucwords(strtolower($state)).'</option>';
-                                        }
+                                foreach($us_state_abbrevs_names as $val => $state) {
+                                    if($val == 'OH') {
+                                        echo '<option value="'.$val.'" selected>'.ucwords(strtolower($state)).'</option>';
+                                    } else {
+                                        echo '<option value="'.$val.'">'.ucwords(strtolower($state)).'</option>';
                                     }
+                                }
                                 ?>
                             </select>
                         </div>
@@ -117,15 +184,16 @@ $us_state_abbrevs_names = array(
                             <input type="text" class="form-control zip" maxlength="5" name="billing_zip" id="billing_zip" placeholder="Zip" required/>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-lg-offset-4 col-md-5 col-sm-6 col-xs-8">
+                        <label style="margin-top: 30px;"><input type="checkbox" id="copyHomeAddress"> Copy Home Address</label>
+                    </div>
                 </div>
 
 
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-
-
+    <div class="col-md-4">
         <!-- CREDIT CARD FORM STARTS HERE -->
         <div class="panel panel-default credit-card-box">
             <div class="panel-heading display-table" >
@@ -153,10 +221,10 @@ $us_state_abbrevs_names = array(
                         <div class="form-group">
                             <label for="cardExpiry"><span class="hidden-xs"><span class="text-danger">*</span> Expiration</span><span class="visible-xs-inline">Exp</span> Date</label>
                             <input type="tel" class="form-control cc-expires" name="cardExpiry" id="cardExpiry" placeholder="MM / YY"
-                                autocomplete="cc-exp"
-                                maxlength="5"
-                                required
-                                />
+                                   autocomplete="cc-exp"
+                                   maxlength="5"
+                                   required
+                            />
                         </div>
                     </div>
                     <div class="col-xs-5 col-md-5 pull-right">
@@ -166,19 +234,21 @@ $us_state_abbrevs_names = array(
                         </div>
                     </div>
 
-                    <?php if($form['form_settings']['min_cost'] > 0 && $form['form_settings']['min_cost'] < $form['form_settings']['cost']) { ?>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-5 col-md-5 pull-right">
-                            <div class="form-group">
-                                <label for="amount"><span class="text-danger">*</span> Payment Amount</label>
-                                <input type="text" class="form-control money" name="amount" id="amount" placeholder="0.00" maxlength="6" value="<?php echo number_format($form['form_settings']['cost'], 2); ?>" required />
-                            </div>
+                    <div class="col-xs-5 col-md-5">
+                        <div class="form-group">
+                            <label for="amount"><span class="text-danger">*</span> Payment Amount</label>
+                            <input type="text" class="form-control money" name="amount" id="amount" placeholder="0.00" maxlength="6" value="" required />
                         </div>
-                    <?php } else { ?>
-                        <div class="col-xs-5 col-md-5 pull-right">
-                            <h3><b>Cost:</b> $<?php echo number_format($form['form_settings']['cost'], 2); ?></h3>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="amount"><span class="text-danger">*</span> Payment For</label>
+                            <input type="text" class="form-control" name="for" id="for" maxlength="255" value="" required />
                         </div>
-                    <?php } ?>
+                    </div>
                 </div>
 
                 <div class="row" style="display:none;">
@@ -186,6 +256,9 @@ $us_state_abbrevs_names = array(
                         <p class="payment-errors"></p>
                     </div>
                 </div>
+                <hr>
+                <button id="submitPayment" class="btn btn-info pull-right">Submit Payment</button>
+
             </div>
         </div>
 

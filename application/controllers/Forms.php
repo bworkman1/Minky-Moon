@@ -307,9 +307,22 @@ class Forms extends CI_Controller
         }
     }
 
-    public function print_form_submission()
+    public function delete_form()
     {
+        $this->load->model('Form_model');
 
+        if($this->ion_auth->is_admin()) {
+            $submissionId = (int)$this->uri->segment(3);
+            $feedback = $this->Form_model->deleteForm($submissionId);
+        } else {
+            $feedback = array(
+                'success' => false,
+                'msg' => 'You don\'t have the permission to delete this form. Only admins can delete forms',
+            );
+        }
+        echo json_encode($feedback);
     }
+
+
 
 }

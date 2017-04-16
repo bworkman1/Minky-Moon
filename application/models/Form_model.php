@@ -459,6 +459,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             'active' => '',
         );
         $forms = array();
+        $this->db->where('deleted != ', true);
         $query = $this->db->get('forms');
         foreach ($query->result() as $row) {
             $formData = array(
@@ -584,9 +585,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $this->table->set_heading($headings);
             foreach ($data as $row) {
 
-                $options = '<a href="'.base_url('forms/view-submitted-form/'.$row['submission_id']).'" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a>';
+                $options = '<a href="'.base_url('forms/view-submitted-form/'.$row['submission_id']).'" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> View</a>';
                 //$options .= '<a href="'.base_url('forms/print-form-submission/'.$row['submission_id']).'" data-toggle="tooltip" data-title="Print Form Submission" class="btn btn-info btn-sm"><i class="fa fa-print"></i></a>';
-                $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="'.$row["submission_id"].'" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i></button>';
+                $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="'.$row["submission_id"].'" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i> Delete</button>';
 
                 if($row['amount'] > 0) {
                     if($row['amount'] < $row['cost']) {
@@ -606,7 +607,6 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                         $row['customer_id'] = '<span class="highlightedSearch">'.$row['customer_id'].'</span>';
                     }
                 }
-                //log_message('error', ' '.print_r($row['added'], true));
                 $start = $start+1;
                 $this->table->add_row(
                     array(
@@ -713,7 +713,19 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         return $data;
     }
 
+    public function deleteForm($formId)
+    {
+        $this->db->where('id', $formId);
+        $this->db->update('forms', array('deleted' => true));
 
+        $feedback = array(
+            'success' => true,
+            'msg' => 'You have successfully deleted this form',
+        );
+
+        return $feedback;
+
+    }
 
 }
 

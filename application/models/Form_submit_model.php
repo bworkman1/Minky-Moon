@@ -108,7 +108,13 @@ class Form_submit_model extends CI_Model
                 $this->form_validation->set_rules('form[cardNumber]', 'Credit Card Number', 'required|integer|min_length[16]|max_length[16]');
                 $this->form_validation->set_rules('form[cardExpiry]', 'Expiration Date', 'required|min_length[5]|max_length[5]');
                 $this->form_validation->set_rules('form[cardCVC]', 'CVC Number', 'required|integer|min_length[2]|max_length[5]');
-                $this->form_validation->set_rules('form[amount]', 'Payment Amount', 'required|decimal|min_length[3]|max_length[8]|less_than_equal_to['.$this->liveFormSettings['cost'].']|greater_than_equal_to['.$this->liveFormSettings['min_cost'].']');
+
+                if($this->liveFormSettings['min_cost'] > 0 && $this->liveFormSettings['cost'] != $this->liveFormSettings['min_cost']) {
+                    $this->postValues['amount'] = $this->liveFormSettings['min_cost'];
+                    $this->form_validation->set_rules('form[amount]', 'Payment Amount', 'required|decimal|min_length[3]|max_length[8]|less_than_equal_to[' . $this->liveFormSettings['cost'] . ']|greater_than_equal_to[' . $this->liveFormSettings['min_cost'] . ']');
+                } elseif($this->liveFormSettings['min_cost'] > 0) {
+                    $this->postValues['amount'] = $this->liveFormSettings['min_cost'];
+                }
             }
 
             if ($this->form_validation->run() == FALSE) {
@@ -139,8 +145,8 @@ class Form_submit_model extends CI_Model
     {
         $submittedKeys = array_keys($this->postValues);
         $liveKeys = array_keys($this->liveFormInputs);
-
         if($this->liveFormSettings['min_cost'] > 0) {
+
             $this->paymentTransaction = true;
             $paymentKeys = array('cardNumber', 'cardExpiry', 'cardCVC', 'amount', 'billing_name', 'billing_address', 'billing_city', 'billing_state', 'billing_zip');
             $liveKeys = array_merge($paymentKeys, $liveKeys);
@@ -151,7 +157,7 @@ class Form_submit_model extends CI_Model
         if(empty($submittedFields)) {
             return true;
         } else {
-            $this->feedback['msg'] = 'There were an incorrect about of form inputs submitted, please refresh your screen and trying again.';
+            $this->feedback['msg'] = 'There were an incorrect amount of form inputs submitted, please refresh your screen and trying again.';
             return false;
         }
     }
@@ -311,6 +317,7 @@ class Form_submit_model extends CI_Model
             $lastName2 = substr($lastNameValue, 0, 2);
 
             // look for ssn input
+            $social = '';
             $findSSN = array('ssn', 'social', 'social_security', 'social_security_number');
             foreach ($findSSN as $val) {
                 if (isset($this->postValues[$val])) {
