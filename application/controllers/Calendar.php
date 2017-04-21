@@ -1,9 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Payments extends CI_Controller
+class Calendar extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -54,7 +53,7 @@ class Payments extends CI_Controller
         $this->load->js('assets/themes/admin/build/js/custom.js');
         $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
         $adminSettings = $this->session->userdata('settings');
-        $this->load->js('https://maps.googleapis.com/maps/api/js?key='.$adminSettings['google_api_key'].'&libraries=places');
+        $this->load->js('https://maps.googleapis.com/maps/api/js?key=' . $adminSettings['google_api_key'] . '&libraries=places');
         $this->load->js('assets/themes/lapp/js/app.js');
 
 
@@ -66,15 +65,9 @@ class Payments extends CI_Controller
     public function index()
     {
         $this->init_page();
-
-        $this->load->view('payments/all-payments');
-    }
-
-    public function submit_payment()
-    {
-        $this->init_page();
-
-        $this->load->view('payments/submit-payment');
+        $this->load->model('Calendar_model');
+        $data['calendar'] = $this->Calendar_model->getCalendar();
+        $this->load->view('admin/view-calendar', $data);
     }
 
 }

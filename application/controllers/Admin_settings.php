@@ -16,7 +16,7 @@ class Admin_settings extends CI_Controller
 
     private function init()
     {
-        $this->output->enable_profiler(false);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');

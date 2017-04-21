@@ -15,7 +15,7 @@ class Update extends CI_Controller {
 
     public function index()
     {
-        $this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(PROFILER);
 
 
         $this->load->library('migration');

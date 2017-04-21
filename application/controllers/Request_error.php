@@ -8,7 +8,7 @@ class Request_error extends CI_Controller
     {
         parent::__construct();
 
-        $this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/lapp/css/bootstrap.min.css');
         $this->load->css('assets/themes/lapp/css/font-awesome.min.css');

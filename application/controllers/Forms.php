@@ -7,11 +7,16 @@ class Forms extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+
+        if (!$this->ion_auth->logged_in()) {
+            redirect('login');
+            exit;
+        }
     }
 
     public function init_page()
     {
-        $this->output->enable_profiler(true);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
@@ -52,13 +57,7 @@ class Forms extends CI_Controller
         $this->load->js('https://maps.googleapis.com/maps/api/js?key='.$adminSettings['google_api_key'].'&libraries=places');
         $this->load->js('assets/themes/lapp/js/app.js');
 
-        if (!$this->ion_auth->logged_in()) {
-            redirect('login');
-            exit;
-        }
-
         $this->output->set_template('admin-left-menu');
-
     }
 
     public function index()

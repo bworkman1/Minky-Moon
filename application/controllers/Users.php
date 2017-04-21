@@ -16,7 +16,7 @@ class Users extends CI_Controller
 
     public function init_page()
     {
-        $this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');

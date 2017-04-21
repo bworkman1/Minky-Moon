@@ -9,7 +9,7 @@ class Dashboard extends CI_Controller
     {
         parent::__construct();
 
-        $this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
@@ -63,6 +63,23 @@ class Dashboard extends CI_Controller
     public function index()
     {
         $this->load->view('admin/dashboard');
+    }
+
+    function get_ars()
+    {
+        // Load RSS Parser
+        $this->load->library('rssparser', array($this, 'parseFile'));
+        $rss = $this->rssparser->set_feed_url('http://feeds.abcnews.com/abcnews/politicsheadlines')->set_cache_life(30)->getFeed(6);
+        echo '<pre>';
+            print_r($rss);
+        echo '</pre>';
+        return $rss;
+    }
+
+    function parseFile($data, $item)
+    {
+        $data['image'] = (string)$item->thumbnail;
+        return $data;
     }
 
 }

@@ -153,8 +153,14 @@ input.signature {
     border-bottom: 1px solid #ccc;
     margin-top: 10px;
 }
+#lapp-calendar table {
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+#lapp-calendar table td {
+    height: 100px !important;
+}
 /* Animation */
-
 @-webkit-keyframes spinner {
     0% {
         -webkit-transform: rotate(0deg);

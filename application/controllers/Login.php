@@ -15,7 +15,7 @@ class Login extends CI_Controller {
             exit;
         }
 
-        $this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(PROFILER);
 
         $this->load->library('form_validation');
         $this->load->helper('form');
