@@ -1031,7 +1031,6 @@ var forms = {
 }
 
 
-
 $(document).ready(function() {
     formSubmit.call();
     buttonActions.listenForAction();

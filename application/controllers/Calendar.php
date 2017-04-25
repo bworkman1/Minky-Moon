@@ -55,6 +55,7 @@ class Calendar extends CI_Controller
         $adminSettings = $this->session->userdata('settings');
         $this->load->js('https://maps.googleapis.com/maps/api/js?key=' . $adminSettings['google_api_key'] . '&libraries=places');
         $this->load->js('assets/themes/lapp/js/app.js');
+        $this->load->js('assets/themes/lapp/js/calendar.js');
 
 
         $this->load->model('Payment_model');
@@ -68,6 +69,18 @@ class Calendar extends CI_Controller
         $this->load->model('Calendar_model');
         $data['calendar'] = $this->Calendar_model->getCalendar();
         $this->load->view('admin/view-calendar', $data);
+    }
+
+    public function add_event()
+    {
+        $input = array(
+            'name'      => $this->input->post('name'),
+            'all_day'   => $this->input->post('all_day'),
+            'start'     => $this->input->post('start'),
+            'desc'      => $this->input->post('desc'),
+        );
+        $this->load->model('Calendar_model');
+        echo json_encode($this->Calendar_model->addEvent($input));
     }
 
 }

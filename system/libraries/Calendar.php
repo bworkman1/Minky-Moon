@@ -222,11 +222,12 @@ class CI_Calendar {
                         // If more than one event on the same day
                         if (is_array($data[$day]))
                         {
-                            $several_events = '';
+                            $several_events = '<ul class="event-list">';
                             foreach ($data[$day] as $key => $value)
                             {
-                                $several_events .= '<li class="event" id="'.$key.'" data-id="'.$key.'">'.$value.'</li>';
+                                $several_events .= '<li class="event" id="'.$key.'" data-toggle="tooltip" data-title="View Event" data-id="'.$key.'">'.$value.'</li>';
                             }
+                            $several_events .= '</ul>';
                             $out .= str_replace('{day}', $day, str_replace('{content}', $several_events, $temp));
                         }
 

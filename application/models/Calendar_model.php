@@ -42,7 +42,7 @@ class Calendar_model extends CI_Model
         {cal_cell_start}<td>{/cal_cell_start}
         
         {cal_cell_content}{day}<br>{content}{/cal_cell_content}
-        {cal_cell_content_today}<div class="badge badge-info"><a href="{content}">{day}</a></div>{/cal_cell_content_today}
+        {cal_cell_content_today}<div class="badge badge-info">{day}</div>{content}{/cal_cell_content_today}
         
         {cal_cell_no_content}{day}{/cal_cell_no_content}
         {cal_cell_no_content_today}<div class="badge">{day}</div>{/cal_cell_no_content_today}
@@ -59,22 +59,11 @@ class Calendar_model extends CI_Model
         $prefs['next_prev_url'] = base_url('Calendar/index/');
 
         $this->load->library('calendar', $prefs);
-
-        $data = array(
-            3  => array(
-                1 => 'Event Name 1',
-                2 => 'Event Name 2',
-                3 => 'Event Name 3',
-            ),
-            7  => 'http://example.com/news/article/2006/06/07/',
-            13 => 'http://example.com/news/article/2006/06/13/',
-            21 => 'http://example.com/news/article/2006/06/26/'
-        );
         $calendarEvents = array();
 
         $data = $this->getEvents();
-        if($data) {
-            foreach($data as $row) {
+        if ($data) {
+            foreach ($data as $row) {
                 $startDay = date('d', strtotime($row['start']));
                 $endDay = date('d', strtotime($row['end']));
                 $startMonth = date('m', strtotime($row['start']));
@@ -82,28 +71,26 @@ class Calendar_model extends CI_Model
 
                 $startHourView = date('h A', strtotime($row['start']));
 
-                if($row['all_day']) {
-                    $row['name'] = '<span>'.$row['name'].'</span>';
+                if ($row['all_day']) {
+                    $row['name'] = '<span>' . $row['name'] . '</span>';
                 } else {
-                    $row['name'] = '<starts>'.$startHourView.'</starts>'.' - '.$row['name'];
+                    $row['name'] = '<starts>' . $startHourView . '</starts>' . ' - ' . $row['name'];
                 }
 
-                $startDate =  date('Y-m-d', strtotime($row['start']));
+                $startDate = date('Y-m-d', strtotime($row['start']));
                 $endDate = date('Y-m-d', strtotime($row['end']));
 
-                if($startDate != $endDate) {
-                    $startDate =  strtotime($startDate);
+                if ($startDate != $endDate) {
+                    $startDate = strtotime($startDate);
                     $endDate = strtotime($endDate);
 
                     $datediff = $endDate - $startDate;
                     $daysBetween = floor($datediff / (60 * 60 * 24));
-echo $daysBetween.' - ';
-                    for($i = 0; $i < $daysBetween; $i++) {
-                        if($startMonth == $this->month && $startYear == $this->year) {
+                    for ($i = 0; $i < $daysBetween; $i++) {
+                        if ($startMonth == $this->month && $startYear == $this->year) {
                             $calendarEvents[($startDay + $i)][$row['id']] = $row['name'];
                         } else {
-                            echo ($endDay-$i).' - ';
-                            $calendarEvents[($endDay-$i)][$row['id']] = $row['name'];
+                            $calendarEvents[($endDay - $i)][$row['id']] = $row['name'];
                         }
                     }
                 } else {
@@ -116,14 +103,15 @@ echo $daysBetween.' - ';
 
     public function getEvents()
     {
-        $lastDayOfTheMonth = date('t', strtotime($this->year.'-'.$this->month.'-'.date('d')));
+        $lastDayOfTheMonth = date('t', strtotime($this->year . '-' . $this->month . '-' . date('d')));
 
 
-        $this->db->where('start >=', date('Y-m-d H:i:s', strtotime($this->year.'-'.$this->month.'-01')));
-        $this->db->where('start <=', date('Y-m-d H:i:s', strtotime($this->year.'-'.$this->month.'-'.$lastDayOfTheMonth.' 11:59:59')));
+        $this->db->where('start >=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-01')));
+        $this->db->where('start <=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-' . $lastDayOfTheMonth . ' 11:59:59')));
 
-        $this->db->or_where('end >=', date('Y-m-d H:i:s', strtotime($this->year.'-'.$this->month.'-01')));
-        $this->db->where('end <=', date('Y-m-d H:i:s', strtotime($this->year.'-'.$this->month.'-'.$lastDayOfTheMonth)));
+        $this->db->or_where('end >=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-01')));
+        $this->db->where('end <=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-' . $lastDayOfTheMonth)));
+        $this->db->order_by('start', 'desc');
         $query = $this->db->get('calendar');
 
         return $query->result_array();
@@ -134,5 +122,91 @@ echo $daysBetween.' - ';
         $query = $this->db->get_where('calendar', array('id' => $id));
         return $query->result_array();
     }
+
+    public function addEvent($data)
+    {
+        $feedback = array(
+            'success' => false,
+            'msg' => '',
+            'data' => array(
+
+            ),
+        );
+
+        $isValid = true;
+        if($data['name'] == '') {
+            $isValid = false;
+            $feedback['msg'] = 'Event name is required';
+        }
+        if($data['all_day'] == '' && $data['start'] == '') {
+            $isValid = false;
+            $feedback['msg'] = 'All day event and start/end cannot both be empty';
+        }
+        if($data['start'] == '') {
+            $isValid = false;
+            $feedback['msg'] = 'Start/End date is required';
+        }
+        if($data['desc'] == '') {
+            $isValid = false;
+            $feedback['msg'] = 'Short description is required';
+        }
+
+        $allDay = $data['all_day'] == 1 ? true : false;
+
+        $dateArray = explode(' - ', $data['start']);
+        $start = $this->validateDate($dateArray[0]);
+        $end = $this->validateDate($dateArray[1]);
+
+        if($start !== false && $end !== false && $isValid !== false) {
+            $insert = array(
+                'name' => $data['name'],
+                'start' => $start,
+                'end' => $end,
+                'description' => $data['desc'],
+                'added_by' => 1,
+                'all_day' => $allDay,
+            );
+            $this->db->insert('calendar', $insert);
+
+            $feedback['success'] = true;
+            $feedback['msg'] = 'Successfully added an event, '.$insert['name'].' <br> on '.date('m-d-Y h:i A', strtotime($start));
+            $feedback['data'] = array(
+                'redirect' => 'index/'.date('Y', strtotime($insert['start'])).'/'.date('m', strtotime($insert['start'])),
+            );
+            $this->session->set_flashdata('success', $feedback['msg']);
+        }
+
+        return $feedback;
+    }
+
+    function validateDate($date)
+    {
+        $isAfterNoon = false;
+        if(strpos($date, 'PM') !== false) {
+            $isAfterNoon = true;
+        }
+
+        str_replace(' AM', '', $date);
+        str_replace(' PM', '', $date);
+
+        $date =  date('Y-m-d H:i:s', strtotime($date));
+        if(strpos($date, '1970') !== false) {
+            return false;
+        }
+
+        $dateTimeArray = explode(' ', $date);
+
+        if($isAfterNoon) {
+            $lastTime = substr($dateTimeArray[1],6);
+            $hour = (int)substr($dateTimeArray[1],0, -6);
+            $hour = $hour+12;
+
+            $dateTimeArray[1] = $hour.$lastTime;
+        }
+
+        return $date;
+    }
+
+
 
 }

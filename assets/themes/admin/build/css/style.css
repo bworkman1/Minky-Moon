@@ -160,6 +160,34 @@ input.signature {
 #lapp-calendar table td {
     height: 100px !important;
 }
+ul.event-list {
+    padding: 0;
+    margin: 0;
+}
+ul.event-list li {
+    margin: 0;
+    list-style: none;
+    padding: 4px 5px;
+    cursor: pointer;
+}
+#lapp-calendar .table th {
+    font-size: 1.3em;
+    background: #F7F7F7;
+    text-align: center;
+}
+#lapp-calendar .table starts {
+    font-size: .9em;
+    font-style: italic;
+    color: #1ABB9C;
+    font-weight: bold;
+}
+ul.event-list li:hover, ul.event-list li:hover>starts {
+    background: #1ABB9C;
+    color: #fff !important;
+}
+#lapp-calendar td span {
+    line-height: 1em;
+}
 /* Animation */
 @-webkit-keyframes spinner {
     0% {
