@@ -57,6 +57,9 @@ class Admin_model extends CI_Model
                 'group_title' => 'Authorize Settings',
             );
 
+            $this->db->where('name', 'authorize_test_mode');
+            $this->db->update('admin_settings', array('value' => $data['test_mode']));
+
             $apiKeyPresent = $this->db->select('value')->where('name', 'api_key')->from('admin_settings')->count_all_results();
             $authKeyPresent = $this->db->select('value')->where('name', 'auth_key')->from('admin_settings')->count_all_results();
 

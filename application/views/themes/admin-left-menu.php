@@ -60,11 +60,12 @@
                             <a data-toggle="tooltip" onclick="toggleFullScreen();" data-placement="top" title="FullScreen">
                                 <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
                             </a>
-                            <a data-toggle="tooltip" data-placement="top" title="Lock">
-                                <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-                            </a>
                             <a data-toggle="tooltip" data-placement="top" title="Logout" href="<?php echo base_url('login/logout'); ?>">
                                 <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                            </a>
+                            <a href="<?php echo base_url('calendar'); ?>" data-toggle="tooltip" data-placement="top">
+                                <span class="fa fa-calendar" aria-hidden="true"></span>
+                            </a>
                             </a>
                         </div>
                         <!-- /menu footer buttons -->
@@ -82,7 +83,7 @@
                 <!-- footer content -->
                 <footer>
                     <div class="pull-right">
-                        &copy;<?php echo date('Y'); ?> All Rights Reserved. LAPP
+                        &copy;<?php echo date('Y'); ?> All Rights Reserved. LAPP <i class="fa fa-question hidden-print" title="<?php echo $pagename; ?>" data-toggle="tooltip" data-target="tooltip"></i>
                     </div>
                     <div class="clearfix"></div>
                 </footer>

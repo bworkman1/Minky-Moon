@@ -24,10 +24,11 @@ class MY_Output extends CI_Output {
 	const TEMPLATE_ROOT = "themes/";
 
 	private $_title = "";
+	private $_pagename = "";
 	private $_charset = "utf-8";
 	private $_language = "en-us";
 	private $_canonical = "";
-	private $_meta = array("keywords"=>array(), "description"=>null);
+	private $_meta = array("keywords"=>array(), "description"=>null, 'pagename' => null);
 	private $_rdf = array("keywords"=>array(), "description"=>null);
 	private $_template = null;
 	private $_mode = self::OUTPUT_MODE_NORMAL;
@@ -96,6 +97,10 @@ class MY_Output extends CI_Output {
 	function set_title($title){
 		$this->_title = $title;
 	}
+
+    function set_pagename($pagename){
+        $this->_pagename = $pagename;
+    }
 
 	/**
 	 * Append the given string at the end of the current page title
@@ -200,6 +205,7 @@ class MY_Output extends CI_Output {
 			$data["messages"] = $this->_messages;
 			$data["modules"] = $ci->load->get_sections();
 			$data["title"] = $this->_title;
+			$data["pagename"] = $this->_meta['pagename'];
 			$data["meta"] = $this->_meta;
 			$data["language"] = $this->_language;
 			$data["rdf"] = $this->_rdf;
@@ -211,7 +217,7 @@ class MY_Output extends CI_Output {
 			$data["ci"]			= &get_instance();
 
 			$data = array_merge($data, $this->_output_data);
-
+            log_message('error', '  : '.print_r($data["pagename"], true));
 			$output = $ci->load->view($this->_template, $data, true);
 		}
 

@@ -18,7 +18,7 @@ class Calendar_model extends CI_Model
         $this->year = $this->uri->segment(3) != '' ? $this->uri->segment(3) : date('Y');
     }
 
-    public function getCalendar()
+    public function getCalendar($base)
     {
         $prefs['template'] = '
         {table_open}<div id="lapp-calendar" class="table-responsive table-bordered table-hover table-striped"><table class="table">{/table_open}
@@ -56,7 +56,7 @@ class Calendar_model extends CI_Model
 
         $prefs['day_type'] = 'short';
         $prefs['show_next_prev'] = true;
-        $prefs['next_prev_url'] = base_url('Calendar/index/');
+        $prefs['next_prev_url'] = $base;
 
         $this->load->library('calendar', $prefs);
         $calendarEvents = array();
@@ -179,7 +179,7 @@ class Calendar_model extends CI_Model
         return $feedback;
     }
 
-    function validateDate($date)
+    private function validateDate($date)
     {
         $isAfterNoon = false;
         if(strpos($date, 'PM') !== false) {
@@ -207,6 +207,58 @@ class Calendar_model extends CI_Model
         return $date;
     }
 
+    public function getEvent($id)
+    {
+        $feedback = array(
+            'success' => false,
+            'msg' => '',
+            'data' => array(
 
+            ),
+        );
+
+        if($id) {
+            $this->db->select('id, name, description, start, end, all_day');
+            $result = $this->db->get_where('calendar', array('id' => $id));
+            $data = $result->row();
+
+            $data->name = htmlentities($data->name);
+            $data->description = htmlentities($data->description);
+            $data->start = date('m-d-Y h:i a', strtotime($data->start));
+            $data->end = date('m-d-Y h:i a', strtotime($data->end));
+            $data->start_time = date('h:i a', strtotime($data->start));
+            $data->end_time = date('h:i a', strtotime($data->end));
+
+            $feedback['data'] = $data;
+            $feedback['success'] = true;
+        } else {
+            $feedback['msg'] = 'Event not found, try clicking on it again. If that doesn\'t work try refresing the page';
+        }
+
+        return $feedback;
+    }
+
+    public function deleteEvent($id)
+    {
+        $feedback = array(
+            'success' => false,
+            'msg' => '',
+            'data' => array(
+
+            ),
+        );
+
+        $this->db->delete('calendar', array('id' => $id));
+        $result = $this->db->get_where('calendar', array('id' => $id));
+        if($result->row() == false) {
+            $feedback['success'] = true;
+            $feedback['msg'] = 'Calendar event deleted successfully';
+            $this->session->set_flashdata('success', $feedback['msg']);
+        } else {
+            $feedback['msg'] = 'Calendar event failed to delete, try refreshing the page and trying again';
+        }
+
+        return $feedback;
+    }
 
 }

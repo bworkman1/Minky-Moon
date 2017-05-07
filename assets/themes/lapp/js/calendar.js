@@ -14,7 +14,6 @@ var calendar = {
                 success: function(data) {
                     console.log(data);
                     if(data.success) {
-                        alertify.success(data.msg);
                         window.location.replace($('#baseUrl').data('base')+'calendar/'+data.data['redirect']);
                     } else {
                         alertify.error(data.msg);
@@ -43,10 +42,91 @@ var calendar = {
         });
     },
 
+    viewEvent: function() {
+        $('.event-list .event').click(function() {
+            var id = $(this).data('id');
+            var elem = $(this);
+            var elemText = $(this).html();
+            $.ajax({
+                url: $('#baseUrl').data('base')+'/calendar/view-event',
+                data: {event: id},
+                type: 'post',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    if(data.success) {
+                        $('#deleteEventBtn').attr('data-id', data.data['id']);
+                        $('#view-event .modal-title').html('<i class="fa fa-calendar-o"></i> '+data.data['name']);
+                        $('#view-event .modal-body').html('<p>'+data.data['description']+'</p>');
+                        console.log(data.data.all_day);
+                        if(data.data.all_day == 1) {
+                            $('#view-event .modal-body').append('<br><div class="alert alert-success" style="padding: 8px 15px">All Day Event starts at '+data.data['start_time']+'</div>');
+                        } else {
+                            var html = '<br><div class="row">';
+                            html += '<div class="col-xs-6">';
+                            html += '<div class="alert alert-success" style="padding: 8px 15px"><i class="fa fa-clock-o"></i> <b>Start:</b> ' + data.data['start']+'</div>';
+                            html += '</div>';
+                            html += '<div class="col-xs-6">';
+                            html += '<div class="alert alert-danger" style="padding: 8px 15px"><i class="fa fa-clock-o"></i> <b>Ends:</b> ' + data.data['end'] + '</div>';
+                            html += '</div>';
+                            html += '</div>';
+
+                            $('#view-event .modal-body').append(html);
+                        }
+                        $('#view-event').modal('show');
+                    } else {
+                        alertify.error(data.msg);
+                    }
+                },
+                error: function() {
+                    $(elem).html(elemText);
+                },
+                beforeSend: function() {
+                    $(elem).html('<i class="fa fa-gear fa-spin"></i> Loading Event');
+                },
+                complete: function() {
+                    $(elem).html(elemText);
+                }
+            });
+        });
+    },
+
+    deleteEvent: function() {
+        $('#deleteEventBtn').click(function() {
+            var id = $(this).data('id');
+            var elem = $(this);
+            var elemText = $(this).html();
+            $.ajax({
+                url: $('#baseUrl').data('base')+'/calendar/delete-event',
+                data: {event: id},
+                type: 'post',
+                dataType: 'json',
+                success: function(data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        alertify.error(data.msg);
+                    }
+                },
+                error: function() {
+                    $(elem).html(elemText);
+                },
+                beforeSend: function() {
+                    $(elem).html('<i class="fa fa-gear fa-spin"></i> Deleting Event');
+                },
+                complete: function() {
+                    $(elem).html(elemText);
+                }
+            });
+        });
+    },
+
 
 }
 
 $(function() {
     calendar.addDateInput();
     calendar.saveCalendarEvent();
+    calendar.viewEvent();
+    calendar.deleteEvent();
 });

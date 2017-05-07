@@ -76,6 +76,7 @@ class Admin_settings extends CI_Controller
         if(isset($_POST['type']) && $_POST['type'] != 'remove') {
             $this->form_validation->set_rules('api_key', 'Authorize API Key', 'required|trim|max_length[255]');
             $this->form_validation->set_rules('auth_key', 'Authorize Key', 'required|trim|max_length[255]');
+            $this->form_validation->set_rules('test_mode', 'Payments Test Mode', 'trim|max_length[1]|alpha');
         }
 
         if ($this->form_validation->run() == true) {

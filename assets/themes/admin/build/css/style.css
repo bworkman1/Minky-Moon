@@ -259,3 +259,8 @@ ul.event-list li:hover, ul.event-list li:hover>starts {
         margin-top: 43px;
     }
 }
+@media print {
+    .x_panel, .well, .alert {
+        border: none !important;
+    }
+}

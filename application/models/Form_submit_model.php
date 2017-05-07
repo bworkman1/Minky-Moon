@@ -7,10 +7,11 @@ class Form_submit_model extends CI_Model
     private $liveFormInputs;
     private $postValues;
     private $paymentTransaction = false;
-    private $isTestMode = true; // toggle this on or off to use live payment details and send out emails to the admins about the form submission
     private $clientId;
     private $adminSettings;
     private $transaction_id = 0;
+    private $approval_code = 0;
+    private $submission_id = 0;
 
     public $feedback = array(
         'msg' => 'Form failed to submit, try again',
@@ -172,7 +173,7 @@ class Form_submit_model extends CI_Model
             'api_transaction_key' 	=> $this->adminSettings['auth_key']->value,
         );
 
-        if($this->isTestMode) {
+        if($this->adminSettings['authorize_test_mode']->value == 'y') {
             $config['api_url'] = 'https://test.authorize.net/gateway/transact.dll';
         } else {
             $config['api_url'] = 'https://secure.authorize.net/gateway/transact.dll';
@@ -203,7 +204,7 @@ class Form_submit_model extends CI_Model
 
         if($this->authorize_net->authorizeAndCapture()) {
             $this->transaction_id = $this->authorize_net->getTransactionId();
-            $this->logPaymentDetails($this->transaction_id, $this->authorize_net->getApprovalCode(), $auth_net);
+            $this->approval_code = $this->authorize_net->getApprovalCode();
             return true;
         } else {
             $this->feedback['msg'] = $this->authorize_net->getError();
@@ -226,10 +227,10 @@ class Form_submit_model extends CI_Model
         }
     }
 
-    private function logPaymentDetails($trans_id, $approvalCode, $values)
+    private function logPaymentDetails()
     {
         $paymentData = array(
-            'amount'            => $values['x_amount'],
+            'amount'            => $this->postValues['amount'],
             'form_id'           => $this->liveFormSettings['id'],
             'customer_id'       => $this->clientId,
             'form_cost'         => $this->liveFormSettings['cost'],
@@ -238,8 +239,9 @@ class Form_submit_model extends CI_Model
             'billing_city'      => $this->encrypt->encode($this->postValues['billing_city']),
             'billing_state'     => $this->encrypt->encode($this->postValues['billing_state']),
             'billing_zip'       => $this->encrypt->encode($this->postValues['billing_zip']),
-            'transaction_id'    => $trans_id,
-            'approval_code'     => $approvalCode,
+            'transaction_id'    => $this->transaction_id,
+            'approval_code'     => $this->approval_code,
+            'submission_id'     => $this->submission_id,
         );
 
         $this->db->insert('payments', $paymentData);
@@ -261,7 +263,7 @@ class Form_submit_model extends CI_Model
 
     private function saveFormData()
     {
-        $submissionId = $this->getFormSubmissionId();
+        $this->submission_id = $this->getFormSubmissionId();
         $added = date('Y-m-d H:i:s');
         foreach($this->liveFormInputs as $input) {
             if($input['input_type'] == 'checkbox') {
@@ -273,7 +275,7 @@ class Form_submit_model extends CI_Model
                             'name'          => $input['input_name'],
                             'added'         => $added,
                             'form_id'       => $this->submittedFormId,
-                            'submission_id' => $submissionId,
+                            'submission_id' => $this->submission_id,
                             'transaction_id'=> $this->transaction_id,
                         );
                         $this->db->insert('form_data', $formInput);
@@ -286,12 +288,15 @@ class Form_submit_model extends CI_Model
                     'name'          => $input['input_name'],
                     'added'         => $added,
                     'form_id'       => $this->submittedFormId,
-                    'submission_id' => $submissionId,
+                    'submission_id' => $this->submission_id,
                     'transaction_id'=> $this->transaction_id,
                 );
                 $this->db->insert('form_data', $formInput);
             }
         }
+
+
+        $this->logPaymentDetails();
         return true;
     }
 

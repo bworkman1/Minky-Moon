@@ -503,19 +503,57 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             'data' => array(),
         );
         if((int)$post['id'] && $post['status']) {
-            $status = $post['status'] == 'active' ? 1 : 0;
-            $this->db->set('active', $status);
-            $this->db->where('id', $post['id']);
-            $this->db->update('forms');
+            $is_set = $this->is_clientIdFormsSet($post['id']);
+            if($is_set === true) {
+                $status = $post['status'] == 'active' ? 1 : 0;
+                $this->db->set('active', $status);
+                $this->db->where('id', $post['id']);
+                $this->db->update('forms');
 
-            $returns['msg'] = $post['status'] == 'active' ? 'This form has been activated' : 'This form has been deactivated';
-            $returns['success'] = true;
-            $returns['data'] = array('status' => $status);
+                $returns['msg'] = $post['status'] == 'active' ? 'This form has been activated' : 'This form has been deactivated';
+                $returns['success'] = true;
+                $returns['data'] = array('status' => $status);
+            } else {
+                $returns['msg'] = $is_set;
+            }
         } else {
             $returns['msg'] = 'Id and/or status was not set, try again';
         }
 
         return $returns;
+    }
+
+    public function is_clientIdFormsSet($form_id)
+    {
+        $findNames = array('name', 'full_name', 'last', 'last_name');
+        $findSSN = array('ssn', 'social', 'social_security', 'social_security_number');
+
+        $foundSSN = false;
+        $foundName = false;
+        $errorMsg = true;
+
+        $form = $this->getFormById($form_id);
+        if($form) {
+            foreach($form['form_inputs'] as $key => $input) {
+                if(in_array($key, $findNames)) {
+                    $foundName = true;
+                }
+                if(in_array($key, $findSSN)) {
+                    $foundSSN = true;
+                }
+            }
+
+            if($foundName == false) {
+                $errorMsg = 'Could\'nt find a for input for social security number. ';
+            }
+            if($foundSSN == false) {
+                $errorMsg .= 'Could\'nt find a for input for last name or full name. ';
+            }
+        } else {
+            $errorMsg = 'No form found';
+        }
+
+        return $errorMsg;
     }
 
     private function reorderFormInputs()
@@ -553,17 +591,19 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
 
         $params[] = (int)$start;
         $params[] = (int)$limit;
-        $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, amount, form_data.viewed 
+        $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, amount, form_data.viewed
             FROM form_data 
             LEFT JOIN payments 
-                ON form_data.transaction_id = payments.transaction_id 
+                ON form_data.submission_id = payments.submission_id 
                  '.$where.'
             GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed 
             ORDER BY submission_id '.$sortBy.' LIMIT ?, ?';
 
 
         $query = $this->db->query($sql, $params);
-        foreach ($query->result_array() as $row) {
+        $payments = $this->sortPaymentData($query->result_array());
+
+        foreach ($payments as $row) {
             $row['total_submitted'] = $this->totalFormsSubmitted;
             $row['submitted'] = $row['added'];
             $formSettings = $this->getFormSettings($row['form_id']);
@@ -573,6 +613,31 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $formData[$row['submission_id']] = $row;
         }
         return $formData;
+    }
+
+    public function sortPaymentData($data)
+    {
+        $return = array();
+        if($data) {
+            foreach($data as $row) {
+                if(isset($return[$row['submission_id']])) {
+                    $return[$row['submission_id']]['payments_made'] = $return[$row['submission_id']]['payments_made']+1;
+                    $return[$row['submission_id']]['amount'] = $row['amount']+$return[$row['submission_id']]['amount'];
+                } else {
+                    $return[$row['submission_id']] = array(
+                        'submission_id' => $row['submission_id'],
+                        'customer_id' => $row['customer_id'],
+                        'form_id' => $row['form_id'],
+                        'added' => $row['added'],
+                        'transaction_id' => $row['transaction_id'],
+                        'amount' => $row['amount'],
+                        'viewed' => $row['viewed'],
+                        'payments_made' => 1,
+                    );
+                }
+            }
+        }
+        return $return;
     }
 
     public function formatSubmittedFormsTable($data, $start)
@@ -586,14 +651,17 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             foreach ($data as $row) {
 
                 $options = '<a href="'.base_url('forms/view-submitted-form/'.$row['submission_id']).'" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> View</a>';
-                //$options .= '<a href="'.base_url('forms/print-form-submission/'.$row['submission_id']).'" data-toggle="tooltip" data-title="Print Form Submission" class="btn btn-info btn-sm"><i class="fa fa-print"></i></a>';
-                $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="'.$row["submission_id"].'" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i> Delete</button>';
+
+                if($this->ion_auth->is_admin()) {
+                    $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="' . $row["submission_id"] . '" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i> Delete</button>';
+                }
 
                 if($row['amount'] > 0) {
                     if($row['amount'] < $row['cost']) {
-                        $row['amount'] = '$'.number_format($row['amount'], 2).' of $'.number_format($row['cost']);
+                        $row['amount'] = '<span class="text-warning">$'.number_format($row['amount'], 2).' of $'.number_format($row['cost']).'</span>';
+                        $options .= '<a href="'.base_url('payments/submit-payment/'.$row['submission_id']).'" data-toggle="tooltip" data-title="Add another payment to this form" class="btn btn-info btn-sm"><i class="fa fa-credit-card"></i> Add Payment</a>';
                     } else {
-                        $row['amount'] = '$'.number_format($row['amount'], 2);
+                        $row['amount'] = '<span class="text-success">$'.number_format($row['amount'], 2).' of $'.number_format($row['cost'], 2).'</span>';
                     }
                 } else {
                     $row['amount'] = '$0.00';
@@ -607,6 +675,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                         $row['customer_id'] = '<span class="highlightedSearch">'.$row['customer_id'].'</span>';
                     }
                 }
+
                 $start = $start+1;
                 $this->table->add_row(
                     array(
@@ -681,7 +750,6 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $values = $query->result_array();
         $data['values'] = $this->reorderArrayKeyNames($values, 'name');
 
-        log_message('error', print_r($values, true));
         if(!empty($values)) {
             if (empty($values[0]['viewed'])) {
                 $this->db->where('submission_id', $values[0]['submission_id']);

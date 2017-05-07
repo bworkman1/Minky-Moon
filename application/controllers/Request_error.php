@@ -22,7 +22,7 @@ class Request_error extends CI_Controller
 
     public function index()
     {
-
+        $this->load->view('errors/restricted-access-area');
     }
 
     public function access_not_allowed()

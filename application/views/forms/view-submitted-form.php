@@ -11,7 +11,7 @@
         echo '<h2><i class="fa fa-file-o"></i> '.ucwords($form['form_settings']['name']).'</h2>';
         echo '<ul class="nav navbar-right panel_toolbox">';
         echo '<li>';
-        echo '<a href="http://localhost/lapp/forms/form-submissions"><i class="fa fa-file"></i> All Submitted Forms</a>';
+        echo '<a href="'. base_url('forms/form-submissions').'"><i class="fa fa-file"></i> All Submitted Forms</a>';
         echo ' </li>';
         echo '</ul>';
         echo '<div class="clearfix"></div>';
@@ -72,7 +72,7 @@
         echo '<h2><i class="fa fa-credit-card-alt"></i> Payment Details</h2>';
         echo '<ul class="nav navbar-right panel_toolbox">';
         echo '<li>';
-        echo '<a href="'.base_url("lapp/payments").'"><i class="fa fa-money"></i> View All Payments</a>';
+        echo '<a href="'.base_url("payments").'"><i class="fa fa-money"></i> View All Payments</a>';
         echo ' </li>';
         echo '</ul>';
         echo '<div class="clearfix"></div>';

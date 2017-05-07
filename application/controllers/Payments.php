@@ -65,16 +65,102 @@ class Payments extends CI_Controller
 
     public function index()
     {
-        $this->init_page();
+        redirect('payments/all');
+    }
 
-        $this->load->view('payments/all-payments');
+    public function all()
+    {
+
+        $group = 'Edit Forms';
+        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
+            redirect(base_url('request-error'));
+            exit;
+        }
+
+        $this->init_page();
+        $this->load->model('Payment_model');
+        $this->load->library('encryption');
+
+        $limit = (int)$this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->input->post('limit');
+        $limit = $limit != '' ? $limit : 10;
+
+        $this->session->set_userdata('submission_limit', $limit);
+        $start = $this->uri->segment('3') != '' ? $this->uri->segment('3') : 0;
+        $search = $this->input->post('search');
+        if($search) {
+            $limit = 100;
+        }
+
+        $submittedPayments = $this->Payment_model->getAllPayments($search, $start, $limit);
+        $data['links'] = $this->Payment_model->paginationResults($limit, 'pull-right');
+        $data['table'] = $this->Payment_model->formatSubmittedFormsTable($submittedPayments, $start);
+        $data['payments'] = $this->Payment_model->totalPaymentsSubmitted;
+
+        $this->load->view('payments/all-payments', $data);
     }
 
     public function submit_payment()
     {
         $this->init_page();
 
-        $this->load->view('payments/submit-payment');
+        $data['lookup'] = '';
+
+        if($this->uri->segment(3)) {
+            $this->load->model('Form_model');
+            $formId = $this->Form_model->convertSubmissionIdToFormId($this->uri->segment(3));
+            if($formId) {
+                $form = $this->Form_model->getSubmittedFormById($formId['form_id'], $this->uri->segment(3));
+                if($form) {
+                    $data['lookup'] = $this->Payment_model->determineClientFields($form, $this->uri->segment(3));
+                }
+            }
+        }
+        $this->load->view('payments/submit-payment', $data);
+    }
+
+    public function submitPaymentDetails()
+    {
+        $feedback = array(
+            'success' => false,
+            'msg' => 'Something went wrong, try submitting the payment again',
+            'errors' => array(),
+        );
+
+        $this->form_validation->set_rules('submission_id', 'Submission Id', 'integer');
+        $this->form_validation->set_rules('name', 'Client Name', 'required|max_length[40]');
+        $this->form_validation->set_rules('address', 'Address', 'required|max_length[40]');
+        $this->form_validation->set_rules('city', 'City', 'required|max_length[40]');
+        $this->form_validation->set_rules('state', 'State', 'required|min_length[2]|max_length[2]|alpha');
+        $this->form_validation->set_rules('zip', 'Zip', 'required|min_length[5]|max_length[5]|numeric');
+        $this->form_validation->set_rules('client_number', 'Client Number', 'required|max_length[6]|min_length[6]');
+
+        $this->form_validation->set_rules('billing_name', 'Billing Name', 'required|max_length[60]');
+        $this->form_validation->set_rules('billing_address', 'Billing Address', 'required|max_length[60]');
+        $this->form_validation->set_rules('billing_city', 'Billing City', 'required|max_length[30]');
+        $this->form_validation->set_rules('billing_state', 'Billing State', 'required|max_length[2]|min_length[2]');
+        $this->form_validation->set_rules('billing_zip', 'Billing Zip', 'required|min_length[5]|max_length[5]|numeric');
+
+        $this->form_validation->set_rules('cardNumber', 'Credit Card Number', 'required|min_length[19]|max_length[19]');
+        $this->form_validation->set_rules('cardExpiry', 'Expiration Date', 'required|min_length[5]|max_length[5]');
+        $this->form_validation->set_rules('cardCVC', 'CVC Number', 'required|integer|min_length[2]|max_length[5]');
+        $this->form_validation->set_rules('amount', 'Payment Amount', 'required|decimal|min_length[2]|max_length[9]');
+        $this->form_validation->set_rules('for', 'Payment For', 'required|min_length[2]|max_length[100]');
+
+        if ($this->form_validation->run() == FALSE) {
+            $feedback['errors']= validation_errors_array();
+        } else {
+            $this->load->model('Payment_model');
+
+            $this->Payment_model->postValues = $_POST;
+            if($this->Payment_model->processPayment()) {
+                $this->session->set_flashdata('success', 'Payment submitted successfully');
+                $feedback['success'] = true;
+            } else {
+                $feedback['errors'] = $this->Payment_model->feedback['errors'];
+                $feedback['msg'] = $this->Payment_model->feedback['msg'];
+            }
+        }
+        echo json_encode($feedback);
     }
 
 }

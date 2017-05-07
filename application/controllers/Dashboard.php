@@ -9,6 +9,9 @@ class Dashboard extends CI_Controller
     {
         parent::__construct();
 
+        redirect(base_url('forms/form-submissions'));
+        exit;
+
         $this->output->enable_profiler(PROFILER);
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');

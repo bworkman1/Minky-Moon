@@ -18,6 +18,11 @@
                         echo '</div>';
 
                         echo '<div class="x_content">';
+
+                            if(isset($warning)) {
+                                echo '<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> '.$warning.'</div>';
+                            }
+
                             echo '<p>'.$form['form_settings']['header'].'</p>';
                             echo '<hr>';
                             echo '<div class="row">';

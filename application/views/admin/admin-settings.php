@@ -49,6 +49,14 @@
 
                     </div>
 
+                    <br>
+                    <div class="well well-sm" style="padding:0 9px;">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="test-mode" name="test-mode" value="y" <?php echo $settings['authorize_test_mode']->value == 'y' ? 'checked' : ''; ?>> Payments Test Mode?
+                            </label>
+                        </div>
+                    </div>
                     <hr>
 
                     <button id="saveAuthorize" class="btn btn-primary pull-right">Save</button>

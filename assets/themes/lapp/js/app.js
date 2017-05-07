@@ -161,6 +161,13 @@ var forms = {
         forms.usePrebuiltClass();
         forms.formSubmissionPerPage();
         forms.deleteForm();
+        forms.submitFormSearch();
+    },
+
+    submitFormSearch: function() {
+        $('#searchFormSubmission').click(function() {
+            $('#formSearchForm').submit();
+        });
     },
 
     addFormName: function() {
@@ -1030,6 +1037,57 @@ var forms = {
 
 }
 
+var payments = {
+    copyAddressToBilling: function() {
+        $("#copyHomeAddress").on("ifChecked", function() {
+            //$('#copyHomeAddress').is(':checked', function() {
+                $('#billing_name').val($('#name').val());
+                $('#billing_address').val($('#address').val());
+                $('#billing_city').val($('#city').val());
+                $('#billing_state').val($('#state').val());
+                $('#billing_zip').val($('#zip').val());
+            //});
+        });
+    },
+
+    submitSinglePayment: function() {
+        $('#submitPayment').click(function() {
+            var elem = $(this);
+            var elemText = $(this).html();
+            $('#payment-form .has-error').removeClass('has-error');
+            $.ajax({
+                url: $('#base_url').data('base')+'payments/submitPaymentDetails',
+                dataType: 'json',
+                type: 'post',
+                data: $('#payment-form').serialize(),
+                success: function(data) {
+                    if(data.success) {
+                        window.location.href = $('#base_url').data('base')+'payments/all';
+                    } else {
+                        if(typeof data.errors != 'undefined') {
+                            if(data.errors) {
+                                for (var key in data.errors){
+                                    $('#payment-form [name="'+key+'"]').closest('.form-group').addClass('has-error');
+                                }
+                            }
+                        }
+                        alertify.error(data.msg);
+                    }
+                },
+                error: function() {
+                    $(elem).html(elemText).attr('disabled', false);
+                    alertify.error(data.msg);
+                },
+                beforeSend: function() {
+                    $(elem).html('<i class="fa fa-gear fa-spin"></i> Submitting Payment').attr('disabled', true);
+                },
+                complete: function() {
+                    $(elem).html(elemText).attr('disabled', false);
+                }
+            });
+        });
+    }
+}
 
 $(document).ready(function() {
     formSubmit.call();
@@ -1065,7 +1123,8 @@ $(document).ready(function() {
 
     $('.ssn').mask('000-00-0000');
 
-
+    payments.copyAddressToBilling();
+    payments.submitSinglePayment();
 
 });
 

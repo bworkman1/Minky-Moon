@@ -67,7 +67,10 @@ class Calendar extends CI_Controller
     {
         $this->init_page();
         $this->load->model('Calendar_model');
-        $data['calendar'] = $this->Calendar_model->getCalendar();
+
+        $this->output->set_meta('pagename','calendar');
+        
+        $data['calendar'] = $this->Calendar_model->getCalendar(base_url('Calendar/index/'));
         $this->load->view('admin/view-calendar', $data);
     }
 
@@ -81,6 +84,21 @@ class Calendar extends CI_Controller
         );
         $this->load->model('Calendar_model');
         echo json_encode($this->Calendar_model->addEvent($input));
+    }
+
+    public function view_event()
+    {
+        $id = (int)$this->input->post('event');
+        $this->load->model('Calendar_model');
+        echo json_encode($this->Calendar_model->getEvent($id));
+    }
+
+    public function delete_event()
+    {
+        $id = (int)$this->input->post('event');
+        $this->load->model('Calendar_model');
+
+        echo json_encode($this->Calendar_model->deleteEvent($id));
     }
 
 }

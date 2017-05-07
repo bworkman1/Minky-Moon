@@ -50,10 +50,20 @@
                                     }
                                     echo '<td class="">' . $active . '</td>';
                                     echo '<td>';
-                                        echo ' <a href="' . base_url('forms/edit-form/' . $form['id']) . '" class="btn btn-primary btn-xs" data-toggle="tooltip" title="Edit Form"><i class="fa fa-pencil"></i> </a>';
+                                        $group = 'Edit Forms';
+                                        if ($this->ion_auth->in_group($group) || $this->ion_auth->is_admin()) {
+                                            echo ' <a href="' . base_url('forms/edit-form/' . $form['id']) . '" class="btn btn-primary btn-xs" data-toggle="tooltip" title="Edit Form"><i class="fa fa-pencil"></i> </a>';
+                                        }
                                         echo ' <a href="' . base_url('forms/view-form/' . $form['id']) . '" class="btn btn-success btn-xs" data-toggle="tooltip" title="View Form"><i class="fa fa-eye"></i> </a>';
-                                        echo ' <a href="' . base_url('forms/submit-form-manually/' . $form['id']) . '" class="btn btn-default btn-xs" data-toggle="tooltip" title="Enter New Manually Form"><i class="fa fa-file"></i> </a>';
-                                        echo ' <button class="btn btn-danger btn-xs deleteForm pull-right" data-url="' . base_url('forms/delete-form/' . $form['id']) . '" data-toggle="tooltip" title="Delete Form"><i class="fa fa-times"></i> </button>';
+
+                                        $group = 'Submit Forms Manually';
+                                        if ($this->ion_auth->in_group($group) || $this->ion_auth->is_admin()) {
+                                            echo ' <a href="' . base_url('forms/submit-form-manually/' . $form['id']) . '" class="btn btn-default btn-xs" data-toggle="tooltip" title="Enter New Manually Form"><i class="fa fa-file"></i> </a>';
+                                        }
+
+                                        if($this->ion_auth->is_admin()) {
+                                            echo ' <button class="btn btn-danger btn-xs deleteForm pull-right" data-url="' . base_url('forms/delete-form/' . $form['id']) . '" data-toggle="tooltip" title="Delete Form"><i class="fa fa-times"></i> </button>';
+                                        }
                                     echo '</td>';
 
                                     echo '</tr>';

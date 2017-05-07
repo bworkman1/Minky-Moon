@@ -7,7 +7,11 @@
         <h2><i class="fa fa-calendar"></i> Calendar</h2>
         <ul class="nav navbar-right panel_toolbox">
             <li>
-                <a href="#" data-target="#add-event" data-toggle="modal"><i class="fa fa-calendar-plus-o"></i> Add Event</a>
+                <?php
+                if ($this->ion_auth->logged_in()) {
+                    echo '<a href="#" data-target="#add-event" data-toggle="modal"><i class="fa fa-calendar-plus-o"></i> Add Event</a>';
+                }
+                ?>
             </li>
         </ul>
         <div class="clearfix"></div>
@@ -48,7 +52,7 @@
 
                     <div class="form-group">
                         <label>Description:</label>
-                        <textarea class="form-control" style="min-height: 150px;" name="desc" maxlength="255"></textarea>
+                        <textarea class="form-control" style="min-height: 150px;" name="desc" maxlength="1000"></textarea>
                     </div>
 
                 </div>
@@ -110,11 +114,17 @@
                 <h4 class="modal-title"><i class="fa fa-calendar-o"></i> Event</h4>
             </div>
             <div class="modal-body">
-                ...
             </div>
             <div class="modal-footer">
+                <?php
+                    if ($this->ion_auth->logged_in()) {
+                        echo '<div class="pull-left">';
+                            //echo '<button type="button" class="btn btn-info"><i class="fa fa-edit"></i> Edit</button>';
+                            echo '<button type="button" id="deleteEventBtn" class="btn btn-danger"><i class="fa fa-times-circle"></i> Delete Event</button>';
+                        echo '</div>';
+                    }
+                ?>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>

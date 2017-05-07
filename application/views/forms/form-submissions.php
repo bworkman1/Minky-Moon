@@ -14,16 +14,25 @@
             </select>
         </form>
         <div class=" pull-right" style="max-width: 200px; margin-right: 15px">
-            <div class="input-group">
-                <input type="text" id="formSubmissionsSearch" placeholder="Search" class="form-control pull-right">
-                <span id="searchFormSubmission" class="input-group-addon search" id="basic-addon1"><i class="fa fa-search"></i></span>
-            </div>
+            <form id="formSearchForm" class="form-inline pull-right" action="<?php echo base_url('forms/form-submissions'); ?>" method="post">
+                <div class="input-group">
+                    <input type="text" id="formSubmissionsSearch" name="search" placeholder="Search" class="form-control pull-right">
+                    <span id="searchFormSubmission" class="input-group-addon search" id="basic-addon1"><i class="fa fa-search"></i></span>
+                </div>
+            </form>
         </div>
 
         <div class="clearfix"></div>
     </div>
     <div class="x_content">
         <?php echo $table; ?>
+
+        <?php
+            if(isset($_POST['search'])) {
+                echo '<a href="'.base_url('forms/form-submissions').'" class="btn btn-primary">Back All Results</a>';
+            }
+        ?>
+
         <?php echo $links; ?>
     </div>
 </div>

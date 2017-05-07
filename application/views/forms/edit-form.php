@@ -163,7 +163,7 @@
                                                         echo '<option>'.($i+1).'</option>';
                                                         $count++;
                                                     }
-                                                    echo '<option>'.($count+1).'</option>';
+                                                    echo '<option selected>'.($count+1).'</option>';
                                                 } else {
                                                     echo '<option>1</option>';
                                                 }

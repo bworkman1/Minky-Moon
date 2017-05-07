@@ -15,6 +15,7 @@ var settings = {
             var data = {
                 api_key: $('input[name="api_key"]').val(),
                 auth_key: $('input[name="auth_key"]').val(),
+                test_mode: $('#test-mode').is(':checked') ? 'y' : 'n',
                 type: 'save',
             }
             settings.sendAuthorizeRequest(data, $(this), $(this).html());
