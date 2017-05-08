@@ -60,6 +60,9 @@ var calendar = {
 
                         if(data.data.all_day == 1) {
                             $('#view-event .modal-body').append('<br><div class="alert alert-success" style="padding: 8px 15px">All Day Event starts at '+data.data['start_time']+'</div>');
+                            if(data.data['link_to_form'] != '') {
+                                $('#view-event .modal-body').append('<hr><p>'+data.data['link_to_form']+'</p>');
+                            }
                         } else {
                             var html = '<div class="well well-sm" style="margin:0"><div class="row">';
                             html += '<div class="col-xs-6">';

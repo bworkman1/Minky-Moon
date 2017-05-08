@@ -87,6 +87,7 @@ class Calendar extends CI_Controller
             'link_to_form'      => $this->input->post('link_to_form'),
         );
         $this->load->model('Calendar_model');
+
         echo json_encode($this->Calendar_model->addEvent($input));
     }
 

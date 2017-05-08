@@ -85,26 +85,26 @@ class Calendar_model extends CI_Model
                     $endDate = strtotime($endDate);
 
                     $datediff = $endDate - $startDate;
-                    $daysBetween = floor($datediff / (60 * 60 * 24));
+                    $daysBetween = floor($datediff / (60 * 60 * 24))+1;
                     for ($i = 0; $i < $daysBetween; $i++) {
                         if ($startMonth == $this->month && $startYear == $this->year) {
                             $calendarEvents[($startDay + $i)][$row['id']] = $row['name'];
                         } else {
-                            $calendarEvents[($endDay - $i)][$row['id']] = $row['name'];
+                            $calendarEvents[$endDay][$row['id']] = $row['name'];
                         }
                     }
                 } else {
-                    $calendarEvents[$startDay][$row['id']] = $row['name'];
+                    $calendarEvents[ltrim($startDay, 0)][$row['id']] = $row['name'];
                 }
             }
         }
+
         return $this->calendar->generate($this->year, $this->month, $calendarEvents);
     }
 
     public function getEvents()
     {
         $lastDayOfTheMonth = date('t', strtotime($this->year . '-' . $this->month . '-' . date('d')));
-
 
         $this->db->where('start >=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-01')));
         $this->db->where('start <=', date('Y-m-d H:i:s', strtotime($this->year . '-' . $this->month . '-' . $lastDayOfTheMonth . ' 11:59:59')));
@@ -226,11 +226,23 @@ class Calendar_model extends CI_Model
             $data->name = htmlentities($data->name);
             $data->description = htmlentities($data->description);
             $data->start = date('m-d-Y h:i a', strtotime($data->start));
-            $data->end = date('m-d-Y h:i a', strtotime($data->end));
+
+            $startDate = date('m-d-Y', strtotime($data->start));
+            $endDate = date('m-d-Y', strtotime($data->end));
+
+            if($startDate != $endDate) {
+               $endTime = date('h:i a', strtotime($data->end));
+                $data->end = $startDate.' '.$endTime;
+            } else {
+                $data->end = date('m-d-Y h:i a', strtotime($data->end));
+            }
             $data->start_time = date('h:i a', strtotime($data->start));
             $data->end_time = date('h:i a', strtotime($data->end));
-            if($data->link_to_form != '') {
+
+            if($data->link_to_form > 0) {
                 $data->link_to_form = '<a class="btn btn-primary" href="' . base_url('view/form/' . $data->link_to_form) . '"> Register Online</a>';
+            } else {
+                $data->link_to_form = '';
             }
 
             $feedback['data'] = $data;

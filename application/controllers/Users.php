@@ -274,7 +274,6 @@ class Users extends CI_Controller
         );
         if($id>0) {
             $user = $this->ion_auth->user($id)->row();
-            log_message('error', print_r($user, true));
             $this->form_validation->set_rules('password', 'Password', 'required|regex_match[/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*(?=\S*[\W])/]|trim|min_length[8]|max_length[20]');
             $this->form_validation->set_message('regex_match', 'Password doesn\'t match the required strength');
 
