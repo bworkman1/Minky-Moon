@@ -53,23 +53,26 @@ var calendar = {
                 type: 'post',
                 dataType: 'json',
                 success: function(data) {
-                    console.log(data);
                     if(data.success) {
                         $('#deleteEventBtn').attr('data-id', data.data['id']);
                         $('#view-event .modal-title').html('<i class="fa fa-calendar-o"></i> '+data.data['name']);
                         $('#view-event .modal-body').html('<p>'+data.data['description']+'</p>');
-                        console.log(data.data.all_day);
+
                         if(data.data.all_day == 1) {
                             $('#view-event .modal-body').append('<br><div class="alert alert-success" style="padding: 8px 15px">All Day Event starts at '+data.data['start_time']+'</div>');
                         } else {
-                            var html = '<br><div class="row">';
+                            var html = '<div class="well well-sm" style="margin:0"><div class="row">';
                             html += '<div class="col-xs-6">';
-                            html += '<div class="alert alert-success" style="padding: 8px 15px"><i class="fa fa-clock-o"></i> <b>Start:</b> ' + data.data['start']+'</div>';
+                            html += '<p style="margin:0"><i class="fa fa-clock-o"></i> <b>Start:</b> ' + data.data['start']+'</p>';
                             html += '</div>';
                             html += '<div class="col-xs-6">';
-                            html += '<div class="alert alert-danger" style="padding: 8px 15px"><i class="fa fa-clock-o"></i> <b>Ends:</b> ' + data.data['end'] + '</div>';
+                            html += '<p style="margin:0"><i class="fa fa-clock-o"></i> <b>Ends:</b> ' + data.data['end'] + '</p>';
                             html += '</div>';
-                            html += '</div>';
+                            html += '</div></div>';
+
+                            if(data.data['link_to_form'] != '') {
+                                html += '<hr><p>'+data.data['link_to_form']+'</p>';
+                            }
 
                             $('#view-event .modal-body').append(html);
                         }

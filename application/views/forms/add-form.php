@@ -155,9 +155,12 @@
                                     <select id="inputSequence" name="sequence" class="form-control">
                                         <?php
                                         if(!empty($inputs)) {
+                                            $count = 1;
                                             for($i=0;$i<count($inputs);$i++) {
                                                 echo '<option>'.($i+1).'</option>';
+                                                $count++;
                                             }
+                                            echo '<option selected>'.$count.'</option>';
                                         } else {
                                             echo '<option>1</option>';
                                         }
@@ -206,6 +209,7 @@
                         </div>
 
                         <hr>
+                        <button id="resetFormInputFields" class="btn btn-warning pull-left hide"><i class="fa fa-times"></i> Cancel Edits</button>
                         <button id="addInput" class="btn btn-info pull-right"><i class="fa fa-share"></i> Save Input</button>
                         <div class="clearfix"></div>
                     </div>
@@ -333,12 +337,13 @@
             <div class="modal-body">
                 <p>Prebuilt classes will format data as the user types in the input boxes. Please make sure that you only use one of the following class types or the data won't work as expected.</p>
                 <ul class="list-group">
-                    <li class="list-group-item">Use "date" to format the input (00/00/0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="use">Use</button></li>
+                    <li class="list-group-item">Use "date" to format the input (00/00/0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="date">Use</button></li>
                     <li class="list-group-item">Uce "time" to format the input (00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="time">Use</button></li>
                     <li class="list-group-item">Use "date_time" to format the input (00/00/0000 00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="date_time">Use</button></li>
                     <li class="list-group-item">Use "phone" to format the input ((000) 000-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="phone">Use</button></li>
                     <li class="list-group-item">Use "money" to format the input (00.00) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="money">Use</button></li>
                     <li class="list-group-item">Use "ssn" to format the input (000-00-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="ssn">Use</button></li>
+                    <li class="list-group-item">Use "input_states" to add select box with all states as an option <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="input_states">Use</button></li>
                 </ul>
             </div>
             <div class="modal-footer">

@@ -217,7 +217,6 @@ class Users extends CI_Controller
                 'last_name' => $this->input->post('last_name'),
             );
             $group = array($this->input->post('access'));
-log_message('error', print_r($_POST, true));
             if($this->ion_auth->register($username, $password, $email, $additional_data, $group) !== false) {
                 $returns['msg'] = strip_tags($this->ion_auth->messages());
                 $this->session->set_flashdata('success', strip_tags($this->ion_auth->messages()));

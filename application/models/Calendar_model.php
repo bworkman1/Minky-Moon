@@ -165,6 +165,7 @@ class Calendar_model extends CI_Model
                 'description' => $data['desc'],
                 'added_by' => 1,
                 'all_day' => $allDay,
+                'link_to_form' => (int)$data['link_to_form'],
             );
             $this->db->insert('calendar', $insert);
 
@@ -218,7 +219,7 @@ class Calendar_model extends CI_Model
         );
 
         if($id) {
-            $this->db->select('id, name, description, start, end, all_day');
+            $this->db->select('id, name, description, start, end, all_day, link_to_form');
             $result = $this->db->get_where('calendar', array('id' => $id));
             $data = $result->row();
 
@@ -228,6 +229,9 @@ class Calendar_model extends CI_Model
             $data->end = date('m-d-Y h:i a', strtotime($data->end));
             $data->start_time = date('h:i a', strtotime($data->start));
             $data->end_time = date('h:i a', strtotime($data->end));
+            if($data->link_to_form != '') {
+                $data->link_to_form = '<a class="btn btn-primary" href="' . base_url('view/form/' . $data->link_to_form) . '"> Register Online</a>';
+            }
 
             $feedback['data'] = $data;
             $feedback['success'] = true;

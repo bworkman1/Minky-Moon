@@ -67,10 +67,13 @@ class Calendar extends CI_Controller
     {
         $this->init_page();
         $this->load->model('Calendar_model');
+        $this->load->model('Form_model');
 
         $this->output->set_meta('pagename','calendar');
         
         $data['calendar'] = $this->Calendar_model->getCalendar(base_url('Calendar/index/'));
+        $data['forms'] = $this->Form_model->getAllFormNames();
+
         $this->load->view('admin/view-calendar', $data);
     }
 
@@ -81,6 +84,7 @@ class Calendar extends CI_Controller
             'all_day'   => $this->input->post('all_day'),
             'start'     => $this->input->post('start'),
             'desc'      => $this->input->post('desc'),
+            'link_to_form'      => $this->input->post('link_to_form'),
         );
         $this->load->model('Calendar_model');
         echo json_encode($this->Calendar_model->addEvent($input));

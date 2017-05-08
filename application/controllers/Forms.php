@@ -289,7 +289,11 @@ class Forms extends CI_Controller
 
     public function save_user_form()
     {
-        echo json_encode(array('success' => false, 'msg'=>'This is just the view of the form and will not submit'));
+        $this->load->model('Form_submit_model');
+        $data = isset($_POST['form']) ? $_POST['form'] : array();
+        $this->Form_submit_model->submitForm($data);
+
+        echo json_encode($this->Form_submit_model->feedback);
     }
 
     public function form_submissions()
@@ -310,8 +314,21 @@ class Forms extends CI_Controller
         $start = $this->uri->segment('5') != '' ? $this->uri->segment('5') : 0;
         $search = $this->input->post('search');
 
+        if(isset($_POST['form_names'])) {
+            $form_id = $_POST['form_names'];
+            if($form_id == 'all') {
+                $this->session->unset_userdata('search_form_submission_name');
+            } elseif((int)$form_id > 0) {
+                $this->session->set_userdata('search_form_submission_name', $form_id);
+            } else {
+                $this->session->unset_userdata('search_form_submission_name');
+            }
+        }
+
+
         $submittedForms = $this->Form_model->getSubmittedForms($search, $start, $limit);
 
+        $data['forms'] = $this->Form_model->getAllFormNames();
         $data['table'] = $this->Form_model->formatSubmittedFormsTable($submittedForms, $start);
         $data['links'] = $this->Form_model->paginationResults($limit, 'pull-right');
 
@@ -344,10 +361,10 @@ class Forms extends CI_Controller
 
             $data['payment'] = '';
             if(isset($data['values'])) {
-                $data['payment'] = $this->Payment_model->getPaymentByTransactionId($formId['transaction_id']);
+                $data['payments'] = $this->Payment_model->getPaymentsByFormSubmission($submissionId);
             }
-
             $this->load->view('forms/view-submitted-form', $data);
+
         } else {
             show_404();
         }
@@ -368,7 +385,5 @@ class Forms extends CI_Controller
         }
         echo json_encode($feedback);
     }
-
-
 
 }

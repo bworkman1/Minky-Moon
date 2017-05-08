@@ -73,7 +73,7 @@ $us_state_abbrevs_names = array(
         $name         = $lookup['first_name']['value'].' '.$lookup['last_name']['value'];
         $address      = $lookup['address']['value'];
         $city         = $lookup['city']['value'];
-        $state        = $lookup['state']['value'];
+        $form_state   = $lookup['state']['value'];
         $zip          = $lookup['zip']['value'];
         $client_id    = $lookup['client_id']['value'];
         $amount_left  = $lookup['amount_left']['value'];
@@ -116,13 +116,13 @@ $us_state_abbrevs_names = array(
                                 <select name="state" id="state" class="state form-control">
                                     <option value="">Select State</option>
                                     <?php
-                                    foreach($us_state_abbrevs_names as $val => $state) {
-                                        if($state == $val || ($val == 'OH' && $state == '')) {
-                                            echo '<option value="'.$val.'" selected>'.ucwords(strtolower($state)).'</option>';
-                                        } else {
-                                            echo '<option value="'.$val.'">'.ucwords(strtolower($state)).'</option>';
+                                        foreach($us_state_abbrevs_names as $key => $state) {
+                                            if($form_state == $key || ($key == 'OH' && $state == '')) {
+                                                echo '<option value="'.$key.'" selected>'.ucwords(strtolower($state)).'</option>';
+                                            } else {
+                                                echo '<option value="'.$key.'">'.ucwords(strtolower($state)).'</option>';
+                                            }
                                         }
-                                    }
                                     ?>
                                 </select>
                             </div>

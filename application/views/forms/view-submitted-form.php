@@ -25,6 +25,7 @@
         echo '<div class="row">';
 
         $submitted = '';
+        $submission_id = '';
         foreach($form['form_inputs'] as $val) {
             if(isset($values[$val['input_name']]) && !empty($values[$val['input_name']])) {
                 if(is_array($values[$val['input_name']])) {
@@ -39,6 +40,7 @@
                                         echo htmlspecialchars($row['value']);
                                     }
                                     $submitted = date('m/d/Y h:i A', strtotime($row['added']));
+                                    $submission_id = $row['submission_id'];
                                 }
                             echo '</p>';
                         echo '</div>';
@@ -80,43 +82,55 @@
 
         echo '<div class="x_content">';
 
-        echo '<ul class="list-group">';
+        $totalPaid = 0;
+        if($payments) {
+            foreach($payments as $key => $payment) {
 
-        if($payment) {
-            foreach($payment as $key => $val) {
-                if($key == 'id' || $key == 'form_id') {
-                    continue;
-                }
-                echo '<li class="list-group-item">';
-                    $display = $val;
-                    if($key == 'date') {
-                        $display = date('m/d/Y h:i A', strtotime($val));
-                    }
+                echo '<div class="panel panel-default">';
+                    echo '<div class="panel-heading">Payment Made</div>';
+                    echo '<div class="panel-body">';
+                        echo '<h3 style="margin:0 0 15px 0">'.htmlentities($this->encrypt->decode($payment->billing_name)).'</h3>';
+                        echo '<p><b>Billing Address:</b> '.htmlentities($this->encrypt->decode($payment->billing_address)).', ';
+                        echo htmlentities($this->encrypt->decode($payment->billing_city).' '.$this->encrypt->decode($payment->billing_state).' '.$this->encrypt->decode($payment->billing_zip)).'</p>';
+                        echo '<p><b>Transaction Id:</b> '.$payment->transaction_id.'</p>';
+                        echo '<p><b>Approval Code:</b> '.$payment->approval_code.'</p>';
+                        echo '<p><b>Payment Date:</b> '.date('m/d/Y h:i A', strtotime($payment->date)).'</p>';
+                        echo '<p><b>Payment Amount:</b> $'.number_format($payment->amount, 2).'</p>';
+                    echo '</div>';
+                echo '</div>';
 
-                    $encrypted = array('billing_name', 'billing_address', 'billing_city', 'billing_state', 'billing_zip');
-                    if(in_array($key, $encrypted)) {
-                        $display = $this->encrypt->decode($val);
-                    }
-
-                    if($key == 'form_cost' || $key == 'amount') {
-                        $display = '$'.number_format($val, 2);
-                    }
-
-                    echo '<b>'.ucwords(str_replace('_', ' ', $key)).':</b> <span class="pull-right">'.htmlentities($display).'</span>';
-                echo '</li>';
+                $totalPaid = $totalPaid+$payment->amount;
             }
         } else {
+            echo '<ul>';
             echo '<li class="list-group-item list-group-item-warning">';
             echo '<b><i class="fa fa-exclamation-triangle"></i> No Payment Found For This Submission</b>';
             echo '</li>';
+            echo '</ul>';
         }
-        echo '</ul>';
 
+        $showMakePaymentButton = false;
 
+        if($form['form_settings']['cost'] > 0) {
+            echo '<hr>';
+            echo '<div class="well well-sm">';
+                echo '<h4><b>Total Paid:</b> $'.number_format($totalPaid, 2);
+            echo '</div>';
+
+            if($form['form_settings']['cost'] > $totalPaid) {
+                $due = $form['form_settings']['cost'] - $totalPaid;
+                $showMakePaymentButton = true;
+                echo '<div class="alert alert-danger">Amount Due: $'.number_format($due, 2).'</div>';
+            }
+        }
 
         echo '</div>';
 
         echo '<hr>';
+
+        if($showMakePaymentButton && $submission_id != '') {
+            echo '<a href="'.base_url('payments/submit-payment/'.$submission_id).'" class="hidden-print btn btn-primary pull-left"><i class="fa fa-money"></i> Make Payment</a>';
+        }
 
         echo '<button class="hidden-print btn btn-info pull-right" onclick="window.print();"><i class="fa fa-print"></i> Print Form</button>';
 

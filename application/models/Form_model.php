@@ -231,59 +231,64 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         );
 
         $this->formId = (isset($data['form_id']) && $data['form_id'] > 0) ? $data['form_id'] : $this->formId;
-        if($this->formId != 999999) {
-            // UPDATE FORM
-            $data = array(
-                'name'      => $data['name'],
-                'cost'      => $data['cost'],
-                'min_cost'  => $data['min'],
-                'header'    => $data['header'],
-                'footer'    => $data['footer'],
-                'footer'    => $data['footer'],
-                'active'    => $data['active'],
-            );
+        $ready = $this->isNeededInputsAddedBeforeSave();
+        if($ready === true) {
+            if ($this->formId != 999999) {
+                // UPDATE FORM
+                $data = array(
+                    'name' => $data['name'],
+                    'cost' => $data['cost'],
+                    'min_cost' => $data['min'],
+                    'header' => $data['header'],
+                    'footer' => $data['footer'],
+                    'footer' => $data['footer'],
+                    'active' => $data['active'],
+                );
 
-            $this->db->where('id', $this->formId);
-            $this->db->update('forms', $data);
+                $this->db->where('id', $this->formId);
+                $this->db->update('forms', $data);
 
-            $returns['msg'] = 'Form saved successfully';
-            $returns['success'] = TRUE;
-            $returns['data'] = array(
-                'id' => $this->formId,
-            );
-
-        } else {
-            // Insert form
-            $data = array(
-                'name'      => $data['name'],
-                'cost'      => $data['cost'],
-                'min_cost'  => $data['min'],
-                'header'    => $data['header'],
-                'footer'    => $data['footer'],
-                'footer'    => $data['footer'],
-                'active'    => $data['active'],
-            );
-            $this->db->insert('forms', $data);
-            $insertId = $this->db->insert_id();
-
-            if($insertId > 0) {
-                $this->db->set('form_id', $insertId);
-                $this->db->where('form_id', 999999);
-                $this->db->update('form_inputs');
-
-                $this->db->set('form_id', $insertId);
-                $this->db->where('form_id', 999999);
-                $this->db->update('form_input_options');
-
-                $this->session->set_flashdata('success', 'Form saved successfully');
                 $returns['msg'] = 'Form saved successfully';
                 $returns['success'] = TRUE;
                 $returns['data'] = array(
-                    'id' => $insertId,
+                    'id' => $this->formId,
                 );
+
             } else {
-                $returns['msg'] = 'Failed to save form, try again';
+                // Insert form
+                $data = array(
+                    'name' => $data['name'],
+                    'cost' => $data['cost'],
+                    'min_cost' => $data['min'],
+                    'header' => $data['header'],
+                    'footer' => $data['footer'],
+                    'footer' => $data['footer'],
+                    'active' => $data['active'] != '' ? 1 : 0,
+                );
+                $this->db->insert('forms', $data);
+                $insertId = $this->db->insert_id();
+
+                if ($insertId > 0) {
+                    $this->db->set('form_id', $insertId);
+                    $this->db->where('form_id', 999999);
+                    $this->db->update('form_inputs');
+
+                    $this->db->set('form_id', $insertId);
+                    $this->db->where('form_id', 999999);
+                    $this->db->update('form_input_options');
+
+                    $this->session->set_flashdata('success', 'Form saved successfully');
+                    $returns['msg'] = 'Form saved successfully';
+                    $returns['success'] = TRUE;
+                    $returns['data'] = array(
+                        'id' => $insertId,
+                    );
+                } else {
+                    $returns['msg'] = 'Failed to save form, try again';
+                }
             }
+        } else {
+            $returns['msg'] = $ready;
         }
 
         return $returns;
@@ -523,6 +528,42 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         return $returns;
     }
 
+    public function isNeededInputsAddedBeforeSave()
+    {
+        $formInputs = $this->getSavedInputs();
+
+        $findNames = array('name', 'full_name', 'last', 'last_name');
+        $findSSN = array('ssn', 'social', 'social_security', 'social_security_number');
+
+        $foundSSN = false;
+        $foundName = false;
+        $errorMsg = true;
+
+        if($formInputs) {
+            foreach($formInputs as $input) {
+
+                if(in_array($input['input_name'], $findNames)) {
+                    $foundName = true;
+                }
+                if(in_array($input['input_name'], $findSSN)) {
+                    $foundSSN = true;
+                }
+            }
+
+            if($foundName == false) {
+                $errorMsg .= 'Could\'nt find a for input for last name. Please add an input for last name or full name';
+            }
+            if($foundSSN == false) {
+                $errorMsg = 'Could\'nt find a for input for social security number. Please add an input with the name of Social Security';
+            }
+        } else {
+            $errorMsg = 'No form found';
+        }
+
+        return $errorMsg;
+
+    }
+
     public function is_clientIdFormsSet($form_id)
     {
         $findNames = array('name', 'full_name', 'last', 'last_name');
@@ -544,10 +585,10 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             }
 
             if($foundName == false) {
-                $errorMsg = 'Could\'nt find a for input for social security number. ';
+                $errorMsg .= 'Could\'nt find a for input for last name. Please add an input for last name or full name';
             }
             if($foundSSN == false) {
-                $errorMsg .= 'Could\'nt find a for input for last name or full name. ';
+                $errorMsg = 'Could\'nt find a for input for social security number. Please add an input with the name of Social Security';
             }
         } else {
             $errorMsg = 'No form found';
@@ -577,7 +618,6 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $formData = array();
 
         $this->totalFormsSubmitted = $this->getSubmittedCountTotals();
-
         $sortBy = $this->session->userdata('sort_forms') == 'ASC' ? 'ASC' : 'DESC';
 
         $where = '';
@@ -591,14 +631,19 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
 
         $params[] = (int)$start;
         $params[] = (int)$limit;
+
         $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, amount, form_data.viewed
             FROM form_data 
             LEFT JOIN payments 
                 ON form_data.submission_id = payments.submission_id 
-                 '.$where.'
-            GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed 
-            ORDER BY submission_id '.$sortBy.' LIMIT ?, ?';
+                 '.$where.' ';
 
+        if($this->session->userdata('search_form_submission_name') > 0) {
+            $sql .= ' WHERE form_data.form_id = '.$this->session->userdata('search_form_submission_name').' ';
+        }
+
+        $sql .= 'GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed 
+            ORDER BY submission_id '.$sortBy.' LIMIT ?, ?';
 
         $query = $this->db->query($sql, $params);
         $payments = $this->sortPaymentData($query->result_array());
@@ -709,6 +754,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
     {
         $this->db->select('added');
         $this->db->from('form_data');
+        if($this->session->userdata('search_form_submission_name') > 0) {
+            $this->db->where('form_id', $this->session->userdata('search_form_submission_name'));
+        }
         $this->db->group_by('added');
         return $this->db->count_all_results();
     }
@@ -722,7 +770,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $config['full_tag_close'] = '</ul>';
         $config['per_page'] = $limit;
         $config['num_links'] = 5;
-        $config['uri_segment'] = $this->uri->segment(3);
+        $config['uri_segment'] = 3;
         $config['page_query_string'] = false;
         $config['prev_link'] = '&lt; Prev';
         $config['prev_tag_open'] = '<li>';
@@ -792,7 +840,13 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         );
 
         return $feedback;
+    }
 
+    public function getAllFormNames()
+    {
+        $results = $this->db->get('forms')->result_array();
+
+        return $results;
     }
 
 }

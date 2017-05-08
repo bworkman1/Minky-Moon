@@ -55,6 +55,18 @@
                         <textarea class="form-control" style="min-height: 150px;" name="desc" maxlength="1000"></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Include Link to Form</label>
+                        <select class="form-control" name="link_to_form">
+                            <option value="">Select Form</option>
+                            <?php
+                                foreach($forms as $form) {
+                                    echo '<option value="'.$form['id'].'">'.$form['name'].'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

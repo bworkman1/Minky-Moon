@@ -12,6 +12,7 @@ class Form_submit_model extends CI_Model
     private $transaction_id = 0;
     private $approval_code = 0;
     private $submission_id = 0;
+    private $isTestMode = true;
 
     public $feedback = array(
         'msg' => 'Form failed to submit, try again',
@@ -61,7 +62,9 @@ class Form_submit_model extends CI_Model
                         $this->sendAdminsEmail();
 
                         $this->feedback['success'] = true;
-                        $this->feedback['msg'] = 'You have successfully submitted the form. Will need to know the process of what comes next so I can throw it in this message.';
+                        $this->feedback['msg'] = 'You have successfully submitted the form.';
+                        $this->session->set_flashdata('success', $this->feedback['msg']);
+                        $this->feedback['data'] = array('redirect' => base_url('forms/view-submitted-form/'.$this->submission_id));
                     }
                 }
             } else {
@@ -79,9 +82,11 @@ class Form_submit_model extends CI_Model
                 $needsList = array('checkbox', 'radio', 'select');
                 if(isset($input['options']) && !empty($input['options'])) {
                     $listValues = array();
-                    if(in_array($input['input_type'], $needsList)) {
-                        foreach($input['options'] as $option) {
-                            $listValues[] = $option['value'];
+                    if(strpos($input['custom_class'], 'input_state') == -1) {
+                        if (in_array($input['input_type'], $needsList)) {
+                            foreach ($input['options'] as $option) {
+                                $listValues[] = $option['value'];
+                            }
                         }
                     }
                     if(!empty($listValues)) {
@@ -110,11 +115,8 @@ class Form_submit_model extends CI_Model
                 $this->form_validation->set_rules('form[cardExpiry]', 'Expiration Date', 'required|min_length[5]|max_length[5]');
                 $this->form_validation->set_rules('form[cardCVC]', 'CVC Number', 'required|integer|min_length[2]|max_length[5]');
 
-                if($this->liveFormSettings['min_cost'] > 0 && $this->liveFormSettings['cost'] != $this->liveFormSettings['min_cost']) {
-                    $this->postValues['amount'] = $this->liveFormSettings['min_cost'];
+                if($this->liveFormSettings['min_cost'] > 0) {
                     $this->form_validation->set_rules('form[amount]', 'Payment Amount', 'required|decimal|min_length[3]|max_length[8]|less_than_equal_to[' . $this->liveFormSettings['cost'] . ']|greater_than_equal_to[' . $this->liveFormSettings['min_cost'] . ']');
-                } elseif($this->liveFormSettings['min_cost'] > 0) {
-                    $this->postValues['amount'] = $this->liveFormSettings['min_cost'];
                 }
             }
 
@@ -243,7 +245,6 @@ class Form_submit_model extends CI_Model
             'approval_code'     => $this->approval_code,
             'submission_id'     => $this->submission_id,
         );
-
         $this->db->insert('payments', $paymentData);
     }
 

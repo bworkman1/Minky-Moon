@@ -123,9 +123,7 @@ class MY_Output extends CI_Output {
 	}
 
 	function set_message($message, $type="error"){
-// 		log_message($type, $message);
 		$this->_messages[$type] .= $message;
-//		get_instance()->session->set_flashdata("__messages", serialize($this->_messages));
 	}
 
 	/**
@@ -217,7 +215,6 @@ class MY_Output extends CI_Output {
 			$data["ci"]			= &get_instance();
 
 			$data = array_merge($data, $this->_output_data);
-            log_message('error', '  : '.print_r($data["pagename"], true));
 			$output = $ci->load->view($this->_template, $data, true);
 		}
 
