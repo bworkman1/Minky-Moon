@@ -124,4 +124,9 @@ class Shop extends CI_Controller {
         echo json_encode($this->Shop_model->processPayment());
     }
 
+    public function paypal_notification()
+    {
+
+    }
+
 }

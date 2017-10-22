@@ -210,25 +210,187 @@ class Shop_model extends CI_Model
         $this->form_validation->set_rules('billing_zip',           'Billing Zip',             'required|alpha_numeric_spaces|min_length[5]|max_length[5]|trim');
 
         if($this->getCartTotalWithCoupons() > 0) {
-            $this->form_validation->set_rules('card_name', 'Card holder name', 'required|alpha_numeric_spaces|min_length[5]|max_length[30]|trim');
-            $this->form_validation->set_rules('card_number', 'Card number', 'required|alpha_dash|min_length[19]|max_length[19]|trim');
-            $this->form_validation->set_rules('cvc', 'CVC on the back of the card is required', 'required|numeric|min_length[3]|max_length[4]|trim');
-            $this->form_validation->set_rules('month', 'Expiry Month', 'required|numeric|min_length[2]|max_length[2]|trim');
-            $this->form_validation->set_rules('year', 'Expiry Year', 'required|numeric|min_length[4]|max_length[4]|trim');
+            $this->form_validation->set_rules('card_name',      'Card holder name',                         'required|alpha_numeric_spaces|min_length[5]|max_length[30]|trim');
+            $this->form_validation->set_rules('card_number',    'Card number',                              'required|alpha_dash|min_length[19]|max_length[19]|trim');
+            $this->form_validation->set_rules('cvc',            'CVC on the back of the card is required',  'required|numeric|min_length[3]|max_length[4]|trim');
+            $this->form_validation->set_rules('month',          'Expiry Month',                             'required|numeric|min_length[2]|max_length[2]|trim');
+            $this->form_validation->set_rules('year',           'Expiry Year',                              'required|numeric|min_length[4]|max_length[4]|trim');
         }
 
         if($this->form_validation->run() == FALSE) {
             $this->feedback['data'] = $this->form_validation->error_array();
         } else {
-            /*
-             * SEND PAYMENT INFO TO BE PROCESSED (GET BACK TRANSACTION ID AND SAVE IT WITH THE ORDER)
-             * SAVE CART DATA AND CUSTOMER INFO TO DATABASE (SAVE EACH ITEM IN SEPARATE LINE ITEM AND GROUP THEM BY AN ORDER ID AND TIE THEM TO THE CUSTOMER ID)
-             * SEND EMAIL TO CUSTOMER AND ADMINS WITH THE DETAILS (EMAIL MODEL TO HANDLE ALL EMAIL BY TYPE WITH DATA PASSED INTO IT)
-             */
+
+            if($this->sendPaymentPaypal()) {
+                /* TODO:
+            * SAVE CART DATA AND CUSTOMER INFO TO DATABASE (SAVE EACH ITEM IN SEPARATE LINE ITEM AND GROUP THEM BY AN ORDER ID AND TIE THEM TO THE CUSTOMER ID)
+            * SEND EMAIL TO CUSTOMER AND ADMINS WITH THE DETAILS (EMAIL MODEL TO HANDLE ALL EMAIL BY TYPE WITH DATA PASSED INTO IT)
+            */
+            }
+        }
+
+        return $this->feedback;
+    }
+
+    private function sendPaymentPaypal()
+    {
+        $this->load->helper('url');
+        $this->config->load('paypal');
+
+        $config = array(
+            'Sandbox'       => $this->config->item('Sandbox'),
+            'APIUsername'   => $this->config->item('APIUsername'),
+            'APIPassword'   => $this->config->item('APIPassword'),
+            'APISignature'  => $this->config->item('APISignature'),
+            'APISubject'    => '',
+            'APIVersion'    => $this->config->item('APIVersion')
+        );
+        log_message('error', print_r(       $config, true));
+        $this->load->library('paypal/Paypal_pro', $config);
+
+        $DPFields = array(
+            'paymentaction' => 'Sale', 					// How you want to obtain payment.
+            'ipaddress' => $_SERVER['REMOTE_ADDR'], 	// Required.  IP address of the payer's browser.
+            'returnfmfdetails' => '1' 					// Flag to determine whether you want the results returned by FMF.  1 or 0.  Default is 0.
+        );
+
+        $CCDetails = array(
+            'creditcardtype'    => $this->getCreditCardType(str_replace('-' , '', $_POST['card_number'])), // Required. Type of credit card.  Visa, MasterCard, Discover, Amex, Maestro, Solo.
+            'acct'              => str_replace('-' , '', $_POST['card_number']), 	// Required.  Credit card number.  No spaces or punctuation.
+            'expdate'           => $_POST['month'].$_POST['year'], 	// Required.  Credit card expiration date.  Format is MMYYYY
+            'cvv2'              => $_POST['cvc'], 				// Requirements determined by your PayPal account settings.  Security digits for credit card.
+            'startdate'         => '', 							// Month and year that Maestro or Solo card was issued.  MMYYYY
+            'issuenumber'       => ''							// Issue number of Maestro or Solo card.  Two numeric digits max.
+        );
+
+        $PayerInfo = array(
+            'email'         => $this->session->userdata('email'), // Email address of payer.
+            'payerid'       => '', 							// Unique PayPal customer ID for payer.
+            'payerstatus'   => '', 						// Status of payer.  Values are verified or unverified
+            'business'      => 'Testers, LLC' 			// Payer's business name.
+        );
+
+        $name = explode(' ', $_POST['billing_full_name']);
+        $firstName = '';
+        $lastName = '';
+        if(!empty($name)) {
+            $lastName = end($name);
+            $firstName = $name[0];
+        }
+
+        $PayerName = array(
+            'salutation'    => '', 						            // Payer's salutation.  20 char max.
+            'firstname'     => $firstName, 							// Payer's first name.  25 char max.
+            'middlename'    => '', 						            // Payer's middle name.  25 char max.
+            'lastname'      => $lastName, 							// Payer's last name.  25 char max.
+            'suffix'        => ''								        // Payer's suffix.  12 char max.
+        );
+
+        $BillingAddress = array(
+            'street'        => $_POST['billing_address_line1'], 	// Required.  First street address.
+            'street2'       => $_POST['billing_address_line2'], 	// Second street address.
+            'city'          => $_POST['billing_city'], 				// Required.  Name of City.
+            'state'         => $_POST['billing_state'], 			// Required. Name of State or Province.
+            'countrycode'   => 'US', 					            // Required.  Country code.
+            'zip'           => $_POST['billing_zip'], 			    // Required.  Postal code of payer.
+            'phonenum'      => '' 						            // Phone Number of payer.  20 char max.
+        );
+
+        $ShippingAddress = array(
+            'shiptoname'    => $_POST['shipping_full_name'], 			    // Required if shipping is included.  Person's name associated with this address.  32 char max.
+            'shiptostreet'  => $_POST['shipping_address_line1'], 	        // Required if shipping is included.  First street address.  100 char max.
+            'shiptostreet2' => $_POST['shipping_address_line2'], 		    // Second street address.  100 char max.
+            'shiptocity'    => $_POST['shipping_city'], 					// Required if shipping is included.  Name of city.  40 char max.
+            'shiptostate'   => $_POST['shipping_state'], 					// Required if shipping is included.  Name of state or province.  40 char max.
+            'shiptozip'     => $_POST['shipping_zip'], 						// Required if shipping is included.  Postal code of shipping address.  20 char max.
+            'shiptocountry' => 'US', 					                    // Required if shipping is included.  Country code of shipping address.  2 char max.
+            'shiptophonenum' => ''					                        // Phone number for shipping address.  20 char max.
+        );
+
+
+        /*
+         * TODO: Figure out the price of each item with the discounts included
+         */
+        $OrderItems = array();
+        foreach ($this->cart->contents() as $items) {
+            $Item	 = array(
+                'l_name'    => $items['name'], 						                // Item Name.  127 char max.
+                'l_desc'    => $items['name'], 						                // Item description.  127 char max.
+                'l_amt'     => $this->cart->format_number($items['subtotal']), 	    // Cost of individual item.
+                'l_number'  => '', 						                            // Item Number.  127 char max.
+                'l_qty'     => $items['qty'], 							            // Item quantity.  Must be any positive integer.
+                'l_taxamt'  => 0, 						                            // Item's sales tax amount.
+            );
+
+            array_push($OrderItems, $Item);
         }
 
 
-        return $this->feedback;
+        // FIGURE OUT THE CART TOTAL WITH OR WITHOUT COUPON CODES
+        $couponCodes = $this->session->userdata('coupon_codes');
+        $cartTotal = $this->cart->format_number($this->cart->total());
+        if(!empty($couponCodes)) {
+            foreach($couponCodes as $codes) {
+                if($codes->discount_type == 'percent') {
+                    $amount = (float)$this->Shop_model->calculateDiscountAmountByPercent($codes, $cartTotal);
+                } elseif($codes->discount_type == 'amount') {
+                    $amount = (float)$this->Shop_model->calculateDiscountAmountByAmount($codes, $cartTotal);
+                }
+                $cartTotal = $cartTotal - $amount;
+            }
+        }
+
+        $PaymentDetails = array(
+            'amt'           => $cartTotal, 							    // Required.  Total amount of order, including shipping, handling, and tax.
+            'currencycode'  => 'USD', 					                // Required.  Three-letter currency code.  Default is USD.
+            'itemamt'       => $cartTotal, 						        // Required if you include itemized cart details. (L_AMTn, etc.)  Subtotal of items not including S&H, or tax.
+            'shippingamt'   => '0.00', 					                // Total shipping costs for the order.  If you specify shippingamt, you must also specify itemamt.
+            'shipdiscamt'   => '', 					                    // Shipping discount for the order, specified as a negative number.
+            'handlingamt'   => '', 					                    // Total handling costs for the order.  If you specify handlingamt, you must also specify itemamt.
+            'taxamt'        => '', 						                // Required if you specify itemized cart tax details. Sum of tax for all items on the order.  Total sales tax.
+            'desc'          => 'Web Order', 							// Description of the order the customer is purchasing.  127 char max.
+            'custom'        => '', 						                // Free-form field for your own use.  256 char max.
+            'invnum'        => '', 						                // Your own invoice or tracking number
+            'notifyurl'     => base_url('shop/paypal-notification'),// URL for receiving Instant Payment Notifications.  This overrides what your profile is set to use.
+        );
+
+        $Secure3D = array(
+            'authstatus3d' => '',
+            'mpivendor3ds' => '',
+            'cavv' => '',
+            'eci3ds' => '',
+            'xid' => ''
+        );
+
+        $PayPalRequestData = array(
+            'DPFields'          => $DPFields,
+            'CCDetails'         => $CCDetails,
+            'PayerInfo'         => $PayerInfo,
+            'PayerName'         => $PayerName,
+            'BillingAddress'    => $BillingAddress,
+            'ShippingAddress'   => $ShippingAddress,
+            'PaymentDetails'    => $PaymentDetails,
+            'OrderItems'        => $OrderItems,
+            'Secure3D'          => $Secure3D
+        );
+        log_message('error', print_r(       $PayPalRequestData, true));
+        $PayPalResult = $this->paypal_pro->DoDirectPayment($PayPalRequestData);
+
+        if(!$this->paypal_pro->APICallSuccessful($PayPalResult['ACK'])) {
+            $errorString = '';
+            log_message('error', print_r($PayPalResult['ERRORS'], true));
+            if(!empty($PayPalResult['ERRORS']) && is_array($PayPalResult['ERRORS'])) {
+                foreach($PayPalResult['ERRORS'] as $error) {
+                    $errorString .= $error['L_LONGMESSAGE'].'<br><hr>';
+                }
+            }
+
+            $this->feedback['msg'] = $errorString;
+            return false;
+        } else {
+            $this->feedback['msg'] = $PayPalResult;
+            return true;
+        }
     }
 
     private function getCartTotalWithCoupons()
@@ -249,6 +411,31 @@ class Shop_model extends CI_Model
         }
 
         return number_format($cartTotal, 2);
+    }
+
+    private function getCreditCardType($cardNumber, $format = 'string')
+    {
+        if (empty($cardNumber)) {
+            return false;
+        }
+
+        $matchingPatterns = [
+            'visa' => '/^4[0-9]{12}(?:[0-9]{3})?$/',
+            'mastercard' => '/^5[1-5][0-9]{14}$/',
+            'amex' => '/^3[47][0-9]{13}$/',
+            'diners' => '/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/',
+            'discover' => '/^6(?:011|5[0-9]{2})[0-9]{12}$/',
+            'jcb' => '/^(?:2131|1800|35\d{3})\d{11}$/',
+            'any' => '/^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/'
+        ];
+
+        $ctr = 1;
+        foreach ($matchingPatterns as $key=>$pattern) {
+            if (preg_match($pattern, $cardNumber)) {
+                return $format == 'string' ? $key : $ctr;
+            }
+            $ctr++;
+        }
     }
 
 }
