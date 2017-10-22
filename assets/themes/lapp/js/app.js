@@ -110,9 +110,10 @@ var buttonActions  = {
             });
         });
 
-        $('.changePassword').click(function() {
+        $('.changePassword').click(function(e) {
+            e.preventDefault();
             var url = $(this).data('url');
-            alertify.prompt("<h3>Change Users Password</h3>Enter their new password below. Please keep in mind that the password must have at least one lower case,  upper case, special character, a number, and at least 8 characters long. Due to the sensitive information being stored we must enforce strict password.", function (e, password) {
+            alertify.prompt("<h3>Change Users Password</h3>Enter their new password below. Password must be 8 characters long and have at least one of each of the following: uppercase, lowercase, special character.", function (e, password) {
                 if (e) {
                     $.ajax({
                         method: 'post',
@@ -164,6 +165,11 @@ var forms = {
         forms.submitFormSearch();
         forms.showOnlyFormsSubmittedByName();
         forms.addStatesToSelectionByClass();
+        forms.sortSubmittedForms();
+        forms.deleteFormSubmission();
+        forms.toggleFormActive();
+        forms.duplicateForm();
+        forms.addCalendarToDates();
     },
 
     submitFormSearch: function() {
@@ -355,13 +361,6 @@ var forms = {
                     data: inputs,
                     success: function(data) {
                         if(data['success']) {
-                            //inputs.insert_id = data.data.input_id;
-                            //var inputHtml = forms.getInputHtml(inputs);
-                            //if(data.data.db_type == 'update') {
-                            //    $('.formInputObject[data-id="'+inputs.insert_id+'"]').after(inputHtml).remove();
-                            //} else {
-                            //    $('#form-inputs').append(inputHtml);
-                            //}
                             $('#form-inputs').html(data.data['page']);
                             alertify.success('Form input added successfully');
 
@@ -369,6 +368,7 @@ var forms = {
                             forms.addCheckBoxStyling();
                             forms.setSequenceValues();
                             forms.addStatesToSelectionByClass();
+                            forms.addCalendarToDates();
                         } else {
                             alertify.error(data['msg']);
                         }
@@ -395,6 +395,19 @@ var forms = {
                     alertify.error('Something went wrong, try again');
                 }
             }
+        });
+    },
+
+    addCalendarToDates: function() {
+        $('.date').daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true
+        });
+
+        $('.date_time').daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true,
+            timePicker: true,
         });
     },
 
@@ -794,24 +807,25 @@ var forms = {
                 var min     = $('#settings input[name="min_payment"]').val();
                 var header  = $('#settings textarea[name="form_header"]').val();
                 var footer  = $('#settings textarea[name="form_footer"]').val();
+                var submission  = $('#settings textarea[name="submission"]').val();
                 var active  = $('#settings input[name="is_active"]').parent().hasClass('checked')?true:false;
                 var form_id  = $('#formId').val();
-
+console.log('here');
                 $.ajax({
                     url: $('#base_url').data('base')+'forms/save-form',
                     dataType: 'json',
                     type: 'post',
-                    data: {name:name, cost:cost, min:min, header:header, footer:footer, active:active, form_id:form_id},
+                    data: {name:name, cost:cost, min:min, header:header, footer:footer, active:active, submission:submission, form_id:form_id},
                     success: function(data) {
                         if(data.success) {
                             alertify.success(data.msg);
                             var id = data.data['id'];
                             window.location.href = $('#base_url').data('base')+'forms/view-form/'+id;
                         } else {
-                            var errors = data.errors;
-                            if(errors.length>0) {
-                                for (var input in errors) {
-                                    alertify.error(errors[input]);
+                            var errorData = data.errors;
+                            if(errorData != '') {
+                                for (var input in errorData) {
+                                    alertify.error(errorData[input]);
                                 }
                             } else {
                                 alertify.error(data.msg);
@@ -876,6 +890,68 @@ var forms = {
         });
     },
 
+    toggleFormActive: function() {
+        $('.toggleForm').click(function() {
+            var elem = $(this);
+            var status = $(this).attr('data-status');
+            var id = $(this).data('id');
+            var elemData = $(this).html();
+            $.ajax({
+                url: $('#base_url').data('base')+'forms/toggle_form',
+                dataType: 'json',
+                type: 'post',
+                data: {id:id,status:status},
+                success: function(data) {
+                    if(data['success']) {
+                        location.reload();
+                    } else {
+                        alertify.error(data['msg']);
+                    }
+                    elem.attr('disabled', false);
+                },
+                error: function() {
+                    alertify.error('Something went wrong updating the form, try again');
+                    elem.html(elemData).attr('disabled', false);
+                },
+                beforeSend: function() {
+                    elem.html('<i class="fa fa-gear fa-spin"></i>').attr('disabled', true);
+                }
+            });
+        });
+    },
+
+    duplicateForm: function() {
+        $('#duplicateForm').click(function() {
+            var elem = $(this);
+            var id = $(this).data('id');
+            var elemData = $(this).html();
+            $.ajax({
+                url: $('#base_url').data('base')+'forms/duplicate-form',
+                dataType: 'json',
+                type: 'post',
+                data: {id:id},
+                success: function(data) {
+                    if(data['success']) {
+                        window.location.replace($('#base_url').data('base')+'forms/edit-form/'+data.new_form_id);
+                    } else {
+                        alertify.error(data['msg']);
+                    }
+                    $('#duplicateForm').attr('disabled', false);
+                },
+                error: function() {
+                    alertify.error('Something went wrong duplicating the form, try again');
+                    $(elem).html(elemData).attr('disabled', false);
+                },
+                beforeSend: function() {
+                    $('#duplicateForm').html('<i class="fa fa-gear fa-spin"></i> Making a Copy').attr('disabled', true);
+                },
+                complete: function() {
+                    $(elem).html(elemData).attr('disabled', false);
+                }
+            });
+        });
+    },
+
     setSequenceValues: function() {
         var options = '';
         var count = 0;
@@ -883,7 +959,7 @@ var forms = {
             count = count+1;
             options += '<option>'+count+'</option>';
         }
-        options += '<option>'+count+'</option>';
+        options += '<option selected>'+(count+1)+'</option>';
 
         $('#inputSequence').html(options);
     },
@@ -1236,30 +1312,13 @@ var forms = {
         });
     },
 
-    handleFormFail: function(msg , errors) {
-        alertify.error(msg);
-        var ccErrors = ['cardNumber', 'cardExpiry', 'cardCVC', 'amount', 'billing_name', 'billing_address', 'billing_city', 'billing_state', 'billing_zip'];
-        var keepCCUp = false;
-        for(var i in errors) {
-            var field = i;
-            var errorTxt = errors[i];
-            if(ccErrors.indexOf(field) != -1) {
-                keepCCUp = true;
-            }
-            var errorHtml = '<div class="errorString clearfix text-danger"><i class="fa fa-exclamation-triangle"></i> '+errorTxt+'</div>';
-            $('#'+field).closest('.form-group').addClass('has-error').append(errorHtml);
-        }
-        if(!keepCCUp) {
-            $('#paymentModal').modal('hide');
-        }
-    },
+
 
     colorSubmittedFormsRed: function() {
         $('.table tr td i').each(function() {
             if($(this).hasClass('notYetViewedForm')) {
                 $(this).closest('tr').addClass('text-danger');
             }
-            console.log($(this));
         });
     },
 
@@ -1314,6 +1373,69 @@ var forms = {
 
       });
     },
+
+    sortSubmittedForms: function() {
+        $('.sortFormBy').click(function() {
+            var direction = $(this).data('direction');
+            var order = $(this).data('order');
+            $.ajax({
+                url: $('#base_url').data('base')+'forms/sortFormSubmissionsBy',
+                data: {direction:direction,order:order},
+                type: 'post',
+                dataType: 'json',
+                success: function(data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        alertify.error('Something went wrong, try again');
+                    }
+                },
+                error: function() {
+                    alertify.error('Something went wrong, try again');
+                },
+            });
+        });
+    },
+
+    deleteFormSubmission: function() {
+        $('.deleteFormSubmission').click(function() {
+            var elem = $(this);
+            var elemText = $(this).html();
+
+            alertify.confirm("Are you sure you want to delete this form submission?", function (e) {
+                if (e) {
+                    var id = elem.data('id');
+                    var form_id = elem.data('formid');
+                    $.ajax({
+                        url: $('#base_url').data('base')+'forms/delete-form-submission',
+                        data: {id:id,form_id:form_id},
+                        type: 'post',
+                        dataType: 'json',
+                        success: function(data) {
+                            if(data.success) {
+                                location.reload();
+                            } else {
+                                alertify.error(data.msg);
+                                elem.html(elemText).attr('disabled', false);
+                            }
+                        },
+                        error: function() {
+                            alertify.error('Something went wrong, try again');
+                            elem.html(elemText).attr('disabled', false);
+                        },
+                        beforeSend: function() {
+                            elem.html('<i class="fa fa-gear fa-spin"></i> Removing').attr('disabled', true);
+                        },
+                        complete: function() {
+                            elem.html(elemText).attr('disabled', false);
+                        }
+                    });
+                }
+            });
+
+
+        });
+    }
 
 }
 
@@ -1370,9 +1492,6 @@ var payments = {
 }
 
 $(document).ready(function() {
-    formSubmit.call();
-    buttonActions.listenForAction();
-
     if(typeof $('#errorFeedback').data('error') != 'undefined' && $('#errorFeedback').data('error') != '') {
         alertify.error($('#errorFeedback').data('error'));
     }
@@ -1381,7 +1500,6 @@ $(document).ready(function() {
     }
     $('[data-toggle="tooltip"]').tooltip();
 
-    forms.init();
 
     $('.date').mask('00/00/0000');
     $('.cc-expires').mask('00/00');
@@ -1400,31 +1518,477 @@ $(document).ready(function() {
         }
     });
 
-    $('#resetFormInputFields').click(function() {
-        forms.resetFormInputForm();
-        $('#resetFormInputFields').addClass('hide');
-    });
+    pricing.openEditPanel();
+    pricing.savePricingOptions();
+    pricing.deletePricingOption();
 
-    $('.ssn').mask('000-00-0000');
+    fabric.fabricSelection();
+    fabric.fabricCategorySwitch();
+    fabric.fabricAddCategory();
 
-    payments.copyAddressToBilling();
-    payments.submitSinglePayment();
+
+    product.editProduct();
+    product.deleteProduct();
+    product.saveProductOptions();
+    product.deleteProductImage();
+    product.addNewProduct();
+    product.modalCloseEvents();
+
+
 
 });
 
 
-function initMap() {
-    google.maps.event.addDomListener(window, 'load', function () {
-        var places = new google.maps.places.Autocomplete(document.getElementById('billingAddress'));
-        google.maps.event.addListener(places, 'place_changed', function () {
-            var place = places.getPlace();
-            var address = place.formatted_address;
-            var latitude = place.geometry.location.A;
-            var longitude = place.geometry.location.F;
-            var mesg = "Address: " + address;
-            mesg += "\nLatitude: " + latitude;
-            mesg += "\nLongitude: " + longitude;
-            alert(mesg);
+var pricing = {
+
+    openEditPanel: function() {
+        $('.openEditPanel').click(function () {
+            pricing.optionModalCloseEvent();
+
+            var title = $(this).data('modaltitle');
+            var category = $(this).data('category');
+            var name = $(this).data('name');
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            $('#pricingOptionForm select[name="category"]').val(category);
+            $('#optionModal .modal-title').html(title);
+            if(category && name) {
+                $.ajax({
+                    url: $('#base_url').data('base')+'pricing/getPricingOption',
+                    dataType: 'json',
+                    data: {category:category, name:name},
+                    type: 'post',
+                    success: function(data) {
+                        if(data.id) {
+                            $('.categoryInput').closest('.form-group').addClass('hide');
+                            $('.categorySelect').closest('.form-group').removeClass('hide');
+
+                            $('.categorySelect').attr('name', 'category');
+                            $('.categorySelect').attr('id', 'category');
+                            $('.categoryInput').attr('name', '');
+                            $('.categoryInput').attr('id', '');
+
+                            $('#pricingOptionForm input[name="name"]').val(data.name);
+                            $('#pricingOptionForm input[name="price"]').val(data.price);
+                            $('#pricingOptionForm select[name="category"]').val(data.category);
+                            $('#pricingOptionForm input[name="size"]').val(data.size);
+                            $('#pricingOptionForm input[name="id"]').val(data.id);
+                            $('#pricingOptionForm select[name="sequence"]').val(data.sequence);
+
+                            $('#optionModal').modal('show');
+                        } else {
+                            alertify.error('There was an error pulling the items pricing up, please try again');
+                        }
+                    },
+                    error: function() {
+                        alertify.error('There was an error pulling the items pricing up, please try again');
+                        elem.html(elemHtml).attr('disabled', false);
+                    },
+                    beforeSend: function() {
+                        elem.html('<i class="fa fa-gear"></i>').attr('disabled', true);
+                    },
+                    complete: function() {
+                        elem.html(elemHtml).attr('disabled', false);
+                    },
+                });
+            } else {
+                $('.categorySelect').closest('.form-group').addClass('hide');
+                $('.categoryInput').closest('.form-group').removeClass('hide');
+
+                $('.categorySelect').attr('name', '');
+                $('.categorySelect').attr('id', '');
+                $('.categoryInput').attr('name', 'category');
+                $('.categoryInput').attr('id', 'category');
+                $('#pricingOptionForm select[name="sequence"]').val(1);
+                $('#optionModal').modal('show');
+            }
         });
-    });
+    },
+
+    savePricingOptions: function() {
+        $('#savePricingOptions').click(function() {
+            var data = $('#pricingOptionForm').serialize();
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            $('.errorString').remove();
+            $('.form-group').removeClass('has-error');
+            $.ajax({
+                url: $('#base_url').data('base')+'pricing/savePricingOption',
+                dataType: 'json',
+                data: data,
+                type: 'post',
+                success: function(data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        pricing.handleFormFail(data.msg, data.error, 'pricingOptionForm');
+                    }
+                    $('.closeModalButtons').attr('disabled', false);
+                },
+                error: function() {
+                    alertify.error('There was an error saving the form, please try again');
+                    elem.html(elemHtml).attr('disabled', false);
+                    $('.closeModalButtons').attr('disabled', false);
+                },
+                beforeSend: function() {
+                    elem.html('<i class="fa fa-gear"></i> Saving').attr('disabled', true);
+                    $('.closeModalButtons').attr('disabled', true);
+                },
+                complete: function() {
+                    elem.html(elemHtml).attr('disabled', false);
+                    $('.closeModalButtons').attr('disabled', false);
+                },
+            });
+        });
+    },
+
+    deletePricingOption: function() {
+        $('.deleteItem').click(function() {
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            var category = $(this).data('category');
+            var name = $(this).data('name');
+
+            alertify.confirm("Are you sure you want to delete this item?", function (e) {
+                if (e) {
+                    $.ajax({
+                        url: $('#base_url').data('base')+'pricing/deletePricingOption',
+                        dataType: 'json',
+                        data: {category:category, name:name},
+                        type: 'post',
+                        success: function(data) {
+                            if(data.success) {
+                                location.reload();
+                            } else {
+                                alertify.error('There was an error deleting the form, please try again');
+                            }
+                        },
+                        error: function() {
+                            alertify.error('There was an error deleting the form, please try again');
+                            elem.html(elemHtml).attr('disabled', false);
+                        },
+                        beforeSend: function() {
+                            elem.html('<i class="fa fa-gear"></i>').attr('disabled', true);
+                        },
+                        complete: function() {
+                            elem.html(elemHtml).attr('disabled', false);
+                        },
+                    });
+                }
+            });
+
+        });
+    },
+
+    optionModalCloseEvent:function() {
+        $('#optionModal').on('hidden.bs.modal', function () {
+            $('#pricingOptionForm input[name="id"]').val('');
+            document.getElementById("pricingOptionForm").reset();
+        });
+
+        $('#editFabricModal').on('hidden.bs.modal', function () {
+            $('#editFabricForm input[name="id"]').val('');
+            document.getElementById("editFabricForm").reset();
+            $('#deleteFabricImage').removeAttr('data-id');
+        });
+
+
+    },
+
+    handleFormFail: function(msg, errors, formId) {
+        alertify.error(msg);
+        if(errors) {
+            for(var i in errors) {
+                var field = i;
+                var errorTxt = errors[i];
+                var errorHtml = '<div class="errorString clearfix text-danger"><i class="fa fa-exclamation-triangle"></i> '+errorTxt+'</div>';
+                $('#'+formId+' #'+field).closest('.form-group').addClass('has-error').append(errorHtml);
+            }
+        }
+    },
+
 }
+
+var fabric = {
+    fabricSelection: function() {
+        $('.fabricImage').click(function() {
+            var category = $(this).data('category');
+            var name = $(this).data('name');
+            if(category && name) {
+                $.ajax({
+                    url: $('#base_url').data('base') + 'fabrics/editFabric',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {category: category, name: name},
+                    success: function (data) {
+                        var base = $('#base_url').data('base');
+                        $('#previewImg').attr('src', base+'/assets/'+data.fabric.image);
+                        $('#name').val(data.fabric.name);
+                        $('#active').val(data.fabric.active);
+                        $('#category').val(data.fabric.category);
+                        $('#featured').val(data.fabric.Featured);
+                        $('#deleteFabricImage').attr('data-id', data.fabric.id);
+
+                        if(data.placements.length>0) {
+                            var html = '<option value="">Select One</option>';
+                            for(var i in data.placements) {
+                                html += '<option>'+data.placements[i].placement+'</option>';
+                            }
+
+                            $('#placement').html(html);
+                            $('#placement').val(data.fabric.placement);
+
+                        }
+                        $('#editFabricModal').modal('show');
+                    },
+                    error: function () {
+                        alertify.error('There was an error pulling the fabric, try again');
+                    },
+                    beforeSend: function () {
+
+                    }
+                });
+            }
+        });
+    },
+
+    fabricCategorySwitch: function() {
+        $('#category').change(function() {
+            var category = $('#category').val();
+            if(category) {
+                $.ajax({
+                    url: $('#base_url').data('base') + 'fabrics/getPlacements',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {category: category, name: name},
+                    success: function (data) {
+                        $('#placement').html('');
+                        var option = '<option value="">Select One</option>';
+                        if(data.length>0) {
+                            for(var i in data) {
+                                console.log(data[i])
+                                option += '<option value="'+data[i].placement+'">'+data[i].placement+'</option>';
+                            }
+                        }
+                        $('#placement').html(option);
+                    },
+                    error: function () {
+                        alertify.error('There was an error pulling the placements, try changing the category back and forth to load them')
+                    },
+                });
+            } else {
+                $('#placement').html('<option value="">Select Category First</option>');
+            }
+        });
+    },
+
+    fabricAddCategory: function() {
+        $('.addCategory').click(function() {
+            var type = $(this).attr('data-type');
+            $('#editFabricModal').removeAttr('tabindex');
+            alertify.prompt("Add New "+type, function (e, str) {
+                if (e) {
+                    if(str) {
+                        $('#'+type.toLowerCase()).append('<option>'+str+'</option>');
+                        $('#'+type.toLowerCase()).val(str);
+                        alertify.success(type+' Added');
+                    }
+                }
+            });
+        });
+    },
+}
+
+var product = {
+
+    editProduct: function() {
+        $('.editProduct').click(function() {
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            var id = $(this).data('id');
+            $('[data-toggle="tooltip"]').tooltip("destroy");
+            $.ajax({
+                url: $('#base_url').data('base')+'products/getProductById',
+                type: 'POST',
+                data: {id:id},
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if(data.success) {
+                        $('#name').val(data.data.name);
+                        if(data.data.fabrics) {
+                            for(var i in data.data.fabrics) {
+                                $('#fabrics input[value="'+data.data.fabrics[i]+'"]').prop('checked', true);
+                            }
+                        }
+                        if(data.data.pricing_options) {
+                            for(var i in data.data.pricing_options) {
+                                console.log(data.data.pricing_options[i])
+                                $('#pricing_options input[type="checkbox"][value="'+data.data.pricing_options[i]+'"]').prop('checked', true);
+                            }
+                        }
+
+                        if(data.data.image) {
+                            $('#imagePreview').prop('src', $('#base_url').data('base') + 'assets/' + data.data.image);
+                            $('#imagePreviewArea').removeClass('hide');
+                            $('#image').addClass('hide');
+                            $('#deleteProductImage').attr('data-id', data.data.id);
+                        } else {
+                            $('#imagePreviewArea').addClass('hide');
+                            $('#image').removeClass('hide');
+                        }
+                        $('#id').val(data.data.id);
+
+                        $('#productModal').modal('show');
+                    } else {
+                        alertify.error(data.msg);
+                    }
+                    elem.html(elemHtml).prop('disabled', false);
+                },
+                error: function() {
+                    elem.html(elemHtml).prop('disabled', false);
+                },
+                beforeSend: function() {
+                    elem.html('<i class="fa fa-gear fa-spin"></i>').prop('disabled', true);
+                }
+            });
+        });
+    },
+
+    deleteProduct: function() {
+        $('.deleteProduct').click(function() {
+            var productId = $(this).data('id');
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            if(productId) {
+                alertify.confirm("Are you sure you want to delete this product?", function (e) {
+                    if (e) {
+                        var deleteFailMsg = 'There was an error deleting the product, try refreshing the page and try again';
+                        $.ajax({
+                            url: $('#base_url').data('base') + 'products/deleteProduct',
+                            type: 'post',
+                            dataType: 'json',
+                            data: {id: productId},
+                            success: function (data) {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    alertify.error(deleteFailMsg);
+                                }
+                                elem.html(elemHtml).attr('disabled', false);
+                            },
+                            error: function () {
+                                alertify.error(deleteFailMsg);
+                                elem.html(elemHtml).attr('disabled', false);
+                            },
+                            beforeSend: function() {
+                                elem.html('<i class="fa fa-gear fa-spin"></i>').attr('disabled', true);
+                            },
+                        });
+                    }
+                });
+            }
+        });
+    },
+
+    saveProductOptions: function() {
+        $('#saveProductOptions').click(function() {
+            $('.form-group').removeClass('has-error');
+            $('.errorString ').remove();
+            var formData = new FormData($("#productForm")[0]);
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            $.ajax({
+                url: $('#base_url').data('base')+'products/saveProduct',
+                type: 'POST',
+                data: formData,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        pricing.handleFormFail(data.msg, data.error, 'productForm');
+                    }
+                    elem.html(elemHtml).attr('disabled', false);
+                    $('.closeModalButtons').attr('disabled', false);
+                },
+                error: function() {
+                    elem.html(elemHtml).attr('disabled', false);
+                    $('.closeModalButtons').attr('disabled', false);
+                },
+                beforeSend: function() {
+                    elem.html('<i class="fa fa-gear fa-spin"></i> Saving').attr('disabled', true);
+                    $('.closeModalButtons').attr('disabled', true);
+                },
+                cache: false,
+                contentType: false,
+                processData: false,
+            });
+
+        });
+    },
+
+    deleteProductImage: function() {
+        $('#deleteProductImage').click(function() {
+            var id = $(this).attr('data-id');
+            var elem = $(this);
+            var elemHtml = $(this).html();
+            $.ajax({
+                url: $('#base_url').data('base')+'products/deleteProductImage',
+                type: 'POST',
+                data: {id:id},
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if(data.success) {
+                        $('#imagePreviewArea').addClass('hide');
+                        $('#image').removeClass('hide');
+                        alertify.success(data.msg);
+                    } else {
+                        alertify.error(data.msg);
+                    }
+                    elem.html(elemHtml).attr('disabled', false);
+                },
+                error: function() {
+                    elem.html(elemHtml).attr('disabled', false);
+                },
+                beforeSend: function() {
+                    elem.html('<i class="fa fa-gear fa-spin"></i> Removing').attr('disabled', true);
+                }
+            });
+        });
+    },
+
+    addNewProduct: function() {
+        $('#newProduct').click(function() {
+            document.getElementById("productForm").reset();
+            $('#productForm input[name="id"]').val('');
+            $('#productForm input[name="name"]').val('');
+            $('input[type="checkbox"]').attr('checked', false);
+            $('#imagePreview').attr('src', '');
+            $('#imagePreviewArea').addClass('hide');
+            $('#image').removeClass('hide');
+            $('#deleteProductImage').removeAttr('data-id');
+        });
+    },
+
+    modalCloseEvents: function() {
+        $('#productModal').on('hidden.bs.modal', function () {
+            document.getElementById("productForm").reset();
+            $('#productForm input[name="id"]').val('');
+            $('#productForm input[name="name"]').val('');
+            $('#imagePreview').attr('src', '');
+            $('#imagePreviewArea').addClass('hide');
+            $('#image').removeClass('hide');
+            $('#deleteProductImage').removeAttr('data-id');
+            $('input:checkbox').removeAttr('checked');
+        });
+    },
+
+}
+
+
+
+
+

@@ -29,11 +29,14 @@
         foreach($form['form_inputs'] as $val) {
             if(isset($values[$val['input_name']]) && !empty($values[$val['input_name']])) {
                 if(is_array($values[$val['input_name']])) {
-                    echo '<div class="' . $val['input_columns'] . '">';
+                    echo '<div class="' . $val['input_columns'] . ' col-print-'.preg_replace("/[^0-9,.]/", "", $val['input_columns']).'">';
                         echo '<div class="underline">';
                             echo '<label>'.$val['input_label'].'</label>';
                             echo '<p>';
                                 foreach($values[$val['input_name']] as $row) {
+                                    if($val['encrypt_data']) {
+                                        $row['value'] = $this->encrypt->decode($row['value']);
+                                    }
                                     if($val['input_type'] == 'checkbox') {
                                         echo '<i class="fa fa-check"></i> ' . htmlspecialchars($row['value']) . ' ';
                                     } else {
@@ -102,7 +105,7 @@
                 $totalPaid = $totalPaid+$payment->amount;
             }
         } else {
-            echo '<ul>';
+            echo '<ul class="list-group">';
             echo '<li class="list-group-item list-group-item-warning">';
             echo '<b><i class="fa fa-exclamation-triangle"></i> No Payment Found For This Submission</b>';
             echo '</li>';

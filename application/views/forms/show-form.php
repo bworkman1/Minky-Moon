@@ -11,7 +11,7 @@
                             echo '<h2><i class="fa fa-file-o"></i> '.ucwords($form['form_settings']['name']).'</h2>';
                             echo '<ul class="nav navbar-right panel_toolbox">';
                                 echo '<li>';
-                                    echo '<a href="http://localhost/lapp/forms/all-forms"><i class="fa fa-file"></i> All Forms</a>';
+                                    echo '<a href="'.base_url('forms/all-forms').'"><i class="fa fa-file"></i> All Forms</a>';
                                 echo ' </li>';
                             echo '</ul>';
                             echo '<div class="clearfix"></div>';
@@ -116,7 +116,7 @@
                             echo '<h2><i class="fa fa-gears"></i> Form Settings</h2>';
                             echo '<ul class="nav navbar-right panel_toolbox">';
                                 echo '<li>';
-                                    echo '<a href="http://localhost/lapp/forms/edit-form/'.$form['form_settings']['id'].'"><i class="fa fa-file"></i> Edit Form</a>';
+                                    echo '<a href="'.base_url('forms/edit-form/'.$form['form_settings']['id']).'"><i class="fa fa-file"></i> Edit Form</a>';
                                 echo ' </li>';
                             echo '</ul>';
                             echo '<div class="clearfix"></div>';
@@ -143,6 +143,10 @@
                                 echo '<li class="list-group-item">';
                                     $active = $form['form_settings']['active'] > 0 ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span></span>';
                                     echo '<b>Active:</b> <span id="formStatusView" class="pull-right">'.$active.'</span>';
+                                echo '</li>';
+                                echo '<li class="list-group-item">';
+                                    echo '<b>Submission Text</b>: ';
+                                    echo $form['form_settings']['submission'];
                                 echo '</li>';
                             echo '</ul>';
 

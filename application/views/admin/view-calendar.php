@@ -8,15 +8,28 @@
         <ul class="nav navbar-right panel_toolbox">
             <li>
                 <?php
-                if ($this->ion_auth->logged_in()) {
-                    echo '<a href="#" data-target="#add-event" data-toggle="modal"><i class="fa fa-calendar-plus-o"></i> Add Event</a>';
+                if (strtoupper($this->uri->segment(1)) != 'VIEW') {
+                    echo '<a href="'.base_url('view/calendar').'" target="_blank"><i class="fa fa-calendar-o"></i> View Live Calendar</a>';
                 }
+                ?>
+            </li>
+
+            <li>
+                <?php
+				$background = '';
+				$showDelete = true;
+                if (strtoupper($this->uri->segment(1)) != 'VIEW') {
+                    echo '<a href="#" data-target="#add-event" data-toggle="modal"><i class="fa fa-calendar-plus-o"></i> Add Event</a>';
+                } else {
+					$showDelete = false;
+					$background = 'style="background: #fff;"';
+				}
                 ?>
             </li>
         </ul>
         <div class="clearfix"></div>
     </div>
-    <div class="x_content">
+    <div class="x_content" <?php echo $background; ?>>
         <?php echo $calendar; ?>
     </div>
 </div>
@@ -76,7 +89,7 @@
         </div>
     </div>
 </div>
-
+<?php if($showDelete) { ?>
 <div class="modal fade" id="edit-event" tabindex="-1" role="dialog" aria-labelledby="edit-event">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -117,6 +130,7 @@
         </div>
     </div>
 </div>
+<?php } ?>
 
 <div class="modal fade" id="view-event" tabindex="-1" role="dialog" aria-labelledby="view-event">
     <div class="modal-dialog" role="document">
@@ -132,7 +146,9 @@
                     if ($this->ion_auth->logged_in()) {
                         echo '<div class="pull-left">';
                             //echo '<button type="button" class="btn btn-info"><i class="fa fa-edit"></i> Edit</button>';
-                            echo '<button type="button" id="deleteEventBtn" class="btn btn-danger"><i class="fa fa-times-circle"></i> Delete Event</button>';
+							if($showDelete) {
+								echo '<button type="button" id="deleteEventBtn" class="btn btn-danger"><i class="fa fa-times-circle"></i> Delete Event</button>';
+							}
                         echo '</div>';
                     }
                 ?>

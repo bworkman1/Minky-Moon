@@ -51,6 +51,10 @@
                             <label>Form Footer</label>
                             <textarea name="form_footer" class="form-control" style="min-height:100px"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label><i class="fa fa-question-circle" data-toggle="tooltip" data-title="After a customer submits this form they will be taken to a page that will display what you put in the box below and receive an email if available with the text you enter."></i> Successful Submission Email/Page</label>
+                            <textarea name="submission" class="form-control" style="min-height:100px"><?php echo isset($admin_settings['submission']->value) ? $admin_settings['submission']->value : ''; ?></textarea>
+                        </div>
                         <div class="checkbox">
                             <label><input type="checkbox" name="is_active"> Activate Form</label>
                         </div>
@@ -58,7 +62,7 @@
 
                     <!-- FORM INPUTS -->
                     <div class="tab-pane fade" data-url="<?php echo base_url('forms/add-input'); ?>" id="inputs">
-
+                        <p><b>Tip: </b> Use common spelled input names like first_name, last_name, address, city, state, zip, social_security_number, and email to trigger some auto-fill options. <b>All forms must have a social_security_number input and last_name input</b> to generate the client id. Having an input with the name of email will allow the user to receive emails after form submission.</p>
                         <div class="form-group">
                             <label><span class="text-danger">*</span> Input Label</labeL>
                             <input type="text" required class="form-control" name="input_label" maxlength="255" minlength="2">
@@ -344,6 +348,7 @@
                     <li class="list-group-item">Use "money" to format the input (00.00) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="money">Use</button></li>
                     <li class="list-group-item">Use "ssn" to format the input (000-00-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="ssn">Use</button></li>
                     <li class="list-group-item">Use "input_states" to add select box with all states as an option <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="input_states">Use</button></li>
+                    <li class="list-group-item">Use "signature" to make the input look like a signature <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="signature">Use</button></li>
                 </ul>
             </div>
             <div class="modal-footer">

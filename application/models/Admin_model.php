@@ -91,7 +91,7 @@ class Admin_model extends CI_Model
             'msg'     => 'Something went wrong, try again',
             'data'    => array(),
         );
-        $validPostNames = array('time', 'failed', 'emails');
+        $validPostNames = array('time', 'failed');
         if($post) {
             $rowData = array(
                 'name' => '',
@@ -119,6 +119,41 @@ class Admin_model extends CI_Model
         return $return;
     }
 
+    public function saveEmailSettings($post)
+    {
+        $return = array(
+            'success' => false,
+            'msg'     => 'Something went wrong, try again',
+            'data'    => array(),
+        );
+
+        $validPostNames = array('submission', 'emails');
+        if($post) {
+            $rowData = array(
+                'name' => '',
+                'value' => '',
+                'group_title' => 'Email Settings',
+            );
+            foreach($post as $key => $val) {
+                if(in_array($key, $validPostNames)) {
+                    $settingExists = $this->db->select('value')->where('name', $key)->from('admin_settings')->count_all_results();
+                    $rowData['name'] = $key;
+                    $rowData['value'] = $val;
+                    if ($settingExists) {
+                        $this->db->where('name', $key);
+                        $this->db->update('admin_settings', $rowData);
+                    } else {
+                        $this->db->insert('admin_settings', $rowData);
+                    }
+                }
+            }
+
+            $return['success'] = true;
+            $return ['msg'] = 'Email settings saved successfully';
+        }
+        return $return;
+    }
+
     public function getAdminSettingsByArray($settingNames)
     {
         $data = array();
@@ -134,6 +169,61 @@ class Admin_model extends CI_Model
             }
         }
         return $data;
+    }
+
+    public function determineHomeScreenUser()
+    {
+        $userGroups = $this->ion_auth->get_users_groups($this->session->userdata('id'))->result();
+
+        $uriTranslator = array(
+            'View Submitted Forms'      => 'forms/form-submissions',
+            'View Submitted Payments'   => 'payments/all',
+            'Submit Forms Manually'     => 'forms/all-forms',
+            'View Forms'                => 'forms/all-forms',
+            'Edit Forms'                => 'forms/all-forms',
+            'Submit Payments'           => 'payments/submit-payment',
+            'Add New Forms'             => 'forms/add-form',
+            'Add Users'                 => 'users',
+            'Edit Users'                => 'users',
+        );
+
+        $isRedirect = $this->session->userdata('not_logged_in');
+
+        if($this->ion_auth->is_admin()) {
+            if($isRedirect) {
+                $this->session->unset_userdata('not_logged_in');
+                return $isRedirect;
+            } else {
+                return 'forms/form-submissions';
+            }
+        } else {
+            if($userGroups) {
+                $highestPosition = count($uriTranslator);
+                $urls = array_values($uriTranslator);
+
+                $forceRedirect = false;
+
+                foreach($userGroups as $group) {
+                    $index = array_search($group->name, array_keys($uriTranslator));
+                    if($index < $highestPosition) {
+                        $highestPosition = $index;
+                    }
+
+                    if($isRedirect && $group->name == 'View Submitted Forms') {
+                        $forceRedirect = true;
+                    }
+                }
+
+                $this->session->set_userdata('user_home', $urls[$highestPosition]);
+                if($forceRedirect) {
+                    $this->session->unset_userdata('not_logged_in');
+                    return $isRedirect;
+                } else {
+                    return $urls[$highestPosition];
+                }
+            }
+        }
+
     }
 
 }

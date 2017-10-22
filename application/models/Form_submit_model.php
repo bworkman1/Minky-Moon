@@ -12,7 +12,7 @@ class Form_submit_model extends CI_Model
     private $transaction_id = 0;
     private $approval_code = 0;
     private $submission_id = 0;
-    private $isTestMode = true;
+    private $isTestMode = false;
 
     public $feedback = array(
         'msg' => 'Form failed to submit, try again',
@@ -40,32 +40,42 @@ class Form_submit_model extends CI_Model
             $this->liveFormInputs   = $liveForm['form_inputs'];
             $this->postValues       = $post;
 
+            $this->load->model('Admin_model');
+            $this->adminSettings = $this->Admin_model->getAllAdminSettings();
+
             if(!empty($this->liveFormSettings) && !empty($this->liveFormInputs)) {
-                if($this->validateInputData()) {
+                if($this->preventMultipleSubmissions() == false) {
+                    if ($this->validateInputData()) {
 
-                    $this->setClientId();
+                        $this->setClientId();
 
-                    $submittedSuccess = false;
+                        $submittedSuccess = false;
 
-                    if($this->paymentTransaction) {
-                        if($this->processPayment()) {
-                            $submittedSuccess = true;
-                            $this->saveFormData();
+                        if ($this->paymentTransaction) {
+                            if ($this->processPayment()) {
+                                $submittedSuccess = true;
+                                $this->saveFormData();
+                            }
+                        } else {
+                            if ($this->saveFormData()) {
+                                $submittedSuccess = true;
+                            }
                         }
-                    } else {
-                        if($this->saveFormData()) {
-                            $submittedSuccess = true;
+
+                        if ($submittedSuccess) {
+                            $this->sendAdminsEmail();
+
+                            $this->feedback['success'] = true;
+                            $this->feedback['msg'] = 'You have successfully submitted the form.';
+                            $this->session->set_flashdata('success', $this->feedback['msg']);
+                            $this->feedback['data'] = array(
+                                'redirect' => base_url('forms/view-submitted-form/' . $this->submission_id),
+                                'submission_page' => base_url('view/submitted-form/'.url_title($this->liveFormSettings['name'])),
+                            );
                         }
                     }
-
-                    if($submittedSuccess) {
-                        $this->sendAdminsEmail();
-
-                        $this->feedback['success'] = true;
-                        $this->feedback['msg'] = 'You have successfully submitted the form.';
-                        $this->session->set_flashdata('success', $this->feedback['msg']);
-                        $this->feedback['data'] = array('redirect' => base_url('forms/view-submitted-form/'.$this->submission_id));
-                    }
+                } else {
+                    $this->feedback['msg'] = 'You have already submitted this form recently. If you need to submit this form again please wait for a while and try again.';
                 }
             } else {
                 $this->feedback['msg'] = 'The form was not found, try refreshing your page and try again';
@@ -167,9 +177,6 @@ class Form_submit_model extends CI_Model
 
     private function processPayment()
     {
-        $this->load->model('Admin_model');
-        $this->adminSettings = $this->Admin_model->getAllAdminSettings();
-
         $config = array(
             'api_login_id' 			=> $this->adminSettings['api_key']->value,
             'api_transaction_key' 	=> $this->adminSettings['auth_key']->value,
@@ -270,6 +277,11 @@ class Form_submit_model extends CI_Model
             if($input['input_type'] == 'checkbox') {
                 if(!empty($this->postValues[$input['input_name']]) && is_array($this->postValues[$input['input_name']])) {
                     foreach($this->postValues[$input['input_name']] as $val) {
+
+                        if($input['encrypt_data']) {
+                            $val = $this->encrypt->encode($val);
+                        }
+
                         $formInput = array(
                             'customer_id'   => $this->clientId,
                             'value'         => $val,
@@ -283,6 +295,10 @@ class Form_submit_model extends CI_Model
                     }
                 }
             } else {
+                if($input['encrypt_data']) {
+                    $this->postValues[$input['input_name']] = $this->encrypt->encode($this->postValues[$input['input_name']]);
+                }
+
                 $formInput = array(
                     'customer_id'   => $this->clientId,
                     'value'         => $this->postValues[$input['input_name']],
@@ -296,8 +312,10 @@ class Form_submit_model extends CI_Model
             }
         }
 
+        if($this->transaction_id > 0) {
+            $this->logPaymentDetails();
+        }
 
-        $this->logPaymentDetails();
         return true;
     }
 
@@ -348,22 +366,154 @@ class Form_submit_model extends CI_Model
 
     private function sendAdminsEmail()
     {
-        if(!$this->isTestMode) {
-            $data['form_inputs'] = $this->liveFormInputs;
-            $data['form_settings'] = $this->liveFormSettings;
-            $data['payment'] = $this->paymentTransaction;
-
+        if(!$this->isTestMode && !empty($this->adminSettings['emails']->value)) {
             $this->load->library('email');
+            $this->email->set_mailtype("html");
 
-            $this->email->from('noreply@lapp.cc', 'LAPP');
+            $data['usefulFields']   = $this->determineUsefulFields($this->postValues);
+            $data['form_inputs']    = $this->liveFormInputs;
+            $data['form_settings']  = $this->liveFormSettings;
+            $data['payment']        = $this->paymentTransaction;
+            $data['submission_id']  = $this->submission_id;
+
+            $this->email->from(FROM_EMAIL_ADDRESS, FROM_EMAIL_NAME);
             $this->email->to($this->adminSettings['emails']->value);
 
-            $this->email->subject('LAPP Form Submission - ' . $this->liveFormSettings['name']);
-            $this->email->message($this->load->view('email-templates/form-submission', $data, false));
-
+            $this->email->subject('New Form Submission Received - ' . $this->liveFormSettings['name']);
+            $this->email->message($this->load->view('email-templates/new-form-submission-admin', $data, TRUE));
             $this->email->send();
+
+            if ($data['usefulFields']['email']['value'] != '' && !empty($this->liveFormSettings['submission'])) {
+                $this->sendUserEmail($data);
+            }
         }
     }
 
+    private function sendUserEmail($data)
+    {
+        $this->email->set_mailtype("html");
+        $this->email->to($data['usefulFields']['email']['value']);
+        $this->email->from(FROM_EMAIL_ADDRESS, FROM_EMAIL_NAME);
+
+        $this->email->subject('We Received Your Form - ' . $this->liveFormSettings['name']);
+        $this->email->message($this->load->view('email-templates/form-successful-email', $data, TRUE));
+
+        $this->email->send();
+    }
+
+    private function preventMultipleSubmissions()
+    {
+        if (!$this->ion_auth->logged_in()) {
+            $submittedForms = $this->session->userdata('submitted_forms');
+            if (is_array($submittedForms)) {
+                if (in_array($this->submittedFormId, $submittedForms)) {
+                    return true;
+                } else {
+                    $submittedForms[] = $this->submittedFormId;
+                    $this->session->set_userdata('submitted_forms', $submittedForms);
+                    return false;
+                }
+            } else {
+                $this->session->set_userdata('submitted_forms', array($this->submittedFormId));
+                return false;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    public function determineUsefulFields($formInputs)
+    {
+        $basePercentThreshold = 50;
+        $definedFields = array(
+            'first_name' => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'address'   => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'city'      => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'state'     => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'zip'       => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'last_name'      => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'ssn'      => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'social'      => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'social_security_number' => array(
+                'value' => '',
+                'percent' => 0,
+            ),
+            'client_id' => array(
+                'value' => '',
+                'percent' => 100,
+            ),
+            'amount_left' => array(
+                'value' => '',
+                'percent' => 100,
+            ),
+            'amount_paid' => array(
+                'value' => '',
+                'percent' => 100,
+            ),
+            'form_name' => array(
+                'value' => '',
+                'percent' => 100,
+            ),
+            'email' => array(
+                'value' => '',
+                'percent' => 90,
+            )
+        );
+        if(!empty($formInputs)) {
+            $definedFieldsKeys = array_keys($definedFields);
+            foreach($formInputs as $key => $input) {
+                foreach($definedFieldsKeys as $field) {
+                    similar_text(strtoupper($field), strtoupper($key), $percent);
+                    if($percent > $basePercentThreshold) {
+                        if($definedFields[$field]['percent'] < $percent) {
+                            $definedFields[$key]['value'] = $input;
+                            $definedFields[$key]['percent'] = $percent;
+                        }
+                    }
+                }
+            }
+        }
+
+        if($definedFields['ssn']['value'] != '' || $definedFields['social']['value'] != '' || $definedFields['social_security_number']['value']) {
+            if($definedFields['last_name']['value'] != '') {
+                if($definedFields['social_security_number']['value']) {
+                    $ssn = $definedFields['social_security_number']['value'];
+                } else {
+                    $ssn = $definedFields['ssn']['value'] != '' ? $definedFields['ssn']['value'] : $definedFields['social']['value'];
+                }
+                $last_name = $definedFields['last_name']['value'];
+                $last4 = substr($ssn, -4);
+                $firstTwo = substr($last_name, 0, 2);
+                $definedFields['client_id']['value'] = strtoupper($firstTwo.$last4);
+            }
+        }
+
+        return $definedFields;
+    }
 
 }

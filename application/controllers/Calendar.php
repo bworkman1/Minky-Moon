@@ -6,7 +6,7 @@ class Calendar extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-
+        $this->load->model('Form_model');
         if (!$this->ion_auth->logged_in()) {
             redirect('login');
             exit;
@@ -67,7 +67,6 @@ class Calendar extends CI_Controller
     {
         $this->init_page();
         $this->load->model('Calendar_model');
-        $this->load->model('Form_model');
 
         $this->output->set_meta('pagename','calendar');
         

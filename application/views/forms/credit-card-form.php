@@ -149,9 +149,9 @@ $us_state_abbrevs_names = array(
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-7 col-md-7">
+                    <div class="col-xs-7 col-md-6">
                         <div class="form-group">
-                            <label for="cardExpiry"><span class="hidden-xs"><span class="text-danger">*</span> Expiration</span><span class="visible-xs-inline">Exp</span> Date</label>
+                            <label for="cardExpiry"><span class="hidden-xs"><span class="text-danger">*</span> Expiration </span><span class="visible-xs-inline">Exp</span> Date <small style="font-size:.5em">(mm/yy)</small></label>
                             <input type="tel" class="form-control cc-expires" name="cardExpiry" id="cardExpiry" placeholder="MM / YY"
                                 autocomplete="cc-exp"
                                 maxlength="5"
@@ -159,26 +159,36 @@ $us_state_abbrevs_names = array(
                                 />
                         </div>
                     </div>
-                    <div class="col-xs-5 col-md-5 pull-right">
+                    <div class="col-xs-5 col-md-6 pull-right">
                         <div class="form-group">
-                            <label for="cardCVC"><span class="text-danger">*</span> CV Code <small>(On the back)</small></label>
+                            <label for="cardCVC"><span class="text-danger">*</span> CV Code <small style="font-size: .5em;">(On the back)</small></label>
                             <input type="tel" class="form-control" name="cardCVC" id="cardCVC" placeholder="CVC" autocomplete="cc-csc" maxlength="5" required />
                         </div>
                     </div>
 
                     <?php if($form['form_settings']['min_cost'] > 0 && $form['form_settings']['min_cost'] < $form['form_settings']['cost']) { ?>
                         <div class="clearfix"></div>
-                        <div class="col-xs-5 col-md-5 pull-right">
+                        <div class="col-xs-5 col-md-6 pull-right">
                             <div class="form-group">
                                 <label for="amount"><span class="text-danger">*</span> Payment Amount</label>
                                 <input type="text" class="form-control money" name="amount" id="amount" placeholder="0.00" maxlength="6" value="<?php echo number_format($form['form_settings']['cost'], 2); ?>" required />
                             </div>
                         </div>
                     <?php } else { ?>
-                        <div class="col-xs-5 col-md-5 pull-right">
-                            <h3><b>Cost:</b> $<?php echo number_format($form['form_settings']['cost'], 2); ?></h3>
+                        <div class="col-md-12">
+                            <div class="alert alert-success">
+                               Payment of  <b>$<?php echo number_format($form['form_settings']['cost'], 2); ?></b> is required today.
+                            </div>
                         </div>
                     <?php } ?>
+                </div>
+
+                <div class="well well-sm">
+                    <div class="pull-left" style="margin-right: 10px;">
+                        <i class="fa fa-lock text-primary fa-4x"></i>
+                    </div>
+                    <h4 style="display:inline-block;margin-top:6px;margin-bottom:0;"><b>Secure Credit Card Payment</b></h4>
+                    <p>This is a secure 128-bit SSL encrypted payment.</p>
                 </div>
 
                 <div class="row" style="display:none;">

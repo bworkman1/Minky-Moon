@@ -7,7 +7,7 @@ class Admin_settings extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-
+        $this->load->model('Form_model');
         if (!$this->ion_auth->in_group('admin')) {
             redirect('request-error/access-not-allowed');
             exit;
@@ -52,7 +52,7 @@ class Admin_settings extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/autosize/dist/autosize.min.js');
         $this->load->js('assets/themes/admin/vendors/starrr/dist/starrr.js');
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
-        $this->load->js('assets/themes/admin/build/js/custom.min.js');
+        $this->load->js('assets/themes/admin/build/js/custom.js');
         $this->load->js('assets/themes/lapp/js/admin-settings.js');
 
         $this->output->set_template('admin-left-menu');
@@ -99,11 +99,29 @@ class Admin_settings extends CI_Controller
     {
         $this->form_validation->set_rules('failed', 'Failed login attempts', 'required|trim|integer|max_length[2]|greater_than[2]');
         $this->form_validation->set_rules('time', 'Lockout Time', 'required|trim|max_length[2]|greater_than[2]');
-        $this->form_validation->set_rules('emails', 'Emails', 'trim|max_length[255]|valid_emails');
+        //$this->form_validation->set_rules('emails', 'Emails', 'trim|max_length[255]|valid_emails');
 
         if ($this->form_validation->run() == true) {
             $this->load->model('Admin_model');
             echo json_encode($this->Admin_model->saveSecuritySettings($_POST));
+        } else {
+
+            $this->form_validation->set_error_delimiters('<span>', '. </span>');
+            $returns['success'] = false;
+            $returns['msg'] = validation_errors();
+
+            echo json_encode($returns);
+        }
+    }
+
+    public function saveEmailSettings()
+    {
+        $this->form_validation->set_rules('submission', 'Default Submissions', 'max_length[2000]');
+        $this->form_validation->set_rules('emails', 'Emails', 'trim|max_length[255]|valid_emails');
+
+        if ($this->form_validation->run() == true) {
+            $this->load->model('Admin_model');
+            echo json_encode($this->Admin_model->saveEmailSettings($_POST));
         } else {
 
             $this->form_validation->set_error_delimiters('<span>', '. </span>');
@@ -168,7 +186,6 @@ class Admin_settings extends CI_Controller
 
         echo json_encode($return);
     }
-
 
 
 }

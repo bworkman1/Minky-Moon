@@ -7,7 +7,7 @@
                 <select id="formSubmissionsPerPage" name="limit" class="form-control">
                     <?php
                     $options = array(10, 20, 25, 50);
-                    $selectedNumber = $this->session->userdata('submission_limit') != '' ? $this->session->userdata('submission_limit') : '20';
+                    $selectedNumber = $this->session->userdata('submission_limit_payments') != '' ? $this->session->userdata('submission_limit_payments') : '20';
                     foreach($options as $option) {
                         $selected = $option == $selectedNumber ? 'selected' : '';
                         echo '<option '.$selected.' value="'.$option.'">'.$option.' Per Page</option>';

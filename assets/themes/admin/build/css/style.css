@@ -188,6 +188,72 @@ ul.event-list li:hover, ul.event-list li:hover>starts {
 #lapp-calendar td span {
     line-height: 1em;
 }
+#no-edit-forms {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, .8);
+    z-index: 100;
+    font-size: 2em;
+    text-align: center;
+    padding: 8% 8% 0 8%;
+    color: #fff;
+}
+.col-print-1 {width:8%;  float:left;}
+.col-print-2 {width:16%; float:left;}
+.col-print-3 {width:25%; float:left;}
+.col-print-4 {width:33%; float:left;}
+.col-print-5 {width:42%; float:left;}
+.col-print-6 {width:50%; float:left;}
+.col-print-7 {width:58%; float:left;}
+.col-print-8 {width:66%; float:left;}
+.col-print-9 {width:75%; float:left;}
+.col-print-10{width:83%; float:left;}
+.col-print-11{width:92%; float:left;}
+.col-print-12{width:100%; float:left;}
+
+.fabricImage {
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    font-family: FontAwesome;
+    border: 2px solid #fff;
+    cursor: pointer
+}
+.fabricImage:hover {
+    opacity: .5;
+    background: #000;
+    border: 2px solid #000;
+}
+.greenBorder {
+    border: 2px solid #00A000 !important;
+}
+.addCategory {
+    cursor: pointer;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-top: 0px;
+    margin-top: -3px;
+}
+.select2-container--default .select2-selection--multiple, .select2-container--default .select2-selection--single {
+    min-height: 34px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__rendered, .select2-container--default .select2-selection--single .select2-selection__rendered {
+     padding-top: 0px;
+     margin-top: 3px;
+}
+input[type="checkbox"] {
+    height: 20px;
+    width: 20px;
+    padding-right: 4px;
+    position: relative;
+    top: -5px;
+    left: 19px;
+}
+
 /* Animation */
 @-webkit-keyframes spinner {
     0% {

@@ -241,7 +241,7 @@ class Payment_model extends CI_Model
     {
         $data = array(
             'amount'            => $this->postValues['amount'],
-            'form_id'           => $this->postValues['form_id'],
+            'form_id'           => isset($this->postValues['form_id']) && $this->postValues['form_id'] > 0 ? $this->postValues['form_id'] : 0,
             'customer_id'       => $this->postValues['client_number'],
             'form_cost'         => $this->postValues['cost'],
             'billing_name'      => $this->encrypt->encode($this->postValues['billing_name']),
@@ -313,15 +313,30 @@ class Payment_model extends CI_Model
                 'value' => '',
                 'percent' => 100,
             ),
+            'email' => array(
+                'value' => '',
+                'percent' => 90,
+            )
         );
+
         if(isset($formData['values']) && !empty($formData['values'])) {
             $definedFieldsKeys = array_keys($definedFields);
             foreach($formData['values'] as $key => $input) {
+
+                $encrypted = false;
+                if($formData['form']['form_inputs'][$key]['encrypt_data']) {
+                    $encrypted = true;
+                }
+
                 foreach($definedFieldsKeys as $field) {
-                    similar_text($field, $key, $percent);
+                    similar_text(strtoupper($field), strtoupper($key), $percent);
                     if($percent > $basePercentThreshold) {
                         if($definedFields[$field]['percent'] < $percent) {
-                            $definedFields[$key]['value'] = $input[0]['value'];
+                            if($encrypted) {
+                                $definedFields[$key]['value'] = $this->encrypt->decode($input[0]['value']);
+                            } else {
+                                $definedFields[$key]['value'] = $input[0]['value'];
+                            }
                             $definedFields[$key]['percent'] = $percent;
                         }
                     }
@@ -329,13 +344,20 @@ class Payment_model extends CI_Model
             }
         }
 
-        if($definedFields['ssn']['value'] != '' || $definedFields['social']['value'] != '' || $definedFields['social_security_number']['value']) {
+        if($definedFields['ssn']['value'] != '' || $definedFields['social']['value'] != '' || $definedFields['social_security_number']['value'] || $definedFields['social_security']['value']) {
             if($definedFields['last_name']['value'] != '') {
-                if($definedFields['social_security_number']['value']) {
-                    $ssn = $definedFields['social_security_number']['value'];
-                } else {
-                    $ssn = $definedFields['ssn']['value'] != '' ? $definedFields['ssn']['value'] : $definedFields['social']['value'];
+                $ssn_fields = array('ssn', 'social', 'social_security_number', 'social_security');
+                $currentPercent = 0;
+                $useSSNField = '';
+                foreach($ssn_fields as  $ssnField) {
+                    if($definedFields[$ssnField]['percent'] > $currentPercent) {
+                        $useSSNField = $ssnField;
+                        $currentPercent = $definedFields[$ssnField]['percent'];
+                    }
                 }
+
+                $ssn = $definedFields[$useSSNField]['value'];
+
                 $last_name = $definedFields['last_name']['value'];
                 $last4 = substr($ssn, -4);
                 $firstTwo = substr($last_name, 0, 2);
@@ -359,16 +381,17 @@ class Payment_model extends CI_Model
         $paid = 0;
         if(!empty($results)) {
 
-            foreach($results as $row) {
+            foreach ($results as $row) {
                 $paid = $paid + $row->amount;
             }
 
+
+            $paid = number_format($paid, 2);
+            $left = number_format(($formData['form']['form_settings']['cost'] - $paid), 2);
+
+            return array('paid' => $paid, 'left' => $left, 'name' => $formData['form']['form_settings']['name']);
         }
-
-        $paid = number_format($paid, 2);
-        $left = number_format(($formData['form']['form_settings']['cost'] - $paid), 2);
-
-        return array('paid' => $paid, 'left' => $left, 'name' => $formData['form']['form_settings']['name']);
+        return array('paid' => 0, 'left' => 0, 'name' => $formData['form']['form_settings']['name']);
     }
 
     public function getPaymentsByFormSubmission($submission_id)

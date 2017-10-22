@@ -7,7 +7,7 @@ class Payments extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-
+        $this->load->model('Form_model');
         if (!$this->ion_auth->logged_in()) {
             redirect('login');
             exit;
@@ -18,7 +18,7 @@ class Payments extends CI_Controller
     {
         $this->output->enable_profiler(PROFILER);
 
-        $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
+        $this->load->css('assets/themes/minky-moon/bootstrap.minky.moon.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
         $this->load->css('assets/themes/admin/vendors/nprogress/nprogress.css');
         $this->load->css('assets/themes/admin/vendors/iCheck/skins/flat/green.css');
@@ -53,13 +53,27 @@ class Payments extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.js');
         $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
-        $adminSettings = $this->session->userdata('settings');
-        $this->load->js('https://maps.googleapis.com/maps/api/js?key='.$adminSettings['google_api_key'].'&libraries=places');
         $this->load->js('assets/themes/lapp/js/app.js');
 
 
         $this->load->model('Payment_model');
         $this->output->set_template('admin-left-menu');
+
+
+        $user_groups = $this->ion_auth->get_users_groups($this->session->userdata('id'))->result();
+        $userGroups = array();
+        if($user_groups) {
+            foreach($user_groups as $group) {
+                $userGroups[] = $group->name;
+            }
+        }
+
+        $needed = array('View Submitted Payments', 'Submit Payments');
+        $is_allowed = (count(array_intersect($needed, $userGroups))) ? true : false;
+        if(!$this->ion_auth->is_admin() && !$is_allowed) {
+            redirect(base_url('request-error'));
+            exit;
+        }
 
     }
 
@@ -70,7 +84,6 @@ class Payments extends CI_Controller
 
     public function all()
     {
-
         $group = 'Edit Forms';
         if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
             redirect(base_url('request-error'));
@@ -84,7 +97,7 @@ class Payments extends CI_Controller
         $limit = (int)$this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->input->post('limit');
         $limit = $limit != '' ? $limit : 10;
 
-        $this->session->set_userdata('submission_limit', $limit);
+        $this->session->set_userdata('submission_limit_payments', $limit);
         $start = $this->uri->segment('3') != '' ? $this->uri->segment('3') : 0;
         $search = $this->input->post('search');
         if($search) {
@@ -106,7 +119,6 @@ class Payments extends CI_Controller
         $data['lookup'] = '';
 
         if($this->uri->segment(3)) {
-            $this->load->model('Form_model');
             $formId = $this->Form_model->convertSubmissionIdToFormId($this->uri->segment(3));
             if($formId) {
                 $form = $this->Form_model->getSubmittedFormById($formId['form_id'], $this->uri->segment(3));

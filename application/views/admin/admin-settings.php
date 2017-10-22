@@ -18,7 +18,7 @@
     <div class="col-lg-4 col-md-6">
         <div class="x_panel">
             <div class="x_title">
-                <h2><i class="fa fa-money"></i> Authorize Net</h2>
+                <h2><i class="fa fa-money"></i> Authorize.Net</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -82,7 +82,7 @@
             <div class="x_content">
 
                 <form id="securitySettings">
-                    <p>These settings help protect against Brute-force attacks. A Brute-force attack is when an attacker uses a password dictionary that contains millions of words that can be used as a password. Then the attacker tries these passwords one by one for authentication. These settings below will limit the times they can try a set of passwords before locked out.</p>
+                    <p>These settings help protect against brute-force attacks. A brute-force attack is when an attacker uses a password dictionary that contains millions of words that can be used as a password. The attacker tries these passwords one by one for authentication. The settings below will limit the number of times a password can be tried before the user is locked out.</p>
                     <hr>
 
                     <div class="row">
@@ -109,14 +109,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label>Emails <small>Separate emails with commas for multiple email address</small></label>
-                                <input type="text" class="form-control" name="emails" maxlength="255" value="<?php if(isset($settings['emails'])) { echo $settings['emails']->value; } ?>">
-                            </div>
-                        </div>
-                    </div>
+
 
                     <hr>
 
@@ -127,15 +120,15 @@
         </div>
     </div>
 
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-4 col-md-6 hide" style="float:right">
 
         <div class="x_panel">
             <div class="x_title">
-                <h2><i class="fa fa-unlock"></i> Pages for user access restriction</h2>
+                <h2><i class="fa fa-unlock"></i> User Access Restrictions</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <p>These settings should not be messed with <b>unless you know what you are doing</b>. Listing pages below allows the admin to restrict access based on a page by page basis.</p>
+                <p>These settings should not be changed.</p>
                 <hr>
 
                 <div class="row">
@@ -176,6 +169,36 @@
             </div>
         </div>
 
+    </div>
+
+
+    <div class="col-lg-4 col-md-6">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2><i class="fa fa-envelope"></i> Email Settings</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <p>Email address below will receive an email when a client submits a form. The email won't contain any personal details but will include a link to submitted form.</p>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Emails </label>
+                            <br><small>Separate emails with commas for multiple emails</small>
+                            <input type="text" class="form-control" name="emails" maxlength="255" value="<?php if(isset($settings['emails'])) { echo $settings['emails']->value; } ?>">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Default Form Submission Text/Email</label>
+                            <textarea class="form-control" name="default_submission" style="min-height: 300px;"><?php if(isset($settings['submission'])) { echo $settings['submission']->value; } ?></textarea>
+                        </div>
+
+                        <hr>
+                        <button id="saveEmailSettings" class="btn btn-primary pull-right">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

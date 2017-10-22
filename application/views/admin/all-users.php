@@ -1,7 +1,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-            <h2><i class="fa fa-users"></i> All Users <small><?php echo count($users).' Total'; ?></small></h2>
+            <h2><i class="fa fa-users"></i> All Users <small><?php echo (count($users)-1).' Total'; ?></small></h2>
             <ul class="nav navbar-right panel_toolbox">
                 <li>
                     <a href="<?php echo base_url('users/add-user'); ?>"><i class="fa fa-user-plus"></i> Add User</a>

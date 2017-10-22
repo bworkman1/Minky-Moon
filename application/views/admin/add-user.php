@@ -56,7 +56,7 @@
                                     <?php
                                         if(!empty($groups)) {
                                             foreach ($groups as $group) {
-                                                echo ' <label data-toggle="tooltip" data-title="'.$group->description.'" style="margin-right:10px";margin-top:10px;> <input type="checkbox" name="access[]" value="'.$group->id.'"> <i class="fa fa-question-circle"></i> '.ucwords($group->name).'</label> &nbsp;';
+                                                echo ' <label data-title="'.$group->description.'" style="margin-right:10px";margin-top:10px;> <input type="checkbox" name="access[]" value="'.$group->id.'"> '.ucwords($group->name).'</label> &nbsp;';
                                             }
                                         }
                                     ?>
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-9 col-md-offset-3"><span class="text-danger">*</span> Password must have at least one of the following uppercase, lowercase, special character, and 8 characters long</div>
+                            <div class="col-md-9 col-md-offset-3"><span class="text-danger">*</span> Password must be 8 characters long and have at least one of each of the following: uppercase, lowercase, special character.</div>
                         </div>
                         <div class="ln_solid"></div>
                         <div class="form-group">

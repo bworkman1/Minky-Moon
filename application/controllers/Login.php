@@ -11,8 +11,9 @@ class Login extends CI_Controller {
     public function index()
     {
         if ($this->ion_auth->logged_in()) {
-            redirect('dashboard');
-            exit;
+            $this->load->model('Admin_model');
+            $redirect = $this->Admin_model->determineHomeScreenUser();
+            redirect($redirect);
         }
 
         $this->output->enable_profiler(PROFILER);
@@ -41,6 +42,7 @@ class Login extends CI_Controller {
     public function logout()
     {
         $this->ion_auth->logout();
+        $this->session->unset_userdata();
         $this->session->set_flashdata('message', $this->ion_auth->messages());
         redirect('login');
     }
@@ -67,8 +69,9 @@ class Login extends CI_Controller {
                 }
 
                 $this->load->model('Admin_model');
-                $this->session->set_userdata('settings', $this->Admin_model->getAdminSettingsByArray('google_api_key'));
+                $redirect = $this->Admin_model->determineHomeScreenUser();
 
+                $returns['redirect'] = base_url($redirect);
                 $returns['success'] = true;
                 $returns['msg'] = strip_tags($this->ion_auth->messages());
             } else {

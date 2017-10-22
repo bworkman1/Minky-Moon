@@ -85,4 +85,9 @@ defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automat
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
 
-define('PROFILER', TRUE);
+defined('PROFILER')             OR define('PROFILER', TRUE);
+defined('FROM_EMAIL_ADDRESS')   OR define('FROM_EMAIL_ADDRESS', 'noreply@theminkymoon.space');
+defined('FROM_EMAIL_NAME')      OR define('FROM_EMAIL_NAME', 'Minky Moon No Reply');
+defined('BUSINESS_NAME')        OR define('BUSINESS_NAME', 'The Minky Moon');
+
+

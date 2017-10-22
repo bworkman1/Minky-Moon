@@ -8,9 +8,18 @@ class Users extends CI_Controller
     {
         parent::__construct();
 
-        if (!$this->ion_auth->in_group('admin')) {
-            redirect('request-error/access-not-allowed');
-            exit;
+        $this->load->model('Form_model');
+
+        if (!$this->ion_auth->in_group('admin') && $this->uri->segment(3) != 'my-account') {
+            if(isset($_POST['id']) && $_POST['id'] != $this->session->userdata('user_id') && $this->uri-segment(3) != 'edit-user') {
+                if (!$this->input->is_ajax_request()) {
+                    echo json_encode(array('success' => false, 'msg' => 'Access Denied!'));
+                    redirect('request-error/access-not-allowed');
+                    exit;
+                } else {
+                    echo json_encode(array('success' => false, 'msg' => 'Access Denied!'));
+                }
+            }
         }
     }
 
@@ -48,6 +57,7 @@ class Users extends CI_Controller
         $this->load->js('assets/themes/admin/vendors/parsleyjs/dist/parsley.min.js');
         $this->load->js('assets/themes/admin/vendors/autosize/dist/autosize.min.js');
         $this->load->js('assets/themes/admin/vendors/starrr/dist/starrr.js');
+        $this->load->js('assets/themes/admin/vendors/mask/jquery.mask.min.js');
         $this->load->js('assets/themes/admin/vendors/devbridge-autocomplete/dist/jquery.autocomplete.min.js');
         $this->load->js('assets/themes/lapp/js/notify.min.js');
         $this->load->js('assets/themes/admin/build/js/custom.js');
@@ -101,6 +111,10 @@ class Users extends CI_Controller
     public function save_edit_user()
     {
         $id = (int)$this->uri->segment(3);
+        if(isset($_POST['id']) && $_POST['id'] == $this->session->userdata('user_id')) {
+            $id = $this->session->userdata('user_id');
+        }
+
         if($id>0) {
             $user = $this->ion_auth->user($id)->row();
             $userGroup = $this->ion_auth->get_users_groups($user->id)->result();
@@ -124,7 +138,12 @@ class Users extends CI_Controller
             if($user->username != $username) {
                 $this->form_validation->set_rules('username', 'Username', 'required|alpha_numeric|is_unique[users.username]|trim');
             }
-            $this->form_validation->set_rules('access[]', 'Access Level', 'required|integer|trim');
+
+            if($id != $this->session->userdata('user_id')) {
+                $this->form_validation->set_rules('access[]', 'Access Level', 'required|integer|trim');
+            } else {
+                unset($data['group']);
+            }
 
             $this->form_validation->set_message('is_unique', '{field} is already taken');
             $this->form_validation->set_message('regex_match', 'Password doesn\'t match the required strength');
@@ -136,16 +155,29 @@ class Users extends CI_Controller
 
             if ($this->form_validation->run() == true) {
                 if($this->ion_auth->update($id, $data) !== false) {
-                    if($userGroup) {
-                        foreach($userGroup as $group) {
-                            $this->ion_auth->remove_from_group($group->id, $user->id);
+
+                    if($this->ion_auth->in_group('admin') && $id != $this->session->userdata('user_id')) {
+                        if($userGroup) {
+                            foreach($userGroup as $group) {
+                                $this->ion_auth->remove_from_group($group->id, $user->id);
+                            }
+                            $this->ion_auth->add_to_group($this->input->post('access'), $user->id);
                         }
-                        $this->ion_auth->add_to_group($this->input->post('access'), $user->id);
                     }
 
                     $returns['msg'] = strip_tags($this->ion_auth->messages());
                     $this->session->set_flashdata('success', strip_tags($this->ion_auth->messages()));
-                    $returns['redirect'] = base_url('users');
+                    if($id == $this->session->userdata('user_id')) {
+                        $returns['redirect'] = base_url('users/my-account/');
+
+                        foreach($data as $key => $val) {
+                            $this->session->set_userdata($key, $val);
+                        }
+
+                    } else {
+                        $returns['redirect'] = base_url('users');
+                    }
+
                     $returns['success'] = true;
                 } else {
                     $returns['msg'] = $this->ion_auth->errors();
@@ -154,10 +186,6 @@ class Users extends CI_Controller
                 $this->form_validation->set_error_delimiters('', '');
                 $returns['msg'] = 'Failed to add user, see errors below';
                 $returns['errors'] = validation_errors_array();
-
-                if(isset($returns['errors']['password1'])) {
-                    //unset($returns['errors']['password1']);
-                }
             }
         } else {
             $this->session->set_flashdata('error', 'Invalid User Id');
@@ -272,6 +300,15 @@ class Users extends CI_Controller
             'success' => false,
             'msg' => 'Failed to reset user password',
         );
+
+        if($this->session->userdata('user_id') != $this->uri->segment(3)) {
+            if (!$this->ion_auth->in_group('admin')) {
+                $results['msg'] = 'You don\'t have access to this feature';
+                echo json_encode($results);
+                exit;
+            }
+        }
+
         if($id>0) {
             $user = $this->ion_auth->user($id)->row();
             $this->form_validation->set_rules('password', 'Password', 'required|regex_match[/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*(?=\S*[\W])/]|trim|min_length[8]|max_length[20]');
@@ -306,6 +343,18 @@ class Users extends CI_Controller
             $results['msg'] = 'Invalid user id';
         }
         echo json_encode($results);
+    }
+
+    public function my_account()
+    {
+        $this->init_page();
+        $this->load->css('assets/themes/admin/css/alertify/alertify.core.css');
+        $this->load->css('assets/themes/admin/css/alertify/alertify.default.css');
+
+        $this->load->js('assets/themes/admin/js/alertify/alertify.min.js');
+
+        $data['user'] = $this->ion_auth->user($this->session->userdata('user_id'))->row();
+        $this->load->view('admin/edit-user', $data);
     }
 
 }

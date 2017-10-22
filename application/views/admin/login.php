@@ -19,12 +19,12 @@
                     <div>
                         <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="" />
                     </div>
-                    <div class="checkbox">
+                    <div class="checkbox hide">
                         <label><input name="remember" id="remember" type="checkbox" value="1"> Remember Me</label>
                     </div>
                     <div>
                         <button id="loginButton" class="btn btn-default">Log in</button>
-                        <a class="reset_pass" href="#">Lost your password?</a>
+                        <a class="reset_pass hide" href="#">Lost your password?</a>
                     </div>
 
                     <div class="clearfix"></div>
@@ -33,7 +33,7 @@
                         <br />
 
                         <div>
-                            <p>&copy;<?php echo date('Y'); ?> All Rights Reserved. LAPP</p>
+                            <p>&copy;<?php echo date('Y'); ?> All Rights Reserved. <?php echo BUSINESS_NAME; ?></p>
                         </div>
                     </div>
                 <?php echo form_close(); ?>

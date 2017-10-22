@@ -68,6 +68,7 @@ $us_state_abbrevs_names = array(
     $amount_left  = 0;
     $amount_paid  = 0;
     $form_name = '';
+    $form_state = '';
 
     if(isset($lookup) && !empty($lookup)) {
         $name         = $lookup['first_name']['value'].' '.$lookup['last_name']['value'];
@@ -93,12 +94,12 @@ $us_state_abbrevs_names = array(
                     <p>If this payment is a payment for a form that the user has already filled out and made a partial payment on you can go to their submitted form and tie the payment to that particular form.</p>
                     <div class="form-group">
                         <label for="name"><span class="text-danger">*</span> Client Name</label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Name" value="<?php echo $name; ?>" required/>
+                        <input type="text" class="form-control" name="name" id="name" tabindex="1" autofocus placeholder="Name" value="<?php echo $name; ?>" required/>
                     </div>
 
                     <div class="form-group">
                         <label for="billingAddress"><span class="text-danger">*</span> Address</label>
-                        <input type="text" class="form-control address addressLookup" name="address" id="address" value="<?php echo $address; ?>" placeholder="Address" required/>
+                        <input type="text" class="form-control address addressLookup" tabindex="2" name="address" id="address" value="<?php echo $address; ?>" placeholder="Address" required/>
                     </div>
 
                     <div class="row">
@@ -106,14 +107,14 @@ $us_state_abbrevs_names = array(
                         <div class="col-md-7">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> City</label>
-                                <input type="text" class="form-control city" name="city" id="city" placeholder="City" value="<?php echo $city; ?>" required/>
+                                <input type="text" class="form-control city" name="city" tabindex="3" id="city" placeholder="City" value="<?php echo $city; ?>" required/>
                             </div>
                         </div>
 
                         <div class="col-md-5">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> State</label>
-                                <select name="state" id="state" class="state form-control">
+                                <select name="state" id="state" tabindex="4" class="state form-control">
                                     <option value="">Select State</option>
                                     <?php
                                         foreach($us_state_abbrevs_names as $key => $state) {
@@ -135,14 +136,14 @@ $us_state_abbrevs_names = array(
                         <div class="col-lg-4 col-md-5 col-sm-6 col-xs-8">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> Zip</label>
-                                <input type="text" class="form-control zip" value="<?php echo $zip; ?>" maxlength="5" name="zip" id="zip" placeholder="Zip" required/>
+                                <input type="text" class="form-control zip" tabindex="5" value="<?php echo $zip; ?>" maxlength="5" name="zip" id="zip" placeholder="Zip" required/>
                             </div>
                         </div>
 
                         <div class="col-lg-4 col-md-5 col-sm-6 col-xs-8">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> Client Number</label>
-                                <input type="text" class="form-control zip" maxlength="6" value="<?php echo $client_id; ?>" name="client_number" id="client_number" placeholder="AA0000" required/>
+                                <input type="text" class="form-control zip" tabindex="6" maxlength="6" value="<?php echo $client_id; ?>" name="client_number" id="client_number" placeholder="AA0000" required/>
                             </div>
                         </div>
 
@@ -160,17 +161,17 @@ $us_state_abbrevs_names = array(
                     <h3 class="panel-title" >Billing Address</h3>
                 </div>
                 <div class="panel-body">
-                    <label style="margin-top: 10px;"><input type="checkbox" id="copyHomeAddress"> Copy Client Details</label>
+                    <label style="margin-top: 10px;"><input type="checkbox" tabindex="7" id="copyHomeAddress"> Copy Client Details</label>
                     <br>
 
                     <div class="form-group">
                         <label for="billingName"><span class="text-danger">*</span> Cardholder Name</label>
-                        <input type="text" class="form-control" name="billing_name" id="billing_name" placeholder="Name" required/>
+                        <input type="text" class="form-control" tabindex="8" name="billing_name" id="billing_name" placeholder="Name" required/>
                     </div>
 
                     <div class="form-group">
                         <label for="billingAddress"><span class="text-danger">*</span> Billing Address</label>
-                        <input type="text" onfocus="initMap()" class="form-control address addressLookup" name="billing_address" id="billing_address" placeholder="Address" required/>
+                        <input type="text" tabindex="9" class="form-control address addressLookup" name="billing_address" id="billing_address" placeholder="Address" required/>
                     </div>
 
                     <div class="row">
@@ -178,14 +179,14 @@ $us_state_abbrevs_names = array(
                         <div class="col-md-7">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> Billing City</label>
-                                <input type="text" class="form-control city" name="billing_city" id="billing_city" placeholder="City" required/>
+                                <input type="text" tabindex="10" class="form-control city" name="billing_city" id="billing_city" placeholder="City" required/>
                             </div>
                         </div>
 
                         <div class="col-md-5">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> Billing State</label>
-                                <select name="billing_state" id="billing_state" class="state form-control">
+                                <select name="billing_state" tabindex="11" id="billing_state" class="state form-control">
                                     <option value="">Select State</option>
                                     <?php
                                     foreach($us_state_abbrevs_names as $val => $state) {
@@ -207,7 +208,7 @@ $us_state_abbrevs_names = array(
                         <div class="col-lg-4 col-md-5 col-sm-6 col-xs-8">
                             <div class="form-group">
                                 <label><span class="text-danger">*</span> Billing Zip</label>
-                                <input type="text" class="form-control zip" maxlength="5" name="billing_zip" id="billing_zip" placeholder="Zip" required/>
+                                <input type="text" class="form-control zip" tabindex="12" maxlength="5" name="billing_zip" id="billing_zip" placeholder="Zip" required/>
                             </div>
                         </div>
 
@@ -234,7 +235,7 @@ $us_state_abbrevs_names = array(
                             <div class="form-group">
                                 <label for="cardNumber"><span class="text-danger">*</span> Card Number</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control credit-card" name="cardNumber" id="cardNumber" placeholder="Valid Card Number" autocomplete="cc-number" required autofocus />
+                                    <input type="text" class="form-control credit-card" name="cardNumber" tabindex="13" id="cardNumber" placeholder="Valid Card Number" autocomplete="cc-number" required />
                                     <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>
                                 </div>
                             </div>
@@ -244,7 +245,7 @@ $us_state_abbrevs_names = array(
                         <div class="col-xs-7 col-md-7">
                             <div class="form-group">
                                 <label for="cardExpiry"><span class="hidden-xs"><span class="text-danger">*</span> Expiration</span><span class="visible-xs-inline">Exp</span> Date</label>
-                                <input type="text" class="form-control cc-expires" name="cardExpiry" id="cardExpiry" placeholder="MM / YY"
+                                <input type="text" class="form-control cc-expires" name="cardExpiry" tabindex="14" id="cardExpiry" placeholder="MM / YY"
                                        autocomplete="cc-exp"
                                        maxlength="5"
                                        required
@@ -254,14 +255,14 @@ $us_state_abbrevs_names = array(
                         <div class="col-xs-5 col-md-5 pull-right">
                             <div class="form-group">
                                 <label for="cardCVC"><span class="text-danger">*</span> CV Code <small>(On the back)</small></label>
-                                <input type="text" class="form-control" name="cardCVC" id="cardCVC" placeholder="CVC" autocomplete="cc-csc" maxlength="5" required />
+                                <input type="text" class="form-control" name="cardCVC" tabindex="15" id="cardCVC" placeholder="CVC" autocomplete="cc-csc" maxlength="5" required />
                             </div>
                         </div>
 
                         <div class="col-xs-5 col-md-5">
                             <div class="form-group">
                                 <label for="amount"><span class="text-danger">*</span> Payment Amount</label>
-                                <input type="text" class="form-control money" name="amount" id="amount" placeholder="0.00" maxlength="6" value="<?php echo $amount_left; ?>" required />
+                                <input type="text" class="form-control money" name="amount" tabindex="16" id="amount" placeholder="0.00" maxlength="6" value="<?php echo $amount_left; ?>" required />
                             </div>
                         </div>
 
@@ -281,7 +282,7 @@ $us_state_abbrevs_names = array(
                         <div class="col-xs-12">
                             <div class="form-group">
                                 <label for="amount"><span class="text-danger">*</span> Payment For</label>
-                                <input type="text" class="form-control" name="for" id="for" maxlength="100" value="<?php echo $form_name; ?>" required />
+                                <input type="text" class="form-control" name="for" tabindex="17" id="for" maxlength="100" value="<?php echo $form_name; ?>" required />
                             </div>
                         </div>
                     </div>

@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" prefix="og: http://ogp.me/ns#">
-<head profile="http://gmpg.org/xfn/11">
+<head>
     <meta name="viewport" content="width=device-width"/>
-    <title>AA/NA Meetings</title>
+    <title><?php echo $title; ?></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="http://lapp.cc/wp-content/themes/LAPP%20Theme/style.css"/>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic' rel='stylesheet'
-          type='text/css'>
-    <?php
+    
+    <?php 
         foreach($css as $file){
             echo "\n\t\t";
             ?><link rel="stylesheet" href="<?php echo $file; ?>" type="text/css" /><?php
         } echo "\n\t";
     ?>
-
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://lapp.cc/wp-content/themes/LAPP%20Theme/style.css"/>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic' rel='stylesheet'
+          type='text/css'>
+		  
     <!-- This site is optimized with the Yoast SEO plugin v4.6 - https://yoast.com/wordpress/plugins/seo/ -->
     <meta name="description"
           content="LAPP - AA/NA Meetings are being conducted in the Newark, Ohio Area. Call today to find a meeting near you (740)366-7303."/>
@@ -33,7 +34,11 @@
     <!-- / Yoast SEO plugin. -->
 
     <link rel='dns-prefetch' href='//s.w.org'/>
-
+	<style>
+		ul.event-list {
+			font-size: .9em;
+		}
+	</style>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -67,7 +72,7 @@
         </div>
     </div>
 </div>
-<nav class="navbar navbar-default" role="navigation">
+<nav class="navbar navbar-default">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
@@ -84,70 +89,72 @@
             <ul id="menu-menu" class="nav navbar-nav">
                 <li id="menu-item-458"
                     class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-458"><a
-                            href="http://lapp.cc/">Home</a></li>
+                            href="http://lapp.cc/" style="color:#fff !important;">Home</a></li>
                 <li id="menu-item-467" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-467"><a
-                            href="http://lapp.cc/about-lapp/">About LAPP</a></li>
+                            href="http://lapp.cc/about-lapp/" style="color:#fff !important;">About LAPP</a></li>
                 <li id="menu-item-456"
                     class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-456 dropdown">
-                    <a href="#" data-toggle="dropdown" class="dropdown-toggle">Programs <span class="caret"></span></a>
+                    <a href="#" data-toggle="dropdown" class="dropdown-toggle" style="color:#fff !important;">Programs <span class="caret"></span></a>
                     <ul role="menu" class=" dropdown-menu">
                         <li id="menu-item-463"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-463"><a
-                                    href="http://lapp.cc/adult-services/">Adult Services</a></li>
+                                    href="http://lapp.cc/adult-services/" style="color:#fff !important;">Adult Services</a></li>
                         <li id="menu-item-465"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-465"><a
-                                    href="http://lapp.cc/womens-gender-specific-services/">Women&#8217;s Gender Specific
+                                    href="http://lapp.cc/womens-gender-specific-services/" style="color:#fff !important;">Women&#8217;s Gender Specific
                                 Services</a></li>
                         <li id="menu-item-459"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-459"><a
-                                    href="http://lapp.cc/adolescents-services/">Adolescents&#8217; Services</a></li>
+                                    href="http://lapp.cc/adolescents-services/" style="color:#fff !important;">Adolescents&#8217; Services</a></li>
                         <li id="menu-item-460"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-460"><a
-                                    href="http://lapp.cc/eap-sap-drug-free-workplace-services/">EAP, SAP, and Drug Free
+                                    href="http://lapp.cc/eap-sap-drug-free-workplace-services/" style="color:#fff !important;">EAP, SAP, and Drug Free
                                 Workplace Services</a></li>
                         <li id="menu-item-462"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-462"><a
-                                    href="http://lapp.cc/community-services/">Community Services</a></li>
+                                    href="http://lapp.cc/community-services/" style="color:#fff !important;">Community Services</a></li>
                         <li id="menu-item-473"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-473"><a
-                                    href="http://lapp.cc/municipal-court-stairs-program/">Municipal Court Stairs
+                                    href="http://lapp.cc/municipal-court-stairs-program/" style="color:#fff !important;">Municipal Court Stairs
                                 Program</a></li>
                         <li id="menu-item-474"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-474"><a
-                                    href="http://lapp.cc/education-groups/">Education Groups</a></li>
+                                    href="http://lapp.cc/education-groups/" style="color:#fff !important;">Education Groups</a></li>
                         <li id="menu-item-475"
                             class="menu-item menu-item-type-post_type menu-item-object-page menu-item-475"><a
-                                    href="http://lapp.cc/72-hour-driver-intervention-program/">72 Hour Driver
+                                    href="http://lapp.cc/72-hour-driver-intervention-program/" style="color:#fff !important;">72 Hour Driver
                                 Intervention Program</a></li>
                     </ul>
                 </li>
                 <li id="menu-item-472" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-472"><a
-                            href="http://lapp.cc/development/">Development</a></li>
+                            href="http://lapp.cc/development/" style="color:#fff !important;">Development</a></li>
                 <li id="menu-item-457"
-                    class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-21 current_page_item menu-item-457 active">
-                    <a href="http://lapp.cc/aana-meetings/">AA/NA Meetings</a></li>
+                    class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-21 current_page_item menu-item-457">
+                    <a href="http://lapp.cc/aana-meetings/" style="color:#fff !important;">AA/NA Meetings</a></li>
                 <li id="menu-item-468" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-468"><a
-                            href="http://lapp.cc/program-registrations/">Program Registrations</a></li>
+                            href="http://lapp.cc/program-registrations/" style="color:#fff !important;">Program Registrations</a></li>
                 <li id="menu-item-469" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-469"><a
-                            href="http://lapp.cc/surveys/">Surveys</a></li>
+                            href="http://lapp.cc/surveys/" style="color:#fff !important;">Surveys</a></li>
                 <li id="menu-item-471" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-471"><a
-                            href="http://lapp.cc/annual-report/">Annual Report</a></li>
+                            href="http://lapp.cc/annual-report/" style="color:#fff !important;">Annual Report</a></li>
                 <li id="menu-item-890" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-890"><a
-                            href="http://lapp.cc/fundraising/">Fundraising</a></li>
+                            href="http://lapp.cc/fundraising/" style="color:#fff !important;">Fundraising</a></li>
                 <li id="menu-item-461" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-461"><a
-                            href="http://lapp.cc/contact-locations/">Contact LAPP</a></li>
+                            href="http://lapp.cc/contact-locations/" style="color:#fff !important;">Contact LAPP</a></li>
                 <li id="menu-item-470" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-470"><a
-                            href="http://lapp.cc/legal-notices/">Legal Notices</a></li>
+                            href="http://lapp.cc/legal-notices/" style="color:#fff !important;">Legal Notices</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div id="container" class='container-fluid '>
+<div id="container" class='container '>
+	<br>
     <?php echo $output;?>
+    <br>
 </div><!-- #container -->
 
-<footer>
+<div id="footer">
     <div class="blue_background">
         <div class='container'>
             <div class='row'>
@@ -198,6 +205,7 @@
                                                 740.<span>366</span>.7303<br>
                                                 800.<span>872</span>.6281
                                             </div>
+                                            </div>
                                     </li>
                                     <li>
                                         <div class='row'>
@@ -209,6 +217,7 @@
                                                 740.<span>927</span>.6862<br>
                                                 800.<span>872</span>.6281
                                             </div>
+                                        </div>
                                     </li>
 
                                 </ul>
@@ -222,7 +231,7 @@
                         <aside id="text-4" class="widget widget_text"><h3 class="widget-title">Certifications</h3>
                             <div class="textwidget">
                                 <ul class='footer-contact-info'>
-                                    <li><a href="http://mha.ohio.gov/" class=grayscale"><img class="img-responsive"
+                                    <li><a href="http://mha.ohio.gov/" class="grayscale"><img class="img-responsive"
                                                                                              src="http://lapp.emf-hosting.com/wp-content/uploads/2014/06/mhas.jpg"></a>
                                         <!--<a style="display: block"  href="http://www.carf.org/home/" target="_blank"><img src="http://lapp.emf-hosting.com/wp-content/uploads/2014/06/carf-international.jpg" class="img-responsive grayscale"></a>-->
                                     </li>
@@ -289,17 +298,12 @@
 
         </div>
     </div>
-</footer><!-- #footer -->
+</div><!-- #footer -->
 
 <script type='text/javascript' src='http://lapp.cc/wp-includes/js/comment-reply.min.js?ver=4.7.4'></script>
 <script type='text/javascript' src='http://lapp.cc/wp-includes/js/wp-embed.min.js?ver=4.7.4'></script>
 <script src="http://lapp.cc/wp-content/themes/LAPP%20Theme/js/jquery-1.11.1.min.js"></script>
-<script src='http://lapp.cc/wp-content/themes/LAPP%20Theme/js/map_marker.js'></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script type='text/javascript' src='http://lapp.cc/wp-content/themes/LAPP%20Theme/js/TimelineMax.min.js'></script>
-<script type='text/javascript'
-        src='http://lapp.cc/wp-content/themes/LAPP%20Theme/js/jquery.superscrollorama.js'></script>
-<script type='text/javascript' src='http://lapp.cc/wp-content/themes/LAPP%20Theme/js/emf_custom.js'></script>
 <?php
 foreach($js as $file){
     echo "\n\t\t";

@@ -1,0 +1,198 @@
+@font-face {
+    font-family: 'blackboard';
+    src: url('../fonts/blackboard.eot');
+    src: url('../fonts/blackboard.eot') format('embedded-opentype'),
+    url('../fonts/blackboard.woff') format('woff'),
+    url('../fonts/blackboard.ttf') format('truetype'),
+    url('../fonts/blackboard.svg#blackboard') format('svg');
+}
+@font-face {
+    font-family: 'bobo';
+    src: url('../fonts/bobo.eot');
+    src: url('../fonts/bobo.eot') format('embedded-opentype'),
+    url('../fonts/bobo.woff') format('woff'),
+    url('../fonts/bobo.ttf') format('truetype'),
+    url('../fonts/bobo.svg#bobo') format('svg');
+}
+
+@font-face {
+    font-family: 'brush';
+    src: url('../fonts/brush.eot');
+    src: url('../fonts/brush.eot') format('embedded-opentype'),
+    url('../fonts/brush.woff') format('woff'),
+    url('../fonts/brush.ttf') format('truetype'),
+    url('../fonts/brush.svg#brush') format('svg');
+}
+
+@font-face {
+    font-family: 'caroline';
+    src: url('../fonts/caroline.eot');
+    src: url('../fonts/caroline.eot') format('embedded-opentype'),
+    url('../fonts/caroline.woff') format('woff'),
+    url('../fonts/caroline.ttf') format('truetype'),
+    url('../fonts/caroline.svg#caroline') format('svg');
+}
+
+@font-face {
+    font-family: 'cartoon';
+    src: url('../fonts/cartoon.eot');
+    src: url('../fonts/cartoon.eot') format('embedded-opentype'),
+    url('../fonts/cartoon.woff') format('woff'),
+    url('../fonts/cartoon.ttf') format('truetype'),
+    url('../fonts/cartoon.svg#cartoon') format('svg');
+}
+
+@font-face {
+    font-family: 'casual';
+    src: url('../fonts/casual.eot');
+    src: url('../fonts/casual.eot') format('embedded-opentype'),
+    url('../fonts/casual.woff') format('woff'),
+    url('../fonts/casual.ttf') format('truetype'),
+    url('../fonts/casual.svg#casual') format('svg');
+}
+
+
+@font-face {
+    font-family: 'curlz';
+    src: url('../fonts/curlz.eot');
+    src: url('../fonts/curlz.eot') format('embedded-opentype'),
+    url('../fonts/curlz.woff') format('woff'),
+    url('../fonts/curlz.ttf') format('truetype'),
+    url('../fonts/curlz.svg#CurlzMTRegular') format('svg');
+}
+
+@font-face {
+    font-family: 'dollhouse';
+    src: url('../fonts/dollhouse.eot');
+    src: url('../fonts/dollhouse.eot') format('embedded-opentype'),
+    url('../fonts/dollhouse.woff') format('woff'),
+    url('../fonts/dollhouse.ttf') format('truetype'),
+    url('../fonts/dollhouse.svg#dollhouse') format('svg');
+}
+
+@font-face {
+    font-family: 'italic';
+    src: url('../fonts/italic.eot');
+    src: url('../fonts/italic.eot') format('embedded-opentype'),
+    url('../fonts/italic.woff') format('woff'),
+    url('../fonts/italic.ttf') format('truetype'),
+    url('../fonts/italic.svg#italic') format('svg');
+}
+
+@font-face {
+    font-family: 'kids';
+    src: url('../fonts/kids.eot');
+    src: url('../fonts/kids.eot') format('embedded-opentype'),
+    url('../fonts/kids.woff') format('woff'),
+    url('../fonts/kids.ttf') format('truetype'),
+    url('../fonts/kids.svg#kids') format('svg');
+}
+
+@font-face {
+    font-family: 'ornate';
+    src: url('../fonts/ornate.eot');
+    src: url('../fonts/ornate.eot') format('embedded-opentype'),
+    url('../fonts/ornate.woff') format('woff'),
+    url('../fonts/ornate.ttf') format('truetype'),
+    url('../fonts/ornate.svg#ornate') format('svg');
+}
+
+@font-face {
+    font-family: 'princess';
+    src: url('../fonts/waltograph42.eot');
+    src: url('../fonts/waltograph42.eot') format('embedded-opentype'),
+    url('../fonts/waltograph42.woff') format('woff'),
+    url('../fonts/waltograph42.ttf') format('truetype'),
+    url('../fonts/waltograph42.svg#WaltographRegular') format('svg');
+}
+
+
+@font-face {
+    font-family: 'bookos';
+    src: url('../fonts/bookos.eot');
+    src: url('../fonts/bookos.eot') format('embedded-opentype'),
+    url('../fonts/bookos.woff') format('woff'),
+    url('../fonts/bookos.ttf') format('truetype'),
+    url('../fonts/bookos.svg#BookmanOldStyleRegular') format('svg');
+}
+
+
+@font-face {
+    font-family: 'recess';
+    src: url('../fonts/recess.eot');
+    src: url('../fonts/recess.eot') format('embedded-opentype'),
+    url('../fonts/recess.woff') format('woff'),
+    url('../fonts/recess.ttf') format('truetype'),
+    url('../fonts/recess.svg#recess') format('svg');
+}
+
+@font-face {
+    font-family: "tipsy";
+    src: url('../fonts/tipsy.eot');
+    src: url('../fonts/tipsy.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/tipsy.svg#Malihini Tahitian BTN') format('svg'),
+    url('../fonts/tipsy.woff') format('woff'),
+    url('../fonts/tipsy.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'sunny';
+    src: url('../fonts/sunny.eot');
+    src: url('../fonts/sunny.eot') format('embedded-opentype'),
+    url('../fonts/sunny.woff') format('woff'),
+    url('../fonts/sunny.ttf') format('truetype'),
+    url('../fonts/sunny.svg#sunny') format('svg');
+}
+
+@font-face {
+    font-family: 'tinker';
+    src: url('../fonts/tinker.eot');
+    src: url('../fonts/tinker.eot') format('embedded-opentype'),
+    url('../fonts/tinker.woff') format('woff'),
+    url('../fonts/tinker.ttf') format('truetype'),
+    url('../fonts/tinker.svg#tinker') format('svg');
+}
+
+@font-face {
+    font-family: 'sydney';
+    src: url('../fonts/sydney.eot');
+    src: url('../fonts/sydney.eot') format('embedded-opentype'),
+    url('../fonts/sydney.woff') format('woff'),
+    url('../fonts/sydney.ttf') format('truetype'),
+    url('../fonts/sydney.svg#tipsy') format('svg');
+}
+
+@font-face {
+    font-family: 'curly';
+    src: url('../fonts/curly.eot');
+    src: url('../fonts/curly.eot') format('embedded-opentype'),
+    url('../fonts/curly.woff') format('woff'),
+    url('../fonts/curly.ttf') format('truetype'),
+    url('../fonts/curly.svg#HarringtonBoldBold') format('svg');
+}
+
+
+.blackboard {font-family: 'blackboard';}
+.bobo {font-family: 'bobo';}
+.brush {font-family: 'brush';}
+.caroline {font-family: 'caroline';}
+.cartoon {font-family: 'cartoon';}
+.casual {font-family: 'casual';}
+.curlz {font-family: 'curlz';}
+.dollhouse {font-family: 'dollhouse';}
+.italic {font-family: 'italic';}
+.kids {font-family: 'kids';}
+.ornate {font-family: 'ornate';}
+.princess {font-family: 'princess';}
+.bookos {font-family: 'bookos';}
+.recess {font-family: 'recess';
+.curly {font-family: 'curly';}
+.sunny {font-family: 'sunny';}
+.tinker {font-family: 'tinker';}
+.sydney {font-family: 'sydney';}
+.tipsy {font-family: 'tipsy';}
+
+
+

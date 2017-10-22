@@ -1,5 +1,22 @@
+<?php
+    if($submissions>0) {
+        echo '<div id="no-edit-forms">';
+            echo '<p>Clients  have already submitted forms to this form record. In order to edit it you will need to make a copy of this one. Making a copy will preserve the data from previous submissions and allow you to make changes to the current form.</p>';
+            echo '<br>';
+            echo '<button id="duplicateForm" class="btn btn-warning btn-lg" data-id="'.$form['form_settings']['id'].'">Yes, I want to duplicate this form</button>';
+            echo '<br>';
+            echo '<br>';
+            echo '<a href="'.base_url('forms/all-forms').'" class="btn btn-info btn-lg">No, Return to Forms</a>';
+        echo '</div>';
+
+        echo '<style>body {overflow: hidden;}</style>';
+    }
+?>
+
 <div class="row">
     <div id="base_url" data-base="<?php echo base_url(); ?>"></div>
+    <div id="errorFeedback" data-error="<?php echo $this->session->flashdata('error'); ?>"></div>
+    <div id="successFeedback" data-error="<?php echo $this->session->flashdata('success'); ?>"></div>
     <div class="col-lg-4 col-md-6">
 
         <div class="x_panel">
@@ -51,6 +68,10 @@
                             <label>Form Footer</label>
                             <textarea name="form_footer" class="form-control" style="min-height:100px"><?php echo $form['form_settings']['footer']; ?></textarea>
                         </div>
+                        <div class="form-group">
+                            <label><i class="fa fa-question-circle" data-toggle="tooltip" data-title="After a customer submits this form they will be taken to a page that will display what you put in the box below and receive an email if available with the text you enter."></i> Successful Submission Email/Page</label>
+                            <textarea name="submission" class="form-control" style="min-height:100px"><?php echo $form['form_settings']['submission']; ?></textarea>
+                        </div>
                         <div class="checkbox">
                             <label><input type="checkbox" name="is_active" <?php echo $form['form_settings']['active'] == 0 ? '' : 'checked'; ?>> Activate Form</label>
                         </div>
@@ -58,14 +79,14 @@
 
                     <!-- FORM INPUTS -->
                     <div class="tab-pane fade" data-url="<?php echo base_url('forms/add-input'); ?>" id="inputs">
-
+                        <p><b>Tip: </b> Use common spelled input names like first_name, last_name, address, city, state, zip, social_security_number, and email to trigger some auto-fill options. <b>All forms must have a social_security_number input and last_name input</b> to generate the client id. Having an input with the name of email will allow the user to receive emails after form submission.</p>
                         <div class="form-group">
                             <label><span class="text-danger">*</span> Input Label</labeL>
-                            <input type="text" required class="form-control" name="input_label" maxlength="20" minlength="2">
+                            <input type="text" required class="form-control" name="input_label" maxlength="70" minlength="2">
                         </div>
                         <div class="form-group">
                             <label><span class="text-danger">*</span> Input Name <small>(must be unique)</small></labeL>
-                            <input type="text" required class="form-control" name="input_name" maxlength="20" minlength="2">
+                            <input type="text" required class="form-control" name="input_name" maxlength="70" minlength="2">
                         </div>
 
                         <br>
@@ -338,12 +359,14 @@
             <div class="modal-body">
                 <p>Prebuilt classes will format data as the user types in the input boxes. Please make sure that you only use one of the following class types or the data won't work as expected.</p>
                 <ul class="list-group">
-                    <li class="list-group-item">Use "date" to format the input (00/00/0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="use">Use</button></li>
+                    <li class="list-group-item">Use "date" to format the input (00/00/0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="date">Use</button></li>
                     <li class="list-group-item">Uce "time" to format the input (00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="time">Use</button></li>
                     <li class="list-group-item">Use "date_time" to format the input (00/00/0000 00:00:00)  <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="date_time">Use</button></li>
                     <li class="list-group-item">Use "phone" to format the input ((000) 000-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="phone">Use</button></li>
                     <li class="list-group-item">Use "money" to format the input (00.00) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="money">Use</button></li>
                     <li class="list-group-item">Use "ssn" to format the input (000-00-0000) <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="ssn">Use</button></li>
+                    <li class="list-group-item">Use "input_states" to add select box with all states as an option <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="input_states">Use</button></li>
+                    <li class="list-group-item">Use "signature" to make the input look like a signature <button class="btn btn-primary pull-right prebuiltClass btn-sm" data-type="signature">Use</button></li>
                 </ul>
             </div>
             <div class="modal-footer">

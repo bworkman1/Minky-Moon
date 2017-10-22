@@ -133,8 +133,10 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         );
 
         $this->formId = $inputs['form_id'] > 0 ? $inputs['form_id'] : $this->formId;
+
         $validInput = $this->validateRequiredFields($inputs);
         if($validInput) {
+            $added = date('Y-m-d');
             $data = array(
                 'form_id'           => $this->formId,
                 'input_name'        => $inputs['name'],
@@ -151,6 +153,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $dbType = 'insert';
             $inputId = (isset($inputs['input_id']) && $inputs['input_id'] > 0) ? $inputs['input_id'] : '';
             if(empty($inputId)) {
+                $data['added'] = $added;
                 $this->db->insert('form_inputs', $data);
                 $inputId = $this->db->insert_id();
             } else {
@@ -233,16 +236,20 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $this->formId = (isset($data['form_id']) && $data['form_id'] > 0) ? $data['form_id'] : $this->formId;
         $ready = $this->isNeededInputsAddedBeforeSave();
         if($ready === true) {
+            $added = date('Y-m-d');
             if ($this->formId != 999999) {
                 // UPDATE FORM
                 $data = array(
-                    'name' => $data['name'],
-                    'cost' => $data['cost'],
-                    'min_cost' => $data['min'],
-                    'header' => $data['header'],
-                    'footer' => $data['footer'],
-                    'footer' => $data['footer'],
-                    'active' => $data['active'],
+                    'name'      => $data['name'],
+                    'cost'      => $data['cost'],
+                    'min_cost'  => $data['min'],
+                    'header'    => $data['header'],
+                    'footer'    => $data['footer'],
+                    'footer'    => $data['footer'],
+                    'submission' => $data['submission'],
+                    'updated'   => date('Y-m-D H:i:s'),
+                    'active'    => $data['active'],
+                    'added'     => $added,
                 );
 
                 $this->db->where('id', $this->formId);
@@ -262,8 +269,10 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                     'min_cost' => $data['min'],
                     'header' => $data['header'],
                     'footer' => $data['footer'],
-                    'footer' => $data['footer'],
+                    'submission' => $data['submission'],
                     'active' => $data['active'] != '' ? 1 : 0,
+                    'updated' => date('Y-m-D H:i:s'),
+                    'added'  => $added,
                 );
                 $this->db->insert('forms', $data);
                 $insertId = $this->db->insert_id();
@@ -362,7 +371,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
 
     public function getFormById($id)
     {
-        $this->db->select('forms.id, forms.name AS form_name, forms.category, forms.header, forms.footer, forms.added, forms.updated, forms.cost, forms.min_cost, forms.active');
+        $this->db->select('forms.id, forms.name AS form_name, forms.submission, forms.category, forms.header, forms.footer, forms.added, forms.updated, forms.cost, forms.min_cost, forms.active, forms.version');
         $this->db->select('form_inputs.id AS input_id, form_inputs.input_name, form_inputs.input_type, form_inputs.sequence, form_inputs.custom_class, form_inputs.added, form_inputs.input_label, form_inputs.input_validation, form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data');
         $this->db->select('form_input_options.id AS options_id, form_input_options.name, form_input_options.value, form_input_options.form_id as options_form_id, form_input_options.input_id AS options_form_id');
         $this->db->from('forms');
@@ -403,12 +412,14 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                 'category' => $data[0]->category,
                 'header' => $data[0]->header,
                 'footer' => $data[0]->footer,
+                'submission' => $data[0]->submission,
                 'added' => $data[0]->added,
                 'updated' => $data[0]->updated,
                 'cost' => $data[0]->cost,
                 'min_cost' => $data[0]->min_cost,
                 'active' => $data[0]->active,
                 'active' => $data[0]->active,
+                'version' => $data[0]->version,
             );
 
             $inputs = array();
@@ -452,7 +463,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         return $form;
     }
 
-    public function getForms()
+    public function getForms($filtered = false)
     {
         $formData = array(
             'form_name' => '',
@@ -465,6 +476,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         );
         $forms = array();
         $this->db->where('deleted != ', true);
+        if($filtered) {
+            $this->db->where('active', 1);
+        }
         $query = $this->db->get('forms');
         foreach ($query->result() as $row) {
             $formData = array(
@@ -474,6 +488,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
                 'submissions' => $this->getSubmissionCount($row->id),
                 'created' => date('m/d/Y', strtotime($row->added)),
                 'updated' => date('m/d/Y', strtotime($row->updated)),
+                'version' => $row->version,
                 'cost' => number_format($row->cost, 2),
                 'active' => $row->active > 0 ? 'Active' : 'Inactive',
             );
@@ -492,12 +507,11 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
 
     private function getSubmissionCount($form_id)
     {
-        // TODO: Once I figure out where/how the form will be saved pull the count from there
-//        $this->db->from('form_data');
-//        $this->db->where('form_id', $orm_id);
-//        $this->db->group_by('form_id');
-//        return $this->db->count_all_results();
-        return 0;
+        $this->db->from('form_data');
+        $this->db->where('form_id', $form_id);
+        $this->db->group_by('submission_id');
+
+        return $this->db->count_all_results();
     }
 
     public function toggleFormAvailability($post)
@@ -511,6 +525,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $is_set = $this->is_clientIdFormsSet($post['id']);
             if($is_set === true) {
                 $status = $post['status'] == 'active' ? 1 : 0;
+
                 $this->db->set('active', $status);
                 $this->db->where('id', $post['id']);
                 $this->db->update('forms');
@@ -524,7 +539,6 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         } else {
             $returns['msg'] = 'Id and/or status was not set, try again';
         }
-
         return $returns;
     }
 
@@ -618,7 +632,9 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $formData = array();
 
         $this->totalFormsSubmitted = $this->getSubmittedCountTotals();
-        $sortBy = $this->session->userdata('sort_forms') == 'ASC' ? 'ASC' : 'DESC';
+
+        $order_by = $this->session->userdata('order_by') ? $this->session->userdata('order_by') : 'submission_id';
+        $form_direction = $this->session->userdata('form_direction') ? $this->session->userdata('form_direction') : 'DESC';
 
         $where = '';
         $params = array();
@@ -626,32 +642,46 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $this->searchedSubmission = $search;
             $search = '%'.$search.'%';
             $params = array($search, $search, $search);
-            $where = ' WHERE form_data.value LIKE ? OR form_data.customer_id LIKE ? OR form_data.transaction_id LIKE ? ';
+            $where = ' WHERE (form_data.value LIKE ? OR form_data.customer_id LIKE ? OR form_data.transaction_id LIKE ? ';
         }
 
         $params[] = (int)$start;
         $params[] = (int)$limit;
 
-        $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, amount, form_data.viewed
-            FROM form_data 
-            LEFT JOIN payments 
-                ON form_data.submission_id = payments.submission_id 
+        $sql = 'SELECT form_data.submission_id, form_data.customer_id, form_data.form_id, form_data.added, form_data.transaction_id, form_data.viewed
+            FROM form_data
                  '.$where.' ';
 
         if($this->session->userdata('search_form_submission_name') > 0) {
-            $sql .= ' WHERE form_data.form_id = '.$this->session->userdata('search_form_submission_name').' ';
+            if($where) {
+                $sql .= ' AND form_data.form_id = ' . $this->session->userdata('search_form_submission_name') . ' ';
+            } else {
+                $sql .= ' WHERE (form_data.form_id = ' . $this->session->userdata('search_form_submission_name') . ' ';
+            }
         }
 
-        $sql .= 'GROUP BY submission_id, added, customer_id, form_id, amount, transaction_id, viewed 
-            ORDER BY submission_id '.$sortBy.' LIMIT ?, ?';
+        if(strpos($sql, 'WHERE') === false) {
+            $sql .= ' WHERE deleted != 1 ';
+        } else {
+            $sql .= ') AND deleted != 1 ';
+        }
+
+        $sql .= 'GROUP BY submission_id, added, customer_id, form_id, transaction_id, viewed  
+            ORDER BY '.$order_by.' '.$form_direction.' LIMIT ?, ?';
 
         $query = $this->db->query($sql, $params);
         $payments = $this->sortPaymentData($query->result_array());
 
+        $formData = array();
         foreach ($payments as $row) {
             $row['total_submitted'] = $this->totalFormsSubmitted;
             $row['submitted'] = $row['added'];
-            $formSettings = $this->getFormSettings($row['form_id']);
+
+            if(!isset($formData[$row['form_id']])) {
+                $formData[$row['form_id']] = $this->getFormSettings($row['form_id']);
+            }
+
+            $formSettings = $formData[$row['form_id']];
             $formSettings['name'] = substr($formSettings['name'], 0, 50);
 
             $row = array_merge($row, $formSettings);
@@ -665,24 +695,33 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $return = array();
         if($data) {
             foreach($data as $row) {
-                if(isset($return[$row['submission_id']])) {
-                    $return[$row['submission_id']]['payments_made'] = $return[$row['submission_id']]['payments_made']+1;
-                    $return[$row['submission_id']]['amount'] = $row['amount']+$return[$row['submission_id']]['amount'];
-                } else {
+                if(!isset($return[$row['submission_id']])) {
+                    $payment_data = $this->getTotalFormPayments($row['submission_id'], $row['form_id']);
                     $return[$row['submission_id']] = array(
-                        'submission_id' => $row['submission_id'],
-                        'customer_id' => $row['customer_id'],
-                        'form_id' => $row['form_id'],
-                        'added' => $row['added'],
-                        'transaction_id' => $row['transaction_id'],
-                        'amount' => $row['amount'],
-                        'viewed' => $row['viewed'],
-                        'payments_made' => 1,
+                        'submission_id'     => $row['submission_id'],
+                        'customer_id'       => $row['customer_id'],
+                        'form_id'           => $row['form_id'],
+                        'added'             => $row['added'],
+                        'transaction_id'    => $row['transaction_id'] == '' ? 'NA' : $row['transaction_id'],
+                        'amount'            => $payment_data[0]['amount'],
+                        'viewed'            => $row['viewed'],
+                        'payments_made'     => $payment_data[0]['total'],
                     );
                 }
             }
         }
         return $return;
+    }
+
+    private function getTotalFormPayments($submission_id, $form_id)
+    {
+        $sql = 'SELECT SUM(amount) as amount, count(id) AS total
+                FROM payments
+                WHERE form_id = '.$form_id.' AND submission_id = '.$submission_id;
+
+        $result = $this->db->query($sql);
+
+        return $result->result_array();
     }
 
     public function formatSubmittedFormsTable($data, $start)
@@ -691,49 +730,96 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
             $this->load->library('table');
             $this->table->set_empty("");
 
+            $order_by = $this->session->userdata('order_by');
+            $form_direction = $this->session->userdata('form_direction');
+
+            $icons = array(
+                'DESC' => ' <i class="fa fa-caret-down fa-fw pull-right text-warning sortFormBy" data-direction="INSERT_DIRECTION" data-order="INSERT_ORDER"></i>',
+                'ASC' => ' <i class="fa fa-caret-up fa-fw pull-right text-warning sortFormBy" data-direction="INSERT_DIRECTION" data-order="INSERT_ORDER"></i>',
+                'DEFAULT' => ' <i class="fa fa-sort fa-fw pull-right text-warning sortFormBy" data-direction="INSERT_DIRECTION" data-order="INSERT_ORDER"></i>'
+            );
+
+            $form_columns = array(
+                'customer_id' => 'Client Id',
+                'name' => 'Form Name',
+                'added' => 'Submitted',
+                'transaction_id' => 'Transaction Id',
+                'viewed' => 'Viewed'
+            );
+
             $headings = array('#', 'Client Id', 'Form Name', 'Submitted', 'Transaction Id', 'Amount Paid', 'Viewed', 'Options');
-            $this->table->set_heading($headings);
-            foreach ($data as $row) {
 
-                $options = '<a href="'.base_url('forms/view-submitted-form/'.$row['submission_id']).'" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> View</a>';
+            $position = false;
+            if($order_by && $form_direction) {
+                $position = array_search($form_columns[$order_by], $headings);
+            }
 
-                if($this->ion_auth->is_admin()) {
-                    $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="' . $row["submission_id"] . '" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i> Delete</button>';
-                }
+            foreach($headings as $i => $val) {
+                if($val != '#' && $val != 'Options' && $val != 'Amount Paid') {
 
-                if($row['amount'] > 0) {
-                    if($row['amount'] < $row['cost']) {
-                        $row['amount'] = '<span class="text-warning">$'.number_format($row['amount'], 2).' of $'.number_format($row['cost']).'</span>';
-                        $options .= '<a href="'.base_url('payments/submit-payment/'.$row['submission_id']).'" data-toggle="tooltip" data-title="Add another payment to this form" class="btn btn-info btn-sm"><i class="fa fa-credit-card"></i> Add Payment</a>';
+                    if ($position !== false && $position == $i) {
+                        if($form_direction == 'DESC') {
+                            $dir = 'ASC';
+                        } else {
+                            $dir = 'DESC';
+                        }
+
+                        $icon = str_replace('INSERT_ORDER', array_search($headings[$i], $form_columns), $icons[$form_direction]);
+                        $icon = str_replace('INSERT_DIRECTION', $dir, $icon);
+
+                        $headings[$i] = $headings[$i] . $icon;
                     } else {
-                        $row['amount'] = '<span class="text-success">$'.number_format($row['amount'], 2).' of $'.number_format($row['cost'], 2).'</span>';
-                    }
-                } else {
-                    $row['amount'] = '$0.00';
-                }
-
-                if($this->searchedSubmission) {
-                    if(strpos($row['transaction_id'], $this->searchedSubmission) !== false) {
-                        $row['transaction_id'] = '<span class="highlightedSearch">'.$row['transaction_id'].'</span>';
-                    }
-                    if(strpos($row['customer_id'], $this->searchedSubmission) !== false) {
-                        $row['customer_id'] = '<span class="highlightedSearch">'.$row['customer_id'].'</span>';
+                        $icon = str_replace('INSERT_ORDER', array_search($headings[$i], $form_columns), $icons['DEFAULT']);
+                        $icon = str_replace('INSERT_DIRECTION', 'DESC', $icon);
+                        $headings[$i] = $headings[$i] . $icon;
                     }
                 }
+            }
 
-                $start = $start+1;
-                $this->table->add_row(
-                    array(
-                        $start,
-                        $row['customer_id'],
-                        $row['name'],
-                        date('m/d/Y h:i A', strtotime($row['submitted'])),
-                        $row['transaction_id'],
-                        $row['amount'],
-                        $row['viewed'] = $row['viewed'] == TRUE ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times notYetViewedForm text-danger"></i>',
-                        $options,
-                    )
-                );
+            $this->table->set_heading($headings);
+
+            foreach ($data as $row) {
+                if(isset($row['submission_id'])) {
+                    $options = '<a href="' . base_url('forms/view-submitted-form/' . $row['submission_id']) . '" data-toggle="tooltip" data-title="View Form Submission" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> View</a>';
+
+                    if ($this->ion_auth->is_admin()) {
+                        $options .= '<button class="btn btn-danger btn-sm deleteFormSubmission pull-right" data-id="' . $row["submission_id"] . '" data-formid="' . $row["form_id"] . '" data-toggle="tooltip" data-title="Delete Form Submission" ><i class="fa fa-times"></i> Delete</button>';
+                    }
+
+                    if ($row['amount'] < $row['cost'] && $row['amount'] != '') {
+                        $row['amount'] = '<span class="text-warning">$' . number_format($row['amount'], 2) . ' of $' . number_format($row['cost'], 2) . '</span>';
+                        $options .= '<a href="' . base_url('payments/submit-payment/' . $row['submission_id']) . '" data-toggle="tooltip" data-title="Add another payment to this form" class="btn btn-info btn-sm"><i class="fa fa-credit-card"></i> Add Payment</a>';
+                    } else {
+                        if ($row['amount'] > 0) {
+                            $row['amount'] = '<span class="text-success">$' . number_format($row['amount'], 2) . ' of $' . number_format($row['cost'], 2) . '</span>';
+                        } else {
+                            $row['amount'] = '$0.00';
+                        }
+                    }
+
+                    if ($this->searchedSubmission) {
+                        if (strpos($row['transaction_id'], strtoupper($this->searchedSubmission)) !== false) {
+                            $row['transaction_id'] = '<span class="highlightedSearch">' . $row['transaction_id'] . '</span>';
+                        }
+                        if (strpos(strtoupper($row['customer_id']), strtoupper($this->searchedSubmission)) !== false) {
+                            $row['customer_id'] = '<span class="highlightedSearch">' . $row['customer_id'] . '</span>';
+                        }
+                    }
+
+                    $start = $start + 1;
+                    $this->table->add_row(
+                        array(
+                            $start . ' of ' . $this->totalFormsSubmitted,
+                            $row['customer_id'],
+                            $row['name'],
+                            date('m/d/Y h:i A', strtotime($row['submitted'])),
+                            $row['transaction_id'],
+                            $row['amount'],
+                            $row['viewed'] = $row['viewed'] == TRUE ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times notYetViewedForm text-danger"></i>',
+                            $options,
+                        )
+                    );
+                }
             }
             $tmpl = array('table_open' => '<div class="table-responsive"><table class="table table-striped table-bordered">', 'table_close' => '</table></div>');
             $this->table->set_template($tmpl);
@@ -756,6 +842,7 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $this->db->from('form_data');
         if($this->session->userdata('search_form_submission_name') > 0) {
             $this->db->where('form_id', $this->session->userdata('search_form_submission_name'));
+            $this->db->where('deleted', false);
         }
         $this->db->group_by('added');
         return $this->db->count_all_results();
@@ -847,6 +934,113 @@ form_inputs.input_inline, form_inputs.input_columns, form_inputs.encrypt_data, f
         $results = $this->db->get('forms')->result_array();
 
         return $results;
+    }
+
+    public function getUnreadSubmissions()
+    {
+        $sql = 'SELECT *
+            FROM form_data
+              LEFT JOIN forms
+               ON form_id = forms.id
+            WHERE
+                 viewed = false';
+        $result = $this->db->query($sql);
+
+        return $result->result_array();
+    }
+
+    public function getFormIdByName($name)
+    {
+        $this->db->select('id');
+        $result = $this->db->get_where('forms', array('name' => $name, 'active' => 1, 'deleted' => 0));
+        $data = $result->row_array();
+        if($data) {
+            return $data['id'];
+        }
+        return false;
+    }
+
+    public function deleteFormSubmission($id, $form_id)
+    {
+        $this->db->where('submission_id', $id);
+        $this->db->where('form_id', $form_id);
+        $this->db->update('form_data', array('deleted' => true));
+
+        return array('success' => true, 'msg' => '');
+    }
+
+    public function checkForFormSubmissions($formId)
+    {
+        return $this->db->where('form_id', $formId)->count_all_results('form_data');
+    }
+
+    public function duplicateFormById($original_form_id)
+    {
+        $feedback = array(
+            'success' => false,
+            'msg' => 'Failed to duplciate form, try again',
+            'new_form_id' => 0,
+        );
+        $form = $this->getFormById($original_form_id);
+        if(!empty($form)) {
+            if($form['form_settings']) {
+                $settingsCopy = array();
+                foreach($form['form_settings'] as $key => $setting) {
+                    $dontDuplicate = array('added', 'updated', 'id');
+                    if(!in_array($key, $dontDuplicate)) {
+                        $settingsCopy[$key] = $setting;
+                    }
+                }
+
+                $settingsCopy['added'] = date('Y-m-d');
+                $settingsCopy['updated'] = date('Y-m-d H:i:s');
+                $settingsCopy['version'] = $settingsCopy['version']+1;
+
+                $this->db->insert('forms', $settingsCopy);
+                $feedback['new_form_id'] = $this->db->insert_id();
+            }
+
+            if(!empty($form['form_inputs']) && $feedback['new_form_id'] > 0) {
+                foreach($form['form_inputs'] as $key => $input) {
+                    unset($input['added']);
+                    unset($input['input_id']);
+
+                    $options = '';
+                    if(isset($input['options']) && is_array($input['options'])) {
+                        $options = $input['options'];
+                        unset($input['options']);
+                    }
+
+                    $input['form_id'] = $feedback['new_form_id'];
+
+                    $this->db->insert('form_inputs', $input);
+                    $input_id = $this->db->insert_id();
+
+                    if(!empty($options)) {
+                        foreach($options as $option) {
+                            $option['form_id'] = $feedback['new_form_id'];
+                            $option['input_id'] = $input_id;
+
+                            $this->db->insert('form_input_options', $option);
+                            $input_id = $this->db->insert_id();
+                        }
+                    }
+                }
+            }
+
+            $this->db->where('id', $original_form_id);
+            $this->db->update('forms', array('active' => 0, 'deleted' => 1));
+
+            $this->session->set_flashdata('success', 'Form Duplicated Successfully');
+
+            $feedback['msg'] = 'Form Duplicated Successfully';
+            $feedback['success'] = true;
+
+        } else {
+            $feedback['msg'] = 'Form not found, try again';
+        }
+
+        return $feedback;
     }
 
 }

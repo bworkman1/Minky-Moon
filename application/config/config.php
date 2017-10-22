@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/lapp/';
+$config['base_url'] = 'http://localhost/minky-moon/';
 
 /*
 |--------------------------------------------------------------------------
@@ -488,7 +488,7 @@ $config['compress_output'] = FALSE;
 | helper' page of the user guide for information regarding date handling.
 |
 */
-$config['time_reference'] = 'local';
+$config['time_reference'] = 'America/New_York';
 
 /*
 |--------------------------------------------------------------------------

@@ -6,28 +6,31 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?php echo $title == '' ? 'LAPP Admin Area' : $title; ?></title>
+        <link rel="shortcut icon" href="<?php echo base_url('assets/themes/admin/images/favicon.ico'); ?>" />
         <?php
-
-        foreach($css as $file){
-            echo "\n\t\t";
-            ?><link rel="stylesheet" href="<?php echo $file; ?>" type="text/css" /><?php
-        } echo "\n\t";
+            foreach($css as $file){
+                echo "\n\t\t";
+                ?><link rel="stylesheet" href="<?php echo $file; ?>" type="text/css" /><?php
+            } echo "\n\t";
         ?>
         <?php
-        if(!empty($meta))
-            foreach($meta as $name=>$content){
+            if(!empty($meta))
+                foreach($meta as $name=>$content){
                 echo "\n\t\t";
                 ?><meta name="<?php echo $name; ?>" content="<?php echo is_array($content) ? implode(", ", $content) : $content; ?>" /><?php
             }
         ?>
     </head>
     <body class="nav-md">
+        <div id="base_url" data-base="<?php echo base_url(); ?>"></div>
+        <div id="errorFeedback" data-error="<?php echo $this->session->flashdata('error'); ?>"></div>
+        <div id="successFeedback" data-error="<?php echo $this->session->flashdata('success'); ?>"></div>
         <div class="container body">
             <div class="main_container">
                 <div class="col-md-3 left_col menu_fixed">
                     <div class="left_col scroll-view">
                         <div class="navbar nav_title" style="border: 0;">
-                            <a href="<?php echo base_url('dashboard'); ?>" class="site_title"><i class="fa fa-book"></i> <span>LAPP Admin</span></a>
+                            <a href="<?php echo base_url($this->session->userdata('user_home')); ?>" class="site_title"><i class="fa fa-book"></i> <span><?php echo BUSINESS_NAME; ?></span></a>
                         </div>
 
                         <div class="clearfix"></div>
@@ -63,7 +66,7 @@
                             <a data-toggle="tooltip" data-placement="top" title="Logout" href="<?php echo base_url('login/logout'); ?>">
                                 <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
                             </a>
-                            <a href="<?php echo base_url('calendar'); ?>" data-toggle="tooltip" data-placement="top">
+                            <a href="<?php echo base_url('calendar'); ?>" data-toggle="tooltip" data-placement="top" title="Calendar">
                                 <span class="fa fa-calendar" aria-hidden="true"></span>
                             </a>
                             </a>
@@ -81,9 +84,9 @@
                 <!-- /page content -->
 
                 <!-- footer content -->
-                <footer>
+                <footer class="hidden-print">
                     <div class="pull-right">
-                        &copy;<?php echo date('Y'); ?> All Rights Reserved. LAPP <i class="fa fa-question hidden-print" title="<?php echo $pagename; ?>" data-toggle="tooltip" data-target="tooltip"></i>
+                        &copy;<?php echo date('Y'); ?> All Rights Reserved. <?php echo BUSINESS_NAME; ?>
                     </div>
                     <div class="clearfix"></div>
                 </footer>

@@ -8,15 +8,17 @@ class Forms extends CI_Controller
     {
         parent::__construct();
 
-        if (!$this->ion_auth->logged_in()) {
-            redirect('login');
-            exit;
-        }
+        $this->load->model('Form_model');
     }
 
     public function init_page()
     {
         $this->output->enable_profiler(PROFILER);
+
+        if (!$this->ion_auth->logged_in()) {
+            redirect('login');
+            exit;
+        }
 
         $this->load->css('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css');
         $this->load->css('assets/themes/admin/vendors/font-awesome/css/font-awesome.min.css');
@@ -70,13 +72,9 @@ class Forms extends CI_Controller
     {
         $this->init_page();
 
-        $group = 'Add New Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect(base_url('request-error'));
-            exit;
-        }
+        $this->load->model('Admin_model');
+        $data['admin_settings'] = $this->Admin_model->getAllAdminSettings();
 
-        $this->load->model('Form_model');
         $data['validation_options'] = $this->Form_model->getValidationRules();
         $data['inputs'] = $this->Form_model->getSavedInputs();
 
@@ -97,15 +95,15 @@ class Forms extends CI_Controller
             exit;
         }
 
-        $this->load->model('Form_model');
-
         $newName = true;
 
         $form_id = (int)$_POST['form_id'];
         if(!empty($form_id)) {
             $savedFrom = $this->Form_model->getFormById($form_id);
-            if($savedFrom['form_settings']['name'] == $_POST['name']) {
-                $newName = false;
+            if($savedFrom) {
+                if (isset($savedFrom['form_settings']) && $savedFrom['form_settings']['name'] == $_POST['name']) {
+                    $newName = false;
+                }
             }
         }
 
@@ -121,7 +119,7 @@ class Forms extends CI_Controller
         }
 
         $this->form_validation->set_rules(
-            'cost', 'form cost',
+            'form_cost', 'form cost',
             'max_length[10]|decimal|greater_than_equal_to['.$_POST["min"].']',
             array(
                 'required'      => 'You have not provided a %s.',
@@ -131,7 +129,7 @@ class Forms extends CI_Controller
         );
 
         $this->form_validation->set_rules(
-            'min', 'min cost',
+            'min_payment', 'min cost',
             'max_length[10]|decimal',
             array(
                 'required'      => 'You have not provided a %s.',
@@ -139,11 +137,10 @@ class Forms extends CI_Controller
             )
         );
 
-        $this->form_validation->set_rules('header', 'header', 'max_length[1000]');
-        $this->form_validation->set_rules('footer', 'footer', 'max_length[1000]');
-        $this->form_validation->set_rules('footer', 'footer', 'max_length[1000]');
+        $this->form_validation->set_rules('header', 'header', 'max_length[3000]');
+        $this->form_validation->set_rules('footer', 'footer', 'max_length[3000]');
+        $this->form_validation->set_rules('submission', 'Submission text', 'max_length[3000]');
         $this->form_validation->set_rules('active', 'active', 'max_length[5]');
-
 
         if ($this->form_validation->run() == FALSE) {
             $returns['errors'] = validation_errors_array();
@@ -156,14 +153,12 @@ class Forms extends CI_Controller
 
     public function format_validation_rules()
     {
-        $this->load->model('Form_model');
         $return = $this->Form_model->checkForValidValidation($_POST);
         echo json_encode($return);
     }
 
     public function add_input()
     {
-        $this->load->model('Form_model');
         $results = $this->Form_model->addNewFormInput($_POST);
 
         echo json_encode($results);
@@ -171,7 +166,6 @@ class Forms extends CI_Controller
 
     public function delete_input()
     {
-        $this->load->model('Form_model');
         $results = $this->Form_model->deleteInput($_POST);
 
         echo json_encode($results);
@@ -179,17 +173,11 @@ class Forms extends CI_Controller
 
     public function get_form_input()
     {
-        $this->load->model('Form_model');
         echo json_encode($this->Form_model->getSingleFormInput($_POST));
     }
 
     public function view_form()
     {
-        $group = 'View Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect('request-error');
-        }
-
         $formId = (int)$this->uri->segment(3);
         if(!$formId) {
             show_404();
@@ -198,7 +186,6 @@ class Forms extends CI_Controller
 
         $this->init_page();
 
-        $this->load->model('Form_model');
         $data['warning'] = 'Viewing Form Only, Will Not Submit';
         $data['form'] = $this->Form_model->getFormById($formId);
         if(empty($data['form'])) {
@@ -212,36 +199,17 @@ class Forms extends CI_Controller
     {
         $this->init_page();
 
-        $group = 'View Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect('request-error');
-        }
-
-        $this->load->model('Form_model');
         $data['forms'] = $this->Form_model->getForms();
         $this->load->view('forms/all-forms', $data);
     }
 
     public function toggle_form()
     {
-        $group = 'Edit Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            echo json_encode(array('success' => false, 'msg' => 'You don\'t have access to this feature.'));
-            exit;
-        }
-
-        $this->load->model('Form_model');
         echo json_encode($this->Form_model->toggleFormAvailability($_POST));
     }
 
     public function edit_form()
     {
-        $group = 'Edit Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect(base_url('request-error'));
-            exit;
-        }
-
         $formId = (int)$this->uri->segment(3);
         if(!$formId) {
             show_404();
@@ -249,8 +217,6 @@ class Forms extends CI_Controller
         }
 
         $this->init_page();
-
-        $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
         if(empty($data['form'])) {
@@ -262,18 +228,13 @@ class Forms extends CI_Controller
 
         $this->Form_model->formId = $formId;
         $data['inputs'] = $this->Form_model->getSavedInputs();
+        $data['submissions'] = $this->Form_model->checkForFormSubmissions($formId);
 
         $this->load->view('forms/edit-form', $data);
     }
 
     public function submit_form_manually()
     {
-        $group = 'Submit Forms Manually';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect(base_url('request-error'));
-            exit;
-        }
-
         $formId = (int)$this->uri->segment(3);
         if(!$formId) {
             show_404();
@@ -281,7 +242,6 @@ class Forms extends CI_Controller
         }
 
         $this->init_page();
-        $this->load->model('Form_model');
 
         $data['form'] = $this->Form_model->getFormById($formId);
         $this->load->view('forms/enter-form-manually', $data);
@@ -298,20 +258,14 @@ class Forms extends CI_Controller
 
     public function form_submissions()
     {
-        $group = 'View Submitted Forms';
-        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
-            redirect(base_url('request-error'));
-            exit;
-        }
-
         $this->init_page();
-        $this->load->model('Form_model');
 
         $limit = (int)$this->input->post('limit') == '' ? $this->session->userdata('submission_limit') : $this->input->post('limit');
         $this->session->set_userdata('submission_limit', $limit);
 
         $limit = $limit != '' ? $limit : 20;
-        $start = $this->uri->segment('5') != '' ? $this->uri->segment('5') : 0;
+        $start = $this->uri->segment('3') != '' ? $this->uri->segment('3') : 0;
+
         $search = $this->input->post('search');
 
         if(isset($_POST['form_names'])) {
@@ -337,15 +291,14 @@ class Forms extends CI_Controller
 
     public function view_submitted_form()
     {
+        $this->init_page();
+
         $group = 'View Submitted Forms';
+
         if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
             redirect(base_url('request-error'));
             exit;
         }
-
-        $this->init_page();
-
-        $this->load->model('Form_model');
 
         $submissionId = (int)$this->uri->segment(3);
         $formId = $this->Form_model->convertSubmissionIdToFormId($submissionId);
@@ -372,8 +325,6 @@ class Forms extends CI_Controller
 
     public function delete_form()
     {
-        $this->load->model('Form_model');
-
         if($this->ion_auth->is_admin()) {
             $submissionId = (int)$this->uri->segment(3);
             $feedback = $this->Form_model->deleteForm($submissionId);
@@ -384,6 +335,56 @@ class Forms extends CI_Controller
             );
         }
         echo json_encode($feedback);
+    }
+
+    public function sortFormSubmissionsBy()
+    {
+        $direction = $this->input->post('direction');
+        $order_by = $this->input->post('order');
+
+        if($direction && $order_by) {
+            $this->session->set_userdata('form_direction', $direction);
+            $this->session->set_userdata('order_by', $order_by);
+
+            $this->session->set_flashdata('success', 'Forms are now sorted by '.$order_by);
+
+            echo json_encode(array('success'=>true));
+            exit;
+        }
+
+        echo json_encode(array('success'=>false));
+        exit;
+    }
+
+    public function delete_form_submission()
+    {
+        if($this->ion_auth->is_admin()) {
+            $id = (int)$this->input->post('id');
+            $form_id = (int)$this->input->post('form_id');
+            if($id && $form_id) {
+                echo json_encode($this->Form_model->deleteFormSubmission($id, $form_id));
+                exit;
+            } else {
+                echo json_encode(array('success'=>false, 'msg'=>'Invalid Id'));
+                exit;
+            }
+        } else {
+            echo json_encode(array('success'=>false, 'msg'=>'You do not have access to this feature'));
+            exit;
+        }
+    }
+
+    public function duplicate_form()
+    {
+        $id = (int)$this->input->post('id');
+        $group = 'Edit Forms';
+        if (!$this->ion_auth->in_group($group) && !$this->ion_auth->is_admin()) {
+            echo json_encode(array('success'=>false, 'msg'=>'You do not have access to this feature'));
+            exit;
+        } else {
+            echo json_encode($this->Form_model->duplicateFormById($id));
+            exit;
+        }
     }
 
 }

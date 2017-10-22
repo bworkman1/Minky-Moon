@@ -1,6 +1,11 @@
 <div class="x_panel">
     <div class="x_title">
         <h2><i class="fa fa-file-o"></i> Submitted Forms</h2>
+
+        <div id="errorFeedback" data-error="<?php echo $this->session->flashdata('error'); ?>"></div>
+        <div id="successFeedback" data-error="<?php echo $this->session->flashdata('success'); ?>"></div>
+        <div id="base_url" data-base="<?php echo base_url(); ?>"></div>
+
         <?php if($forms) { ?>
         <form id="viewByFormSubmitted" class="form-inline pull-right" style="margin-left: 15px;" action="<?php echo base_url('forms/form-submissions'); ?>" method="post">
             <select id="sortByFormNames" class="form-control" name="form_names">
@@ -46,10 +51,10 @@
         <?php
             if(isset($_POST['search'])) {
                 echo '<a href="'.base_url('forms/form-submissions').'" class="btn btn-primary">Back All Results</a>';
+            } else {
+                echo $links;
             }
         ?>
-
-        <?php echo $links; ?>
     </div>
 </div>
 

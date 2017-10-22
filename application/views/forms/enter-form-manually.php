@@ -6,7 +6,11 @@
         <?php
         if(!empty($form)) {
             echo '<div class="row">';
-            echo '<div class="col-md-8 col-md-offset-2">';
+            if(strtoupper($this->uri->segment(1)) == 'VIEW') {
+                echo '<div class="col-md-12">';
+            } else {
+                echo '<div class="col-md-8 col-md-offset-2">';
+            }
             echo '<div class="x_panel">';
             echo '<div class="x_title">';
             echo '<h2><i class="fa fa-file-o"></i> '.ucwords($form['form_settings']['name']).'</h2>';
@@ -149,7 +153,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button class="subscribe btn btn-success" id="submitUserForm" type="button">Submit Form</button>
+                    <button class="subscribe btn btn-success" id="submitUserForm" type="button">Submit</button>
                 </div>
             </div>
 

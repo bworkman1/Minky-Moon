@@ -12,14 +12,12 @@
                         <span class=" fa fa-angle-down"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-usermenu pull-right">
-                        <li><a href="javascript:;"> Profile</a></li>
                         <li>
-                            <a href="javascript:;">
-                                <span class="badge bg-red pull-right">50%</span>
-                                <span>Settings</span>
+                            <a href="<?php echo base_url('users/my-account'); ?>">
+                                <span>My Account</span>
                             </a>
                         </li>
-                        <li><a href="javascript:;">Help</a></li>
+                        <li><a data-toggle="modal" data-target="#needHelp">Help</a></li>
                         <li><a href="<?php echo base_url('login/logout'); ?>"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                     </ul>
                 </li>
@@ -27,24 +25,74 @@
                 <li role="presentation" class="dropdown">
                     <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-bullhorn"></i>
-                        <span class="badge bg-green">6</span>
+                        <?php
+                            $submittedForms = array();
+                            if(count($submittedForms)>0) {
+                                echo '<span class="badge bg-green">'.count($submittedForms).'</span>';
+                            }
+                        ?>
                     </a>
                     <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
-                        <li>
-                            <a>
-                            <span>
-                              <span>John Smith</span>
-                              <span class="time">3 mins ago</span>
-                            </span>
-                            <span class="message">
-                              Film festivals used to be do-or-die moments for movie makers. They were where...
-                            </span>
-                            </a>
-                        </li>
-
+                        <?php
+                        if(isset($submittedForms) && !empty($submittedForms)) {
+                            foreach($submittedForms as $key => $submissions) {
+                                echo '<li>';
+                                    echo '<a href="'.base_url('forms/view-submitted-form/'.$key).'">';
+                                        echo '<span>';
+                                            echo '<span>';
+                                                echo '<div>New Form Submitted!</div>';
+                                                echo $submissions['name'];
+                                            echo '</span>';
+                                            echo '<span class="date">'.date('m-d-Y', strtotime($submissions['added'])).'</span>';
+                                        echo '</span>';
+                                    echo '</a>';
+                                echo '</li>';
+                            }
+                        } else {
+                            echo '<li>';
+                            echo '<span>';
+                            echo '<span>';
+                            echo '<div>Nothing New to Report</div>';
+                            echo '</span>';
+                            echo '</span>';
+                            echo '</li>';
+                        }
+                        ?>
                     </ul>
                 </li>
             </ul>
         </nav>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="needHelp" tabindex="-1" role="dialog" aria-labelledby="needHelp">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-question-circle"></i> Need Help</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <h4><i class="fa fa-phone"></i> Give us a call</h4>
+                            <p>(740) 892-4700</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <h4><i class="fa fa-envelope"></i>  Email</h4>
+                            <p>info@emf-websolutions.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
