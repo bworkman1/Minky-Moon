@@ -85,10 +85,11 @@ class Minkies_model extends CI_Model {
 
             if($this->price>0) {
                 $data = array(
-                    'id'    => $randomness,
-                    'qty'   => 1,
-                    'price' => $this->price,
-                    'name'  => $this->type . ' - ' . $this->getSize()->name,
+                    'id'        => $randomness,
+                    'qty'       => 1,
+                    'price'     => $this->price,
+                    'name'      => $this->type . ' - ' . $this->getSize()->name,
+                    'item_type' => $this->type,
                     'options'   => array(
                         'size'          => $this->getSize(),
                         'front'         => $this->getFrontFabric(),
@@ -99,7 +100,7 @@ class Minkies_model extends CI_Model {
                         'trim'          => $this->getTrim(),
                         'trim_fabric'   => $this->getTrimFabric(),
                         'lines'         => $this->getLines(),
-                    )
+                    ),
                 );
 
                 if ($this->cart->insert($data)) {
@@ -107,7 +108,8 @@ class Minkies_model extends CI_Model {
                     $this->feedback['msg'] = 'Item successfully added';
                     $this->session->set_flashdata('success', $this->feedback['msg']);
 
-                    $this->session->unset_userdata($this->product_type);
+                    // TODO: Is this the right way to do this?
+                    $this->session->unset_userdata('minkies');
 
                 } elseif ($this->feedback['msg'] == '') {
                     $this->feedback['msg'] = 'Item failed to add, try refreshing the page and trying again';
@@ -287,8 +289,8 @@ class Minkies_model extends CI_Model {
     public function setFont($font)
     {
         if($font) {
-            $query = $this->db->get_where('fonts', array('font_name' => strtolower($font)));
-            if (!empty($query->result())) {
+            $results = $this->db->get_where('fonts', array('font_name' => strtolower($font)))->result();
+            if (!empty($results)) {
                 $this->font = $font;
                 $this->feedback['msg'] = 'Font successfully set to '.ucwords($font);
                 $this->feedback['success'] = true;
@@ -314,8 +316,8 @@ class Minkies_model extends CI_Model {
     public function setFontColor($color)
     {
         if($color) {
-            $query = $this->db->get_where('text_colors', array('name' => $color));
-            if (!empty($query->result())) {
+            $result = $this->db->get_where('text_colors', array('name' => $color))->result();
+            if (!empty($result)) {
                 $this->fontColor = $color;
                 $this->feedback['msg'] = 'Font Color successfully set to '.ucwords($color);
                 $this->feedback['success'] = true;

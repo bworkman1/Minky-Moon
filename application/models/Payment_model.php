@@ -26,8 +26,6 @@ class Payment_model extends CI_Model
 
     public function getAllPayments($search, $start, $limit)
     {
-        $paymentData = array();
-
         $this->totalPaymentsSubmitted = $this->getSubmittedCountTotals();
 
         $sortBy = $this->session->userdata('sort_payments') == 'ASC' ? 'ASC' : 'DESC';
@@ -237,24 +235,44 @@ class Payment_model extends CI_Model
         }
     }
 
-    public function logPaymentDetails($transaction_id, $approval_code)
+    public function logPaymentDetails($transaction_id)
     {
         $data = array(
             'amount'            => $this->postValues['amount'],
-            'form_id'           => isset($this->postValues['form_id']) && $this->postValues['form_id'] > 0 ? $this->postValues['form_id'] : 0,
-            'customer_id'       => $this->postValues['client_number'],
-            'form_cost'         => $this->postValues['cost'],
-            'billing_name'      => $this->encrypt->encode($this->postValues['billing_name']),
-            'billing_address'   => $this->encrypt->encode($this->postValues['billing_address']),
+            'user_id'           => $this->postValues['user_id'],
+            'billing_name'      => $this->encrypt->encode($this->postValues['billing_full_name']),
+            'billing_address'   => $this->encrypt->encode($this->postValues['billing_address_line1']),
+            'billing_address_2' => $this->encrypt->encode($this->postValues['billing_address_line2']),
             'billing_city'      => $this->encrypt->encode($this->postValues['billing_city']),
             'billing_state'     => $this->encrypt->encode($this->postValues['billing_state']),
             'billing_zip'       => $this->encrypt->encode($this->postValues['billing_zip']),
             'transaction_id'    => $transaction_id,
-            'approval_code'     => $approval_code,
-            'submission_id'     => $this->postValues['submission_id'],
         );
 
         $this->db->insert('payments', $data);
+
+        $this->saveShippingAddress();
+    }
+
+    public function saveShippingAddress()
+    {
+        $data = array(
+            'address'               => $this->encrypt->encode($this->postValues['shipping_address_line1']),
+            'additional_address'    => $this->encrypt->encode($this->postValues['shipping_address_line2']),
+            'city'                  => $this->encrypt->encode($this->postValues['shipping_city']),
+            'state'                 => $this->encrypt->encode($this->postValues['shipping_state']),
+            'zip'                   => $this->encrypt->encode($this->postValues['shipping_zip']),
+            'user_id'               => $this->postValues['user_id'],
+            'current'               => true,
+            'type'                  => 'shipping'
+        );
+
+        // SET ANY PREVIOUS ENTRIES CUSTOMER ADDRESS ENTRIES TO FALSE
+        $this->db->where('user_id', $this->postValues['user_id']);
+        $this->db->update('customer_address', array('current' => false));
+
+        // INSERT THE ADDRESS INTO THE DATABASE
+        $this->db->insert('customer_address', $data);
     }
 
     public function determineClientFields($formData, $submission_id)

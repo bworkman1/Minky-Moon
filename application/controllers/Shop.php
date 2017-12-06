@@ -95,7 +95,10 @@ class Shop extends CI_Controller {
         }
 
         if ($this->ion_auth->logged_in()) {
-            $this->load->view('website/payment');
+            $this->load->model('Account_model');
+            $this->load->library('encrypt');
+            $data['saved_shipping'] = $this->Account_model->getUserShippingAddress($this->session->userdata('user_id'));
+            $this->load->view('website/payment', $data);
         } else {
             $this->load->view('website/login');
         }

@@ -319,3 +319,148 @@ li.fabricSelection {
     background: #b94a48;
     color: #fff;
 }
+#my-orders .panel-heading p {
+    font-size: .8em;
+    margin: 0;
+}
+#my-orders .panel-heading a {
+    font-size: .8em;
+    margin: 0;
+    color: #fff;
+    text-decoration: none;
+}
+#my-orders .panel-body h1, #my-orders .panel-body h2, #my-orders .panel-body h3, #my-orders .panel-body h4, #my-orders .panel-body h5, #my-orders .panel-body h6 {
+    font-family: Georgia, serif;
+}
+#my-orders .panel-heading .dropdown-menu {
+    padding: 7px;
+    color: #000;
+}
+#my-orders .panel-body .list-group-item {
+    padding: 4px 15px;
+}
+.my-order-options li {
+    margin-bottom: 7px;
+}
+.my-order-options .blue-btn {
+    background: #73c9ff;
+    background-image: -webkit-linear-gradient(top, #73c9ff, #0075bd);
+    background-image: -moz-linear-gradient(top, #73c9ff, #0075bd);
+    background-image: -ms-linear-gradient(top, #73c9ff, #0075bd);
+    background-image: -o-linear-gradient(top, #73c9ff, #0075bd);
+    background-image: linear-gradient(to bottom, #73c9ff, #0075bd);
+    -webkit-border-radius: 5;
+    -moz-border-radius: 5;
+    border-radius: 5px;
+    font-family: Arial;
+    color: #fff5ff;
+    font-size: 1em;
+    padding: 10px 20px 10px 20px;
+    border: solid #36b2ff 1px;
+    text-decoration: none;
+}
+
+.my-order-options .blue-btn:hover {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+}
+.my-order-options .black-btn {
+    background: #878787;
+    background-image: -webkit-linear-gradient(top, #878787, #333333);
+    background-image: -moz-linear-gradient(top, #878787, #333333);
+    background-image: -ms-linear-gradient(top, #878787, #333333);
+    background-image: -o-linear-gradient(top, #878787, #333333);
+    background-image: linear-gradient(to bottom, #878787, #333333);
+    -webkit-border-radius: 5;
+    -moz-border-radius: 5;
+    border-radius: 5px;
+    font-family: Arial;
+    color: #a6a6a6;
+    font-size: 1em;
+    padding: 10px 20px 10px 20px;
+    border: solid #36b2ff 1px;
+    text-decoration: none;
+}
+
+.my-order-options .black-btn:hover {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+}
+.dontRemove {
+    display: block !important;
+}
+#messageContents {
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+.italic {
+    font-style: italic;
+}
+.sent-message .italic {
+    font-size: .8em;
+}
+.sent-message.admin .speech-bubble {
+    position: relative;
+    background: #bce8f1;
+    border-radius: .4em;
+    padding: 15px;
+    color:  #3a87ad;
+}
+.sent-message .speech-bubble {
+    margin-bottom: 15px;
+}
+.sent-message.admin .speech-bubble:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 35%;
+    width: 0;
+    height: 0;
+    border: 1.281em solid transparent;
+    border-right-color: #bce8f1;
+    border-left: 0;
+    border-top: 0;
+    margin-top: -0.641em;
+    margin-left: -1.281em;
+}
+.sent-message.customer .speech-bubble  {
+    position: relative;
+    border-radius: .4em;
+    padding: 15px;
+    background:  #f5f5f5;
+    color: #000;
+}
+.sent-message.customer .speech-bubble:after  {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 35%;
+    width: 0;
+    height: 0;
+    border: 1.281em solid transparent;
+    border-left-color: #f5f5f5;
+    border-right: 0;
+    border-top: 0;
+    margin-top: -0.641em;
+    margin-right: -1.281em;
+}
+.no-gutter {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.no-gutter > [class*="col-"] {
+    padding-right: 10px;
+    padding-left: 10px;
+}

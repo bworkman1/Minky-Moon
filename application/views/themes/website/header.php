@@ -11,7 +11,7 @@
                             echo '<li><a href="">ACCOUNT</a> /</li> ';
                             echo '<li><a href="'.base_url('shop/logout').'"> LOGOUT</a> </li>';
                         } else {
-                            echo '<li><a href="">LOGIN</a> </li>';
+                            echo '<li><a href="'.base_url('account/login').'">LOGIN</a> </li>';
                         }
                     ?>
 

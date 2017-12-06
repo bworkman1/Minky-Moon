@@ -90,4 +90,9 @@ defined('FROM_EMAIL_ADDRESS')   OR define('FROM_EMAIL_ADDRESS', 'noreply@themink
 defined('FROM_EMAIL_NAME')      OR define('FROM_EMAIL_NAME', 'Minky Moon No Reply');
 defined('BUSINESS_NAME')        OR define('BUSINESS_NAME', 'The Minky Moon');
 
+defined('FACEBOOK_URL')         OR define('FACEBOOK_URL', '');
+defined('TWITTER_URL')          OR define('TWITTER_URL', '');
+defined('GOOGLE_URL')           OR define('GOOGLE_URL', '');
+defined('BUSINESS_ADDRESS')     OR define('BUSINESS_ADDRESS', '');
+
 

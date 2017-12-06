@@ -56,7 +56,9 @@
                                         if(is_array($option_value)) {
                                             $personalization .= '<ul>';
                                             foreach($option_value as $v) {
-                                                $personalization .= '<li><b>'.$v->name.'</b> '.$v->value.'</li>';
+                                                if(isset($v->value) && $v->value) {
+                                                    $personalization .= '<li><b>' . $v->name . '</b> ' . $v->value . '</li>';
+                                                }
                                             }
                                             $personalization .= '</ul>';
 

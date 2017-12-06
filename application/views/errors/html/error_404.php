@@ -18,7 +18,7 @@ $CI->load->helper('url');
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>LAPP </title>
+	<title><?php echo BUSINESS_NAME; ?> </title>
 
 	<!-- Bootstrap -->
 	<link href="<?php echo base_url('assets/themes/admin/vendors/bootstrap/dist/css/bootstrap.min.css'); ?>" rel="stylesheet">

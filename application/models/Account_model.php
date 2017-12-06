@@ -28,16 +28,23 @@ class Account_model extends CI_Model
                 $hasErrors = true;
             }
 
-            if(!$this->isValidEmail($data['data']['email'])) {
+            if(isset($data['data']['email']) && !$this->isValidEmail($data['data']['email'])) {
                 $hasErrors = true;
             }
 
             if($data['type'] == 'login' && $hasErrors == false) {
                 $this->checkLoginDetails($data['data']['email'], $data['data']['password']);
             } elseif($data['type'] == 'createAccount' && $hasErrors == false) {
-                if($this->checkPassword($data['data']['password'], $data['data']['password2'])) {
+                if ($this->checkPassword($data['data']['password'], $data['data']['password2'])) {
                     $this->createUserAccount($data['data']);
                 }
+            } elseif($data['type'] == 'message') {
+                $this->load->model('Message_model');
+                $this->feedback = $this->Message_model->sendMessage($data);
+            } elseif($data['type'] == 'messages') {
+                $this->load->model('Message_model');
+                $data['data']['user_id'] = $this->session->userdata('user_id');
+                $this->feedback = $this->Message_model->getMessagesByTransactionNumber($data['data']);
             }
         }
 
@@ -88,6 +95,8 @@ class Account_model extends CI_Model
     private function checkLoginDetails($email, $password)
     {
         $remember = false;
+        log_message('error', print_r($email, true));
+        log_message('error', print_r($password, true));
         if ($this->ion_auth->login($email, $password, $remember)) {
             foreach($this->ion_auth->user()->row() as $key => $val) {
                 if($key != 'password' || $key != 'salt') {
@@ -126,6 +135,22 @@ class Account_model extends CI_Model
         } else {
             $this->feedback['msg'] = 'Email already registered, please login';
         }
+    }
+
+    public function getCustomerOrders($user_id)
+    {
+        $this->db->order_by('date', 'desc');
+        return $this->db->get_where('payments', array('user_id' => $user_id))->result();
+    }
+
+    public function getCartItems($user_id, $transaction_id)
+    {
+        return $this->db->get_where('web_orders', array('transaction_id' => $transaction_id, 'user_id' => $user_id))->result();
+    }
+
+    public function getUserShippingAddress($user_id)
+    {
+        return $this->db->get_where('customer_address', array('user_id' => $user_id, 'current' => 1))->row();
     }
 
 }

@@ -5,9 +5,7 @@ $(document).ready(function() {
         $(this).parent().find(".fa-caret-down").removeClass("fa-caret-down").addClass("fa-caret-right");
     });
 
-
     $('[data-toggle="tooltip"]').tooltip();
-
 });
 
 var shop = {
@@ -22,6 +20,8 @@ var shop = {
         shop.removeItemFromCart();
         shop.removeAlerts();
         shop.submitPayment();
+
+        $('.credit-card').mask('0000-0000-0000-0000');
     },
 
     loadPeronalizationFonts: function() {
@@ -245,7 +245,8 @@ var shop = {
                 type: 'post',
                 success: function (data) {
                     if (data.success) {
-
+                        alertify.success(data.msg);
+                        window.location = data.redirect;
                     } else {
                         alertify.error(data.msg);
                         shop.processFormErrors(data.data);
@@ -508,8 +509,13 @@ var burprags = {
 
 var account = {
     init: function() {
+        $('#loading').hide();
         account.createAccount();
         account.login();
+        account.submitQuestion();
+        account.addOrderNumberToMessage();
+        shop.removeAlerts();
+        account.orderMessages();
     },
 
     createAccount: function() {
@@ -544,13 +550,120 @@ var account = {
                 },
             };
 
-            shop.ajaxCall('shop/ajax-call', account.processForm, data);
+            shop.ajaxCall('shop/ajax-call', account.processLoginForm, data);
         });
+    },
+
+    processLoginForm: function(data) {
+        if(data.success) {
+            location.reload();
+        }
     },
 
     processForm: function(data) {
         if(data.success) {
-            location.reload();
+            $('#messageText').val('');
+            $('#order-id').val('');
+            $('#questionsModel').modal('hide');
+            if(data.data.transaction_id) {
+                $('.messages[data-order="'+data.data.transaction_id+'"]').trigger('click');
+            }
         }
-    }
+    },
+
+    addOrderNumberToMessage: function() {
+        $('.messages').click(function() {
+            var number = $(this).data('order');
+            $('#order-id').val(number);
+        });
+    },
+
+    submitQuestion: function() {
+        $('#sendQuestion').click(function() {
+            event.preventDefault();
+
+            var message = $('#messageText').val();
+            var order_num = $('#order-id').val();
+            var data = {
+                'model': 'Account',
+                'type': 'message',
+                'data': {
+                    'message' : message,
+                    'order_num' : order_num,
+                },
+            };
+
+            shop.ajaxCall('shop/ajax-call', account.processForm, data);
+        });
+    },
+
+    buildMessageList: function(data) {
+        if(data.success) {
+            account.buildChatMessages(data.data);
+            $('#messagesModal').modal('show');
+            setTimeout(function () {
+                var objDiv = document.getElementById("messageContents");
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }, 1000);
+            $('.messages[data-order="'+data.data[0]['transaction_id']+'"]').find('.badge').remove();
+        }
+    },
+
+    buildChatMessages: function(data) {
+        if(data.length>0) {
+            var messages = '';
+            var transactionId = 0;
+            for(var i in data) {
+                var firstColumn = 'col-sm-10 col-xs-9 col-xs-push-3 col-sm-push-2';
+                var secondColumn = 'col-sm-2 col-xs-3 col-xs-pull-9 col-sm-pull-10';
+                var textAlign = 'text-right';
+                if(data[i].type == 'customer') {
+                    var firstColumn = 'col-sm-10 col-xs-9';
+                    var secondColumn = 'col-sm-2 col-xs-3';
+                    var textAlign = 'text-left';
+                }
+                messages += '<div class="sent-message '+data[i].type+' row no-gutter">';
+                    messages += '<div class="'+firstColumn+'">';
+                        messages += '<div class="speech-bubble">'+data[i].messsage+'</div>';
+                    messages += '</div>';
+                    messages += '<div class="'+secondColumn +'">';
+                        messages += '<p class="italic text-muted '+textAlign+'">';
+                        messages += data[i].name;
+                        messages += '<br>'+data[i].date;
+                        messages += '<br>'+data[i].time;
+                        messages += '</p>';
+                    messages += '</div>';
+                messages += '</div>';
+
+                transactionId = data[i].transaction_id;
+            }
+        } else {
+            messages += '<div class="alert alert-info"><i class="fa fa-exclamation-triangle"></i> No messages have been sent yet</div>';
+        }
+
+        $('#chatTrasactionId').html(transactionId);
+        $('#messageContents').html(messages);
+
+    },
+
+    orderMessages: function() {
+        $('.my-order-options .messages').click(function() {
+           var order_number = $(this).data('order');
+            var data = {
+                'model': 'Account',
+                'type': 'messages',
+                'data': {
+                    'order_num' : order_number,
+                },
+            };
+
+            shop.ajaxCall('shop/ajax-call', account.buildMessageList, data);
+        });
+
+        $('.questionsBtn').click(function() {
+            var order_number = $(this).data('order');
+            $('#order-id').val(order_number);
+        });
+    },
+
 }

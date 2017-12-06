@@ -46,8 +46,8 @@ $config['APISignature'] = $config['Sandbox'] ? 'AFcWxV21C7fd0v3bYYYRCpSSRl31AqtH
  * You may use the same credentials you use to login to your PayPal Manager, 
  * or you may create API specific credentials from within your PayPal Manager account.
  */
-$config['PayFlowUsername'] = $config['Sandbox'] ? 'SANDBOX_USERNAME_GOES_HERE' : 'PRODUCTION_USERNAME_GOGES_HERE';
-$config['PayFlowPassword'] = $config['Sandbox'] ? 'SANDBOX_PASSWORD_GOES_HERE' : 'PRODUCTION_PASSWORD_GOES_HERE';
+$config['PayFlowUsername'] = $config['Sandbox'] ? 'jjw2501-facilitator_api1.yahoo.com' : 'PRODUCTION_USERNAME_GOGES_HERE';
+$config['PayFlowPassword'] = $config['Sandbox'] ? '1377882281' : 'PRODUCTION_PASSWORD_GOES_HERE';
 $config['PayFlowVendor'] = $config['Sandbox'] ? 'SANDBOX_VENDOR_GOES_HERE' : 'PRODUCTION_VENDOR_GOES_HERE';
 $config['PayFlowPartner'] = $config['Sandbox'] ? 'SANDBOX_PARTNER_GOES_HERE' : 'PRODUCTION_PARTNER_GOES_HERE';
 

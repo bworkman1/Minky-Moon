@@ -10,12 +10,12 @@ class Request_error extends CI_Controller
 
         $this->output->enable_profiler(PROFILER);
 
-        $this->load->css('assets/themes/lapp/css/bootstrap.min.css');
-        $this->load->css('assets/themes/lapp/css/font-awesome.min.css');
+        $this->load->css('assets/themes/default/css/bootstrap.min.css');
+        $this->load->css('assets/themes/default/css/font-awesome.min.css');
         $this->load->css('assets/themes/admin/build/css/custom.min.css');
 
-        $this->load->js('assets/themes/lapp/js/jquery-3.1.1.min.js');
-        $this->load->js('assets/themes/lapp/js/bootstrap.min.js');
+        $this->load->js('assets/themes/default/js/jquery-3.1.1.min.js');
+        $this->load->js('assets/themes/default/js/bootstrap.min.js');
 
         $this->output->set_template('blank_blue_background');
     }

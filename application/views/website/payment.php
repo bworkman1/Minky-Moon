@@ -79,6 +79,22 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="shippingAddress">
+                        <?php
+                            $name = '';
+                            $address = '';
+                            $address2 = '';
+                            $city = '';
+                            $state = '';
+                            $zip = '';
+                            if(count((array)$saved_shipping)) {
+                                $name       = $this->session->userdata('first_name').' '.$this->session->userdata('last_name');
+                                $address    = $this->encrypt->decode($saved_shipping->address);
+                                $address2   = $this->encrypt->decode($saved_shipping->additional_address);
+                                $city       = $this->encrypt->decode($saved_shipping->city);
+                                $state      = $this->encrypt->decode($saved_shipping->state);
+                                $zip        = $this->encrypt->decode($saved_shipping->zip);
+                            }
+                        ?>
                         <h3><i class="fa fa-truck"></i> Shipping Address</h3>
                         <hr>
                         <div class="well well-sm">
@@ -87,7 +103,7 @@
                         <div class="control-group">
                             <label class="control-label"><span class="text-danger">*</span> Full Name</label>
                             <div class="controls">
-                                <input id="full-name" name="shipping_full_name" type="text" required maxlength="30" placeholder="full name" class="form-control">
+                                <input id="full-name" name="shipping_full_name" type="text" required maxlength="30" placeholder="full name" class="form-control" value="<?php echo $name; ?>">
                                 <p class="help-block"></p>
                             </div>
                         </div>
@@ -96,7 +112,7 @@
                         <div class="control-group">
                             <label class="control-label"><span class="text-danger">*</span> Address Line 1</label>
                             <div class="controls">
-                                <input id="address-line1" name="shipping_address_line1" required maxlength="30" type="text" placeholder="address line 1" class="form-control">
+                                <input id="address-line1" name="shipping_address_line1" required maxlength="30" type="text" placeholder="address line 1" class="form-control" value="<?php echo $address; ?>">
                                 <p class="help-block">Street address, P.O. box, company name, c/o</p>
                             </div>
                         </div>
@@ -105,7 +121,7 @@
                         <div class="control-group">
                             <label class="control-label">Address Line 2</label>
                             <div class="controls">
-                                <input id="address-line2" name="shipping_address_line2" required maxlength="30" type="text" placeholder="address line 2" class="form-control">
+                                <input id="address-line2" name="shipping_address_line2" required maxlength="30" type="text" placeholder="address line 2" class="form-control" value="<?php echo $address2; ?>">
                                 <p class="help-block">Apartment, suite , unit, building, floor, etc.</p>
                             </div>
                         </div>
@@ -114,7 +130,7 @@
                         <div class="control-group">
                             <label class="control-label"><span class="text-danger">*</span> City</label>
                             <div class="controls">
-                                <input id="city" name="shipping_city" type="text" required maxlength="30" placeholder="city" class="form-control">
+                                <input id="city" name="shipping_city" type="text" required maxlength="30" placeholder="city" class="form-control" value="<?php echo $city; ?>">
                                 <p class="help-block"></p>
                             </div>
                         </div>
@@ -129,7 +145,11 @@
                                             <option value="">State</option>
                                             <?php
                                                 foreach(allStates() as $key => $val) {
-                                                    echo '<option value="'.$key.'">'.$val.'</option>';
+                                                    if($key == $state) {
+                                                        echo '<option selected value="' . $key . '">' . $val . '</option>';
+                                                    } else {
+                                                        echo '<option value="' . $key . '">' . $val . '</option>';
+                                                    }
                                                 }
                                             ?>
                                         </select>
@@ -138,11 +158,10 @@
                                 </div>
                             </div>
                             <div class="col-md-5">
-                                <!-- postal-code input-->
                                 <div class="control-group">
                                     <label class="control-label"><span class="text-danger">*</span> Zip</label>
                                     <div class="controls">
-                                        <input id="shipping-zip" name="shipping_zip" type="text" required maxlength="5" placeholder="zip" class="form-control">
+                                        <input id="shipping-zip" name="shipping_zip" type="text" required maxlength="5" placeholder="zip" class="form-control" value="<?php echo $zip; ?>">
                                         <p class="help-block"></p>
                                     </div>
                                 </div>
@@ -239,7 +258,7 @@
                         <div class='row'>
                             <div class='col-xs-12 form-group'>
                                 <label class='control-label'><span class="text-danger">*</span> Card Number</label>
-                                <input autocomplete='off' name="card_number" required maxlength="19" class='form-control card-number' type='text' <?php echo $disabledPaymentInfo; ?>>
+                                <input autocomplete='off' name="card_number" required maxlength="19" class='form-control credit-card card-number' type='text' <?php echo $disabledPaymentInfo; ?>>
                             </div>
                         </div>
                         <div class='row'>

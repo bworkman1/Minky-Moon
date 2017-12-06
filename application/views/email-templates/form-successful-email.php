@@ -247,7 +247,7 @@
           <div class="content">
 
             <!-- START CENTERED WHITE CONTAINER -->
-            <span class="preheader">We received your form submission.</span>
+            <span class="preheader"><?php echo $preheader; ?></span>
             <table class="main">
 
               <!-- START MAIN CONTENT AREA -->
@@ -256,12 +256,7 @@
                   <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <h3>We received your form</h3>
-                          <?php
-                            if(isset($form_settings['submission'])) {
-                                echo '<p>'.$form_settings['submission'].'</p>';
-                            }
-                          ?>
+                          <?php echo $body; ?>
                           <hr>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
@@ -270,7 +265,22 @@
                                 <table border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
                                     <tr>
-                                        <td> <a href="http://lapp.cc/contact-locations/" target="_blank">Contact Us</a> </td>
+                                        <td> <a href="<?php echo base_url('contact-us'); ?>" target="_blank">Contact Us</a> </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                          <table border="0" cellpadding="0" cellspacing="0" class="btn btn-info">
+                          <tbody>
+                            <tr>
+                              <td align="left">
+                                <table border="0" cellpadding="0" cellspacing="0">
+                                  <tbody>
+                                    <tr>
+                                        <td> <a href="<?php echo base_url('my-account'); ?>" target="_blank">My Account</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -290,14 +300,18 @@
             <!-- START FOOTER -->
             <div class="footer">
               <table border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-block">
-                    <span class="apple-link">62 East Stevens St.Newark, OH 43055</span>
-                  </td>
-                </tr>
+                  <?php
+                    if(BUSINESS_ADDRESS != '') {
+                        echo '<tr>';
+                        echo '<td class="content-block">';
+                        echo '<span class="apple-link">' . BUSINESS_ADDRESS . '</span>';
+                        echo '</td>';
+                        echo '</tr>';
+                    }
+                  ?>
                 <tr>
                   <td class="content-block powered-by">
-                    <a href="http://lapp.cc/">LAPP All Rights Reserved</a>.
+                    <a href="<?php echo base_url(); ?>"><?php echo BUSINESS_NAME; ?> All Rights Reserved</a>.
                   </td>
                 </tr>
               </table>
